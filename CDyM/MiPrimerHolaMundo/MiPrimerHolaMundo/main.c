@@ -11,10 +11,7 @@ void mostrar(int8_t);
 
 int main(void)
 {
-	
-	// ejemplo
-	mostrar(30);
-	
+	mostrar(0xAA);	
 	while(1);
 	return 0;
 }
@@ -27,6 +24,10 @@ void mostrar(int8_t num){
 		PORTB = num&0x01;
 		num >>= 1;
 		
+		// demora para que se envíe un bit cada 1 ms
+		for (uint8_t i=0; i<247; i++){
+			int a;
+		}
 	}
 }
 

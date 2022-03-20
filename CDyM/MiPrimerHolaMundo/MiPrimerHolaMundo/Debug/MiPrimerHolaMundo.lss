@@ -3,29 +3,29 @@ MiPrimerHolaMundo.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  000000f8  2**0
+  0 .data         00000000  00800100  00800100  00000102  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000000a4  00000000  00000000  00000054  2**1
+  1 .text         000000ae  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  000000f8  2**0
+  2 .comment      00000030  00000000  00000000  00000102  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000128  2**2
+  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000134  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000028  00000000  00000000  00000168  2**0
+  4 .debug_aranges 00000028  00000000  00000000  00000174  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000006d8  00000000  00000000  00000190  2**0
+  5 .debug_info   000006f0  00000000  00000000  0000019c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000650  00000000  00000000  00000868  2**0
+  6 .debug_abbrev 00000650  00000000  00000000  0000088c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000221  00000000  00000000  00000eb8  2**0
+  7 .debug_line   00000235  00000000  00000000  00000edc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000034  00000000  00000000  000010dc  2**2
+  8 .debug_frame  00000034  00000000  00000000  00001114  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000339  00000000  00000000  00001110  2**0
+  9 .debug_str    00000351  00000000  00000000  00001148  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000003d  00000000  00000000  00001449  2**0
+ 10 .debug_loc    0000005c  00000000  00000000  00001499  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000018  00000000  00000000  00001486  2**0
+ 11 .debug_ranges 00000018  00000000  00000000  000014f5  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -65,8 +65,8 @@ Disassembly of section .text:
   6e:	d8 e0       	ldi	r29, 0x08	; 8
   70:	de bf       	out	0x3e, r29	; 62
   72:	cd bf       	out	0x3d, r28	; 61
-  74:	0e 94 4c 00 	call	0x98	; 0x98 <main>
-  78:	0c 94 50 00 	jmp	0xa0	; 0xa0 <_exit>
+  74:	0e 94 51 00 	call	0xa2	; 0xa2 <main>
+  78:	0c 94 55 00 	jmp	0xaa	; 0xaa <_exit>
 
 0000007c <__bad_interrupt>:
   7c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -82,43 +82,52 @@ void mostrar(int8_t num){
   82:	94 b9       	out	0x04, r25	; 4
 	
 	for(uint8_t i=0; i<8; i++){
-  84:	90 e0       	ldi	r25, 0x00	; 0
-  86:	05 c0       	rjmp	.+10     	; 0x92 <mostrar+0x12>
+  84:	20 e0       	ldi	r18, 0x00	; 0
+  86:	0a c0       	rjmp	.+20     	; 0x9c <mostrar+0x1c>
 		PORTB = num&0x01;
-  88:	28 2f       	mov	r18, r24
-  8a:	21 70       	andi	r18, 0x01	; 1
-  8c:	25 b9       	out	0x05, r18	; 5
+  88:	98 2f       	mov	r25, r24
+  8a:	91 70       	andi	r25, 0x01	; 1
+  8c:	95 b9       	out	0x05, r25	; 5
 		num >>= 1;
   8e:	85 95       	asr	r24
+		
+		// demora para que se envíe un bit cada 1 ms
+		for (uint8_t i=0; i<247; i++){
+  90:	90 e0       	ldi	r25, 0x00	; 0
+  92:	01 c0       	rjmp	.+2      	; 0x96 <mostrar+0x16>
+  94:	9f 5f       	subi	r25, 0xFF	; 255
+  96:	97 3f       	cpi	r25, 0xF7	; 247
+  98:	e8 f3       	brcs	.-6      	; 0x94 <mostrar+0x14>
 
 void mostrar(int8_t num){
 	
 	DDRB = 0xFF;	// puerto B todo salida
 	
 	for(uint8_t i=0; i<8; i++){
-  90:	9f 5f       	subi	r25, 0xFF	; 255
-  92:	98 30       	cpi	r25, 0x08	; 8
-  94:	c8 f3       	brcs	.-14     	; 0x88 <mostrar+0x8>
-		PORTB = num&0x01;
-		num >>= 1;
-		
+  9a:	2f 5f       	subi	r18, 0xFF	; 255
+  9c:	28 30       	cpi	r18, 0x08	; 8
+  9e:	a0 f3       	brcs	.-24     	; 0x88 <mostrar+0x8>
+		// demora para que se envíe un bit cada 1 ms
+		for (uint8_t i=0; i<247; i++){
+			int a;
+		}
 	}
 }
-  96:	08 95       	ret
+  a0:	08 95       	ret
 
-00000098 <main>:
+000000a2 <main>:
+
+void mostrar(int8_t);
 
 int main(void)
 {
-	
-	// ejemplo
-	mostrar(30);
-  98:	8e e1       	ldi	r24, 0x1E	; 30
-  9a:	0e 94 40 00 	call	0x80	; 0x80 <mostrar>
-  9e:	ff cf       	rjmp	.-2      	; 0x9e <main+0x6>
+	mostrar(0xAA);	
+  a2:	8a ea       	ldi	r24, 0xAA	; 170
+  a4:	0e 94 40 00 	call	0x80	; 0x80 <mostrar>
+  a8:	ff cf       	rjmp	.-2      	; 0xa8 <main+0x6>
 
-000000a0 <_exit>:
-  a0:	f8 94       	cli
+000000aa <_exit>:
+  aa:	f8 94       	cli
 
-000000a2 <__stop_program>:
-  a2:	ff cf       	rjmp	.-2      	; 0xa2 <__stop_program>
+000000ac <__stop_program>:
+  ac:	ff cf       	rjmp	.-2      	; 0xac <__stop_program>
