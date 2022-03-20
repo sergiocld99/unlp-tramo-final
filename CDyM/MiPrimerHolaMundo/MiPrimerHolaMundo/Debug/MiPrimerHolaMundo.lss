@@ -3,29 +3,29 @@ MiPrimerHolaMundo.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  00000102  2**0
+  0 .data         00000000  00800100  00800100  00000144  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000000ae  00000000  00000000  00000054  2**1
+  1 .text         000000f0  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  00000102  2**0
+  2 .comment      00000030  00000000  00000000  00000144  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000134  2**2
+  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000174  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000028  00000000  00000000  00000174  2**0
+  4 .debug_aranges 00000020  00000000  00000000  000001b4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000006f0  00000000  00000000  0000019c  2**0
+  5 .debug_info   000007aa  00000000  00000000  000001d4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000650  00000000  00000000  0000088c  2**0
+  6 .debug_abbrev 0000068a  00000000  00000000  0000097e  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000235  00000000  00000000  00000edc  2**0
+  7 .debug_line   00000292  00000000  00000000  00001008  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000034  00000000  00000000  00001114  2**2
+  8 .debug_frame  00000024  00000000  00000000  0000129c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000351  00000000  00000000  00001148  2**0
+  9 .debug_str    00000394  00000000  00000000  000012c0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000005c  00000000  00000000  00001499  2**0
+ 10 .debug_loc    000000d8  00000000  00000000  00001654  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000018  00000000  00000000  000014f5  2**0
+ 11 .debug_ranges 00000010  00000000  00000000  0000172c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -65,69 +65,100 @@ Disassembly of section .text:
   6e:	d8 e0       	ldi	r29, 0x08	; 8
   70:	de bf       	out	0x3e, r29	; 62
   72:	cd bf       	out	0x3d, r28	; 61
-  74:	0e 94 51 00 	call	0xa2	; 0xa2 <main>
-  78:	0c 94 55 00 	jmp	0xaa	; 0xaa <_exit>
+  74:	0e 94 40 00 	call	0x80	; 0x80 <main>
+  78:	0c 94 76 00 	jmp	0xec	; 0xec <_exit>
 
 0000007c <__bad_interrupt>:
   7c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
-00000080 <mostrar>:
-	return 0;
-}
+00000080 <main>:
 
-void mostrar(int8_t num){
-	
-	DDRB = 0xFF;	// puerto B todo salida
-  80:	9f ef       	ldi	r25, 0xFF	; 255
-  82:	94 b9       	out	0x04, r25	; 4
-	
-	for(uint8_t i=0; i<8; i++){
-  84:	20 e0       	ldi	r18, 0x00	; 0
-  86:	0a c0       	rjmp	.+20     	; 0x9c <mostrar+0x1c>
-		PORTB = num&0x01;
-  88:	98 2f       	mov	r25, r24
-  8a:	91 70       	andi	r25, 0x01	; 1
-  8c:	95 b9       	out	0x05, r25	; 5
-		num >>= 1;
-  8e:	85 95       	asr	r24
-		
-		// demora para que se envíe un bit cada 1 ms
-		for (uint8_t i=0; i<247; i++){
-  90:	90 e0       	ldi	r25, 0x00	; 0
-  92:	01 c0       	rjmp	.+2      	; 0x96 <mostrar+0x16>
-  94:	9f 5f       	subi	r25, 0xFF	; 255
-  96:	97 3f       	cpi	r25, 0xF7	; 247
-  98:	e8 f3       	brcs	.-6      	; 0x94 <mostrar+0x14>
-
-void mostrar(int8_t num){
-	
-	DDRB = 0xFF;	// puerto B todo salida
-	
-	for(uint8_t i=0; i<8; i++){
-  9a:	2f 5f       	subi	r18, 0xFF	; 255
-  9c:	28 30       	cpi	r18, 0x08	; 8
-  9e:	a0 f3       	brcs	.-24     	; 0x88 <mostrar+0x8>
-		// demora para que se envíe un bit cada 1 ms
-		for (uint8_t i=0; i<247; i++){
-			int a;
-		}
-	}
-}
-  a0:	08 95       	ret
-
-000000a2 <main>:
-
-void mostrar(int8_t);
-
-int main(void)
+/* Función main */
+int main (void)
 {
-	mostrar(0xAA);	
-  a2:	8a ea       	ldi	r24, 0xAA	; 170
-  a4:	0e 94 40 00 	call	0x80	; 0x80 <mostrar>
-  a8:	ff cf       	rjmp	.-2      	; 0xa8 <main+0x6>
+	/* Setup */
+	DDRC &=~(1<<PC0);	// PC0 es entrada
+  80:	87 b1       	in	r24, 0x07	; 7
+  82:	8e 7f       	andi	r24, 0xFE	; 254
+  84:	87 b9       	out	0x07, r24	; 7
+	PORTC |= (1<<PC0);	// Escribo un "1" en PC0 (¿?)
+  86:	88 b1       	in	r24, 0x08	; 8
+  88:	81 60       	ori	r24, 0x01	; 1
+  8a:	88 b9       	out	0x08, r24	; 8
+	DDRB = 0xFF;		// Todo PORTB es salida
+  8c:	8f ef       	ldi	r24, 0xFF	; 255
+  8e:	84 b9       	out	0x04, r24	; 4
+	
+	/* Loop */
+	while(1)
+	{
+		if (PINC & (1<<PINC0))		// Si PINC0 vale 1
+  90:	30 9b       	sbis	0x06, 0	; 6
+  92:	16 c0       	rjmp	.+44     	; 0xc0 <main+0x40>
+		{
+			PORTB = 0b10101010;		// Bits pares de PORTB en bajo, impares en alto
+  94:	8a ea       	ldi	r24, 0xAA	; 170
+  96:	85 b9       	out	0x05, r24	; 5
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
 
-000000aa <_exit>:
-  aa:	f8 94       	cli
+	__builtin_avr_delay_cycles(__ticks_dc);
+  98:	2f ef       	ldi	r18, 0xFF	; 255
+  9a:	80 e7       	ldi	r24, 0x70	; 112
+  9c:	92 e0       	ldi	r25, 0x02	; 2
+  9e:	21 50       	subi	r18, 0x01	; 1
+  a0:	80 40       	sbci	r24, 0x00	; 0
+  a2:	90 40       	sbci	r25, 0x00	; 0
+  a4:	e1 f7       	brne	.-8      	; 0x9e <main+0x1e>
+  a6:	00 c0       	rjmp	.+0      	; 0xa8 <main+0x28>
+  a8:	00 00       	nop
+			_delay_ms(100);			// Dormir por 100 ms
+			PORTB = 0x00;			// Escribir "0" en todo PORTB
+  aa:	15 b8       	out	0x05, r1	; 5
+  ac:	2f ef       	ldi	r18, 0xFF	; 255
+  ae:	80 e7       	ldi	r24, 0x70	; 112
+  b0:	92 e0       	ldi	r25, 0x02	; 2
+  b2:	21 50       	subi	r18, 0x01	; 1
+  b4:	80 40       	sbci	r24, 0x00	; 0
+  b6:	90 40       	sbci	r25, 0x00	; 0
+  b8:	e1 f7       	brne	.-8      	; 0xb2 <main+0x32>
+  ba:	00 c0       	rjmp	.+0      	; 0xbc <main+0x3c>
+  bc:	00 00       	nop
+  be:	e8 cf       	rjmp	.-48     	; 0x90 <main+0x10>
+			_delay_ms(100);			// Dormir por 100 ms
+		}
+		else
+		{
+			PORTB = 0b01010101;		// Bits pares de PORTB en alto, impares en bajo
+  c0:	85 e5       	ldi	r24, 0x55	; 85
+  c2:	85 b9       	out	0x05, r24	; 5
+  c4:	2f ef       	ldi	r18, 0xFF	; 255
+  c6:	80 e7       	ldi	r24, 0x70	; 112
+  c8:	92 e0       	ldi	r25, 0x02	; 2
+  ca:	21 50       	subi	r18, 0x01	; 1
+  cc:	80 40       	sbci	r24, 0x00	; 0
+  ce:	90 40       	sbci	r25, 0x00	; 0
+  d0:	e1 f7       	brne	.-8      	; 0xca <main+0x4a>
+  d2:	00 c0       	rjmp	.+0      	; 0xd4 <main+0x54>
+  d4:	00 00       	nop
+			_delay_ms(100);			// Dormir por 100 ms
+			PORTB = 0x00;			// Escribir "0" en todo PORTB
+  d6:	15 b8       	out	0x05, r1	; 5
+  d8:	2f ef       	ldi	r18, 0xFF	; 255
+  da:	80 e7       	ldi	r24, 0x70	; 112
+  dc:	92 e0       	ldi	r25, 0x02	; 2
+  de:	21 50       	subi	r18, 0x01	; 1
+  e0:	80 40       	sbci	r24, 0x00	; 0
+  e2:	90 40       	sbci	r25, 0x00	; 0
+  e4:	e1 f7       	brne	.-8      	; 0xde <main+0x5e>
+  e6:	00 c0       	rjmp	.+0      	; 0xe8 <main+0x68>
+  e8:	00 00       	nop
+  ea:	d2 cf       	rjmp	.-92     	; 0x90 <main+0x10>
 
-000000ac <__stop_program>:
-  ac:	ff cf       	rjmp	.-2      	; 0xac <__stop_program>
+000000ec <_exit>:
+  ec:	f8 94       	cli
+
+000000ee <__stop_program>:
+  ee:	ff cf       	rjmp	.-2      	; 0xee <__stop_program>
