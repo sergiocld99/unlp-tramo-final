@@ -1,0 +1,7 @@
+EJ 1d) Ejemplo mostrar(0x02)
+
+Manda "1" a la salida	->	Ciclo 36	(36 us)
+Manda "0" a la salida	->	Ciclo 44	(44 us)
+
+Objetivo: que mande cada bit cada 1 ms = 1000 us
+1029 -> 2030	(usando for i=0; i<247)
