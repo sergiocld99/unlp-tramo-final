@@ -80,6 +80,6 @@ process Repositor
     {
         P(solicitud);           // Esperar que un corredor solicite botellas
         botellas = 20;          // De 0 a 20 botellas (sólo yo estoy modificando esto)
-        V(recargado);           // Avisar al corredor que ya puede usar la máquina.
+        V(recargado);           // Avisar al corredor que ya puede usar la máquina
     }
 }
