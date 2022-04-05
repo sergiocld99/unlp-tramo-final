@@ -5,5 +5,6 @@ Pasar modelos conceptuales ya realizados a sus correspondientes modelos lógicos
 
 # Tips Conceptual a Lógico
 
+* No puede haber atributos compuestos (como domicilio detallado) -> mover directamente sus "sub-atributos" a la entidad.
 * No puede haber atributos (0,N) o (1,N) -> agregar como relación de correspondencia (0,N) o (1,N) según corresponda a otra entidad.
 * No se permite la herencia (jerarquías) -> decidir si eliminar padre, hijos o agregar relaciones con correspondencia (0,1) para cada tipo.
