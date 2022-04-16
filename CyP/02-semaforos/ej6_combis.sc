@@ -7,7 +7,7 @@ viaje, y cuando llega al destino deja bajar a todos los pasajeros. Nota: maximiz
 concurrencia; suponga que para cada combi al menos 25 clientes intentarán comprar pasaje */
 
 Cola c;
-sem mutex = 0;                      // Semáforo para uso atómico de cola
+sem mutex = 1;                      // Semáforo para uso atómico de cola
 sem solicitud = 0;                  // Semáforo para evitar pop() en cola vacía
 sem turno[C] = ([C] 0);             // Semáforo para despertar al cliente indicado
 sem espera_combi[4] = ([4] 0);      // Semáforo para no arrancar las combis antes de tiempo

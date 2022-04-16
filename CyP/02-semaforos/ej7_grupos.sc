@@ -16,8 +16,8 @@ int restantes_act = 3;              // Limitador de empleados asignados en num_g
 int restaProducir[5] = ([5] P);
 int restaTerminar[5] = ([5] P);
 
-sem mutex = 0;                      // Semáforo de uso atómico de cola y "ocupado"
-sem mutexGrupo[5] = ([5] 0);        // Semáforo de uso atómico de realizados por grupo
+sem mutex = 1;                      // Semáforo de uso atómico de cola y "ocupado"
+sem mutexGrupo[5] = ([5] 1);        // Semáforo de uso atómico de realizados por grupo
 sem retirarse[5] = ([5] 0);         // Semáforo de cada grupo para retirarse todos al final
 
 process Empleado[id: 0..14]
