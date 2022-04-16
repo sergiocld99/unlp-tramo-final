@@ -7,17 +7,16 @@ sin botellas, le avisa al repositor para que cargue nuevamente la máquina con 2
 a que se haga la recarga; saca una botella y se retira. Nota: maximizar la concurrencia; mientras
 se reponen las botellas se debe permitir que otros corredores se encolen. */
 
-sem barrera = 0;        // Semáforo de llegados a inicio
-sem mutex = 1;          // Semáforo de SC para contador y cola/ocupado (no se mezclan)
-sem solicitud = 0;      // Semáforo de aviso recibido por el repositor
-sem recargado = 0;      // Semáforo de aviso emitido por el repositor
-
-sem turno[N] = ([N] 0);     // Semáforo para cada corredor en la expendedora
-
 int contador = 0;           // Contador de llegados a inicio
 int botellas = 20;          // Contador de botellas disponibles
-bool ocupado = false;       // Indicador de uso de la expendedora
-cola C;                     // Cola para respetar orden de llegada a la expendedora
+Bool ocupado = false;       // Indicador de uso de la expendedora
+Cola C;                     // Cola para respetar orden de llegada a la expendedora
+
+sem barrera = 0;            // Semáforo de arranque de carrera
+sem mutex = 1;              // Semáforo de SC para contador y cola/ocupado (no se mezclan)
+sem solicitud = 0;          // Semáforo de aviso recibido por el repositor
+sem recargado = 0;          // Semáforo de aviso emitido por el repositor
+sem turno[N] = ([N] 0);     // Semáforo para cada corredor en la expendedora
 
 process Corredor[id: 0..C-1]
 {
@@ -27,7 +26,7 @@ process Corredor[id: 0..C-1]
 
     // SECCIÓN CRÍTICA 1
     contador = contador + 1;            // Incrementar atómicamente
-    if (contador == C){
+    if (contador = C){
         for i = 1..C -> V(barrera);
     }
 
@@ -53,7 +52,7 @@ process Corredor[id: 0..C-1]
     // Estoy seguro que sólo hay 1 corredor ejecutando esta porción de código
     // Los demás se encuentran en carrera, ó agregándose a la cola, ó esperando su turno.
 
-    if (botellas == 0){
+    if (botellas = 0){
         V(solicitud);           // Avisar al repositor
         P(recargado);           // Esperar recarga hecha (20 botellas)
     }

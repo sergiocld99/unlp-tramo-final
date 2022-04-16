@@ -1,14 +1,16 @@
-sem usado[N] = ([N] 0);
+// Corrección: todas las personas deben tener un código similar
+int inicio = ...;
+int restantes = N;
+sem turno[N] = ([N] 0);
 
 process Persona[id: 0..N-1]
 {
-    if (not id == 0){
-        // Si soy la persona X, esperar que X-1 haya usado la impresora
-        P(usado[id-1]);
-    }
+    // Parte 1: me fijo si tengo exclusividad en usar primero
+    if (not inicio = id) -> P(turno[id]);
 
     Fotocopiar();
 
-    // Marcar como usado una vez terminada la impresión
-    V(usado[id]);
+    // Parte 2: liberar o pasar turno (considero caso cíclico)
+    restantes = restantes - 1;
+    if (restantes > 0) -> V(turno[(id+1) % N]);
 }
