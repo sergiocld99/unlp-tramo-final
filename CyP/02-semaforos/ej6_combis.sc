@@ -48,7 +48,7 @@ process Vendedor
 
         if (contador[nro_combi] < 25)
         {
-            contador[nro_combi] = contador[nro_combi] + 1;
+            contador[nro_combi]++;
             disponible[idCliente] = true;   // Hay lugar en la combi
             V(turno[idCliente]);            // Despertar al cliente
             P(continuar);                   // Dormirse hasta que el cliente haya subido*

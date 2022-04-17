@@ -25,7 +25,7 @@ process Corredor[id: 0..C-1]
     P(mutex);                           // Esperar para modificar contador
 
     // SECCIÓN CRÍTICA 1
-    contador = contador + 1;            // Incrementar atómicamente
+    contador++;                         // Incrementar atómicamente
     if (contador = C){
         for i = 1..C -> V(barrera);
     }
@@ -57,7 +57,7 @@ process Corredor[id: 0..C-1]
         P(recargado);           // Esperar recarga hecha (20 botellas)
     }
 
-    botellas = botellas - 1;    // Decrementar (siempre botellas es mayor que 0)
+    botellas--;                 // Decrementar (siempre botellas es mayor que 0)
 
     P(mutex);                   // Esperar para modificar cola y/o "ocupado"
 

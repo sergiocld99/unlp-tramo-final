@@ -37,10 +37,10 @@ process Empleado[id: 0..14]
     }
 
     mi_grupo = num_grupo;           // Guardar mi número de grupo localmente
-    restantes_act = restantes_act - 1;
+    restantes_act--;
 
     if (restantes_act = 0) {
-        num_grupo = num_grupo + 1;  // Incrementar N° grupo (hasta 5 -> no hay empleados de sobra)
+        num_grupo++;                // Incrementar N° grupo (hasta 5 -> no hay empleados de sobra)
         restantes_act = 3;          // Dejar espacio para 3 miembros al próximo grupo
     }
 
@@ -60,13 +60,13 @@ process Empleado[id: 0..14]
 
     while (restaProducir[mi_grupo] > 0)    // No quiero producir de más
     { 
-        restaProducir[mi_grupo] = restaProducir[mi_grupo] - 1;
+        restaProducir[mi_grupo]--;
         V(mutexGrupo[mi_grupo]);           // Libero variables de grupo mientras laburo
 
         realizarTrabajo();                 // Puede no durar lo mismo en cada ejecución
 
         P(mutexGrupo[mi_grupo]);           // Sección crítica de grupo
-        restaTerminar[mi_grupo] = restaTerminar[mi_grupo] - 1;
+        restaTerminar[mi_grupo]--;
         if (restaTerminar[mi_grupo] == 0)
         {
             // Habilitar semáforo 3x, incluso si alguno de los miembros nunca llegó
