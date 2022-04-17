@@ -37,7 +37,6 @@ Monitor Comision
 
     Procedure Entregar(G: in int, N: out int)
     {
-        entregas[G-1]++;                    // El grupo G-1 entrega un TP
         push(c, G);                         // Encolo numero de grupo
         signal(solicitud);                  // Por si JTP está dormido...
 
