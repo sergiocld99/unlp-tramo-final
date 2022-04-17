@@ -1,24 +1,21 @@
 // COMILLAS = SUBRAYADO
 
-/* Jerarquia de Persona */
+// Entidades
 PERSONA("dni", apellido, nombre)
 PACIENTE("dni(fk)")
 MEDICO("dni(fk)", matricula)
 
-/* Persona - Teléfono */
 TELEFONO("telefono")
-CONTACTO("dni(fk), telefono(fk)")
-
-/* Paciente - Médico */
-MED_CABECERA("dniPaciente(fk)", dniMedico(fk))
-
-/* Médico - Especialización */
 ESPECIALIZACION("nombre")
-TIENE("dni(fk), nombre(fk)")
-
-/* Médico - CLinica */
 CLINICA("razon_social", calle, nro, piso?, dpto?)
+
+// Relaciones muchos a muchos
+CONTACTO("dni(fk), telefono(fk)")
+TIENE("dni(fk), nombre(fk)")
 TRABAJA("dni(fk), razon_social(fk), fecha_inicio", fecha_fin?)
+
+// Relaciones opcional a muchos
+MED_CABECERA("dniPaciente(fk)", dniMedico(fk))
 
 // Comentario: fecha_inicio de trabaja debe pertenecer a la clave primaria
 // porque puede ocurrir que un médico vuelva a trabajar en una clinica en otra ocasión
