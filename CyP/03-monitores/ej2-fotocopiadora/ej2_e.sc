@@ -7,9 +7,6 @@ Monitor Fotocopiadora
     Cond solicitud, terminado;
     Cond espera[N];
 
-    // Problema 1: ¿qué sucede si la persona llega antes que el empleado?
-    // Respuesta: el signal(solicitud) no haría nada... EsperarSolicitud bloqueado
-
     Procedure Solicitar(idP : in int)
     {
         push(c, idP);           // encolar respetando orden de llegada
