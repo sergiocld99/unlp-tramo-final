@@ -4,6 +4,8 @@ TELEFONO("tel")
 
 // Entidades con relación 1 a muchos
 MINION("codigo", nombre, nombreVillano(fk), f_inicio)           // f_inicio es foreign key??
+
+// Entidades con PK foránea
 VIOLETA("codigo(fk)")
 
 // ¿cómo tratar una relación 1 a muchos pero con atributos en el rombo?
