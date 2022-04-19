@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2022-04-19T16:59:03.911Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" etag="7RZF4tc2-WMtN1ihjUtb" version="17.4.5" type="github">
+<mxfile host="app.diagrams.net" modified="2022-04-19T17:05:28.492Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" etag="9OukYg0ytuLRc1aZgQT9" version="17.4.5" type="github">
   <diagram id="tCA3b7V7rkpCgKGouU4P" name="Página-1">
-    <mxGraphModel dx="638" dy="384" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="1116" dy="672" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -453,8 +453,8 @@
         <mxCell id="JrbC6fHpjMKqTfL63MD3-154" value="sitioWeb(0,1)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="1354" y="342" width="90" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="JrbC6fHpjMKqTfL63MD3-161" value="nro" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-          <mxGeometry x="1151.5" y="707" width="30" height="20" as="geometry" />
+        <mxCell id="JrbC6fHpjMKqTfL63MD3-161" value="nroTarj" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="1151.5" y="707" width="50" height="20" as="geometry" />
         </mxCell>
         <mxCell id="JrbC6fHpjMKqTfL63MD3-163" value="banco" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="1174.5" y="747" width="50" height="20" as="geometry" />
