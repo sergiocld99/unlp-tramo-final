@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-04-19T17:32:02.878Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" etag="TBmd82k8U-L5SKPNlCl3" version="17.4.5" type="github">
+<mxfile host="app.diagrams.net" modified="2022-04-19T17:37:08.371Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36" etag="02ajRv2GZ1aXzK_qczlr" version="17.4.5" type="github">
   <diagram id="5Ta_v5JBAvTYs6aCDMCM" name="Página-1">
     <mxGraphModel dx="2993" dy="806" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#FFF4C3" math="0" shadow="1">
       <root>
@@ -614,8 +614,8 @@
         <mxCell id="Eh94HaNfsgFIY5h0oXuy-5" value="Tarjeta" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="338" y="1660" width="120" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="Eh94HaNfsgFIY5h0oXuy-6" value="nro" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-          <mxGeometry x="387" y="1570" width="30" height="20" as="geometry" />
+        <mxCell id="Eh94HaNfsgFIY5h0oXuy-6" value="nroTarj" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="386" y="1569" width="50" height="20" as="geometry" />
         </mxCell>
         <mxCell id="Eh94HaNfsgFIY5h0oXuy-7" value="banco" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="410" y="1610" width="50" height="20" as="geometry" />
