@@ -5,7 +5,7 @@ SERVICIO("nombre", descripcion, costoDia)
 
 PERSONA("#pasaporte", apellido, nombre, telefono, calle, nro, piso?, dpto?)
 EMPLEADO("#pasaporte(fk)", nroEmp, fechaIngreso, cantHijos, nacionalidad)
-CLIENTE("#pasaporte(fk)")
+CLIENTE("#pasaporte(fk)")       // tambien se representa a huesped con esta tabla
 EMAIL("email")
 AREA_HOTEL("nombre", descripcion, codHotel(fk))     // "pertenece" incluido
 
@@ -16,7 +16,7 @@ RESERVA("#pasaporte(fk), fechaInicio", cantHuespedesMayores, cantHuespedesMenore
 ESTADIA("#pasaporte(fk), fechaInicio(fk), fechaIngreso", fechaSalida?, saldo)
 TARJETA("nroTarj", codSeg, banco, entidad, tipo)
 
-OCUPACION("nroHab(fk), piso(fk), #pasaporte(fk), fechaInicio(fk), fechaIngreso(fk)")
+OCUPACION("nroHab(fk), piso(fk), #pasaporte(fk), fechaInicio(fk), fechaIngreso(fk), #pasaporteHuesped(fk)")    // ??
 
 // Relaciones muchos a muchos
 POSEE_RESTO("codHotel(fk), descripcion(fk)")
