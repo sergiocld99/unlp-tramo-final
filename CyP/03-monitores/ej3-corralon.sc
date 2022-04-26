@@ -5,16 +5,16 @@ comprobante (recibo) de la compra realizada. */
 
 Monitor Corralon
 {
-    Cola c;         // para que el empleado conozca el orden de llegada
-    Cond solicitud, entrega_lista, entrega_com, espera[N];
+    int esperando = 0;
+    Cond solicitud, entrega_lista, entrega_com, espera;
     text lista, recibo;
     int idAux;
 
     Procedure Llegada(idC : in int)
     {
-        push(c, idC);
+        esperando++;
         signal(solicitud);
-        wait(espera[idC]);
+        wait(espera);
     }
 
     Procedure Comprar(L: in text; R: out text)
@@ -29,8 +29,8 @@ Monitor Corralon
     Procedure Atender(L: out text)
     {
         if (empty(c)) wait(solicitud);
-        pop(c, idAux);
-        signal(espera[idAux]);
+        esperando--;
+        signal(espera);
 
         wait(entrega_lista);
         L = lista;
@@ -48,7 +48,7 @@ Process Cliente[id: 0..N-1]
     text lista = ...;
     text recibo;
 
-    Corralon.Llegada(id);
+    Corralon.Llegada();
     Corralon.Comprar(lista, recibo);
     // retirarme
 }
