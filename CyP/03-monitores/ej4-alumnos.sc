@@ -77,6 +77,7 @@ Process JTP
     while(faltanEntregar > 0)
     {
         Comision.RecibirTrabajo(num_grupo);
+        entregasGrupo[num_grupo-1]++;           // línea olvidada por error
         corregirTrabajo();
 
         if (entregasGrupo[num_grupo-1] = 2)
