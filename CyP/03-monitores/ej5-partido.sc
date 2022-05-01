@@ -22,7 +22,7 @@ Monitor Club
     }
 }
 
-Monitor Cancha[2]
+Monitor Cancha[id: 0..2]
 {
     int llegaron = 0;
     Cond espera_inicio, espera_fin;
