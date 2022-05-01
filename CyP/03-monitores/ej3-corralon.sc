@@ -5,14 +5,12 @@ comprobante (recibo) de la compra realizada. */
 
 Monitor Corralon
 {
-    int esperando = 0;
     Cond solicitud, entrega_lista, entrega_com, espera;
     text lista, recibo;
     int idAux;
 
-    Procedure Llegada(idC : in int)
+    Procedure Llegada()
     {
-        esperando++;
         signal(solicitud);
         wait(espera);
     }
@@ -29,7 +27,6 @@ Monitor Corralon
     Procedure Atender(L: out text)
     {
         if (empty(c)) wait(solicitud);
-        esperando--;
         signal(espera);
 
         wait(entrega_lista);
