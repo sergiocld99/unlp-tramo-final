@@ -29,16 +29,12 @@ Monitor Cancha[id: 0..2]
 
     Procedure Llegada(){
         llegaron++;
-        if (llegaron < 10) wait(espera_inicio);
-        else signal_all(espera_inicio);
+        if (llegaron == 10) signal(espera_inicio);
+        wait(espera_fin);
     }
 
     Procedure EsperaComienzo(){
-        wait(espera_inicio);
-    }
-
-    Procedure Jugar(){
-        wait(espera_fin);
+        if (llegados < 10) wait(espera_inicio);
     }
 
     Procedure Terminar(){
@@ -52,7 +48,6 @@ Process Jugador[id: 0..19]
 
     Club.Llegada(nroEq, nroCancha);
     Cancha[nroCancha].Llegada();
-    Cancha[nroCancha].Jugar();
     // Retirarse sin esperar al resto...
 }
 
