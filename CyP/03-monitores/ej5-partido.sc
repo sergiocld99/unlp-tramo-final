@@ -1,11 +1,9 @@
-Monitor Partido
+Monitor Club
 {
     int llegados[4] = ([4] 0);      // cuántos jugadores hay asignados en cada equipo
     int completos = 0;              // cuántos equipos tienen 5 jugadores
     int nroCancha[4] = ([4] -1);    // cuál es la cancha que le toca a cada equipo
-    int enCancha[2] = ([2] 0);      // cuántos jugadores se encuentran en cada cancha
-
-    Cond equipo[4], cancha[2];
+    Cond equipo[4];
 
     Procedure Llegada(nroEq, nroCancha : out int)
     {
@@ -22,16 +20,29 @@ Monitor Partido
 
         nroCancha = nroCancha[nroEq];       // devolver como salida al completar equipo
     }
+}
 
-    Procedure Jugar(nroCancha : in int)
-    {
-        enCancha[nroCancha]++;
+Monitor Cancha[2]
+{
+    int llegaron = 0;
+    Cond espera_inicio, espera_fin;
 
-        if (enCancha[nroCancha] < 10) wait(cancha[nroCancha]);
-        else {
-            // Soy el último jugador que llega de los 2 equipos...
-            signal_all(cancha[nroCancha]);      // despertar a todos los jugadores de la cancha
-        }
+    Procedure Llegada(){
+        llegaron++;
+        if (llegaron < 10) wait(espera_inicio);
+        else signal_all(espera_inicio);
+    }
+
+    Procedure EsperaComienzo(){
+        wait(espera_inicio);
+    }
+
+    Procedure Jugar(){
+        wait(espera_fin);
+    }
+
+    Procedure Terminar(){
+        signal_all(espera_fin);
     }
 }
 
@@ -39,8 +50,15 @@ Process Jugador[id: 0..19]
 {
     int nroEq, nroCancha;
 
-    Partido.Llegada(nroEq, nroCancha);
-    Partido.Jugar(nroCancha);
-    delay(50);
+    Club.Llegada(nroEq, nroCancha);
+    Cancha[nroCancha].Llegada();
+    Cancha[nroCancha].Jugar();
     // Retirarse sin esperar al resto...
+}
+
+Process Partido[id: 0..1]
+{
+    Cancha[id].EsperaComienzo();
+    delay(50);
+    Cancha[id].Terminar();   
 }
