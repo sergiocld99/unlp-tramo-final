@@ -7,7 +7,6 @@ Monitor Corralon
 {
     Cond solicitud, entrega_lista, entrega_com, espera;
     text lista, recibo;
-    int idAux;
 
     Procedure Llegada()
     {
