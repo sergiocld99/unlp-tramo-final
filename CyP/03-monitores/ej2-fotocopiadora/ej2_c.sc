@@ -7,13 +7,11 @@ Monitor Fotocopiadora
     Cond espera[N];         // 1 cola para cada persona (contendrá hasta 1 proceso dormido cada una)
     Bool libre = true;
     ColaOrdenada c;         // Priorizada por edad 
-    int esperando = 0;
     int siguiente;
 
     Procedure Solicitar(idP, edad : in int)
     {
         if (not libre) { 
-            esperando++;
             insertar(c, idP, edad);
             wait(espera[idP]);
         } else libre = false;
@@ -21,8 +19,7 @@ Monitor Fotocopiadora
 
     Procedure Liberar()
     {
-        if (esperando > 0) { 
-            esperando--; 
+        if (not empty(c)) { 
             sacar(c, siguiente);
             signal(espera[siguiente]); 
         } else libre = true;
