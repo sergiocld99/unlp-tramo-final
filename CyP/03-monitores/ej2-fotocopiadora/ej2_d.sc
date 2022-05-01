@@ -7,16 +7,17 @@ Monitor Fotocopiadora
     int siguiente = 0, restantes = N;
     Cond espera[N];
 
-    Procedure Usar(idP : in int)
+    Procedure Esperar(idP : in int)
     {
         if (not siguiente = idP)
         {
             esperando++;
             wait(espera[idP]);
         }
-
-        Fotocopiar();
-
+    }
+    
+    Procedure Avanzar()
+    {
         if (restantes > 0)
         {
             siguiente = (siguiente + 1) % N;
@@ -27,5 +28,7 @@ Monitor Fotocopiadora
 
 Process Persona[id: 0..N-1]
 {
-    Fotocopiadora.Usar(id);
+    Fotocopiadora.Esperar(id);
+    Fotocopiar();
+    Fotocopiadora.Avanzar();
 }
