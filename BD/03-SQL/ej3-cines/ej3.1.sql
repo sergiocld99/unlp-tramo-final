@@ -6,31 +6,16 @@
 -- 1. Reportar información de películas exhibidas en cines de ‘Avellaneda’ y que posean funciones en 
 -- cines de ‘La Plata’.
 
--- Interpretación 1: devolver datos de peliculas que tienen funciones en cines de Avellaneda y La Plata
-
+-- solución propuesta por la profe
 SELECT nombre, descripción, genero
-FROM Pelicula
-WHERE #codP IN (
-    SELECT #codP FROM Funcion as F
-    INNER JOIN Sala as S ON S.#codS = F.#codS
-    WHERE #codC IN (
-        SELECT #codC FROM Cine as C
-        WHERE direccion LIKE "%Avellaneda%" OR direccion LIKE "%La Plata%"
-    )
-)
-
--- Interpretación 2: ya tuvieron funciones anteriores en cines de Avellaneda y actuales en La Plata
-
-SELECT nombre, descripción, genero
-FROM Pelicula
-WHERE #codP IN (
-    SELECT #codP FROM Funcion as F
-    INNER JOIN Sala as S ON S.#codS = F.#codS
-    INNER JOIN Cine as C ON C.#codC = S.#codC
-    WHERE direccion LIKE "%Avellaneda%" AND fecha < "10-05-2022"
-) AND #codP IN (
-    SELECT #codP FROM Funcion as F
-    INNER JOIN Sala as S ON S.#codS = F.#codS
-    INNER JOIN Cine as C ON C.#codC = S.#codC
-    WHERE direccion LIKE "%La Plata%" AND fecha >= "10-05-2022"
+FROM Pelicula P
+INNER JOIN Funcion F ON F.#codP = P.#codP
+INNER JOIN Sala S ON F.#codS = S.#codS
+INNER JOIN Cine C ON C.#codC = S.#codC
+WHERE direccion LIKE "%Avellaneda"
+AND Exist (
+    SELECT * FROM Funcion as F2
+    INNER JOIN Sala as S2 ON S2.#codS = F2.#codS
+    INNER JOIN Cine as C2 ON C2.#codC = S2.#codC
+    WHERE F2.#codP = P.#codP AND direccion LIKE "%La Plata%"
 )

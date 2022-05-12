@@ -4,8 +4,8 @@ A - 10/5 04:20
 
 ## Consultas de enunciado
 
-- ¿Proyectos finalizados significa aplicaciones finalizadas?
-- ¿Qué significa "avance" en Proyecto? ¿Es un porcentaje entre 0 y 100?
+- ¿Proyectos finalizados significa aplicaciones finalizadas? Respuesta: NO del todo
+- ¿Qué significa "avance" en Proyecto? ¿Es un porcentaje entre 0 y 100? Respuesta: si
 
 ## Ejercicio 6.3
 

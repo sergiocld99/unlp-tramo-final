@@ -1,7 +1,7 @@
 -- Reportar nombre, descripción y género de películas exhibidas en el Cine: ´Cine X´ pero que no 
 -- tengan programadas funciones en dicho cine para el dia de hoy
 
--- Opción 1: la más literal
+-- Opción 1: la más literal. NO es una buena solución porque se hacen 2 subconsultas
 SELECT nombre, descripción, genero
 FROM Pelicula as P
 WHERE EXIST (

@@ -6,6 +6,7 @@
 -- Para cada producto de la consulta principal se verifica que la siguiente pregunta sea FALSA:
 -- ¿Existe algún Esteticista que NO aplicó el producto X alguna vez?
 
+-- la profe dijo que funciona bien! otra solución: not exists encadenados
 SELECT nombreP, descripcion, stock, precio
 FROM Producto as p
 WHERE NOT EXISTS(
