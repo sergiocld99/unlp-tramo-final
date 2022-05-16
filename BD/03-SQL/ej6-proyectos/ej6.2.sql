@@ -13,7 +13,7 @@
 -- Reportar para cada área la cantidad de proyectos finalizados durante 2020. 
 -- Informar nombre de área y cantidad de proyectos finalizados.
 
-SELECT DISTINCT nombreA, COUNT(codProyecto) as cantProyectosFinalizados
+SELECT nombreA, COUNT(codProyecto) as cantProyectosFinalizados
 FROM Area
 NATURAL JOIN Aplicacion
 WHERE Year(fechaFin) = 2020

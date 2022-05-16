@@ -12,7 +12,7 @@
 
 -- Listar información de departamentos que no tengan proyectos terminados.
 
--- Interpretación 1: avance en Proyecto es un porcentaje de finalización
+-- Interpretación correcta: avance en Proyecto es un porcentaje de finalización
 SELECT nombreD, funciones, fecha_creacion
 FROM Departamento
 WHERE codDepto NOT IN (
@@ -20,13 +20,4 @@ WHERE codDepto NOT IN (
     NATURAL JOIN Aplicacion
     NATURAL JOIN Proyecto
     WHERE avance = 100
-)
-
--- Interpretación 2: no tienen aplicaciones terminadas
-SELECT nombreD, funciones, fecha_creacion
-FROM Departamento
-WHERE codDepto NOT IN (
-    SELECT codDepto FROM Area
-    NATURAL JOIN Aplicacion
-    WHERE porcentajeFinalizado = 100
 )
