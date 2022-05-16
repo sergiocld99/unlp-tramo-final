@@ -12,7 +12,7 @@ FROM Pelicula P
 INNER JOIN Funcion F ON F.#codP = P.#codP
 INNER JOIN Sala S ON F.#codS = S.#codS
 INNER JOIN Cine C ON C.#codC = S.#codC
-WHERE direccion LIKE "%Avellaneda"
+WHERE direccion LIKE "%Avellaneda%"
 AND Exist (
     SELECT * FROM Funcion as F2
     INNER JOIN Sala as S2 ON S2.#codS = F2.#codS

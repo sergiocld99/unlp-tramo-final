@@ -16,4 +16,4 @@ SELECT DISTINCT nroTicket, E.nombre as nombreEmpleado, C.nombre as nombreCliente
 FROM Ventas V
 INNER JOIN Empleados E ON E.codigoEmp = V.codigoEmp
 INNER JOIN Clientes C ON C.codigoCte = V.codigoCte
-WHERE montoTotal > 10000 AND NOT C2.direccion LIKE "%Tandil"
+WHERE montoTotal > 10000 AND NOT C.direccion LIKE "%Tandil%"
