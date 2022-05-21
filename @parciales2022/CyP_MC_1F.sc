@@ -21,7 +21,7 @@ Process Auto[id: 0..N-1]
   < if (empty(C)) libres++;
   else pop(C, aux); >
   
-  if (aux != 1) pasar[aux] = true;
+  if (aux != -1) pasar[aux] = true;
 }
 
 // -----------------------------------------
