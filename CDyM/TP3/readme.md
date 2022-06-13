@@ -16,7 +16,7 @@
 Si quiero guardar los datos recibidos pulsar "StartLog".
 
 ## Actualización cada 1 segundo
-Se puede temporizar mediante un Timer.
+Se puede temporizar mediante un Timer. Tomemos con pinzas este resultado experimental: tardamos 1 ms por caracter
 
 ## Sección crítica
 Cuando tanto la tarea de background como la de foreground podrían escribir sobre una variable compartida (flag) a la vez, debo proteger el acceso a la variable mediante cli() y sei().
