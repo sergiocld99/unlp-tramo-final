@@ -1,10 +1,28 @@
-# Consideraciones TP 3
+# Consideraciones TP 3 - Arquitectura Background/Foreground, modelo Productor-Consumidor
 
 - No se podrá usar PB0/PB1 como capturador de entrada. Utilizar en su lugar la interfaz E/S entre MCU y DHT11
+- Los terminales para USART en parte coinciden con los usados en el LCD => No se pueden usar ambos (excluyentes).
+- Cuidado con el ENTER, algunos terminales lo interpretan como \r\n, mientras otros solo uno de esos dos (en Br@y dejar activado para lo primero).
+- Aceptar los comandos ON, OFF y RST obligatoriamente en MAYÚSCULA.
+- Para volver a mostrar el menu se debe ingresar RST
+
+## Configuración Terminal de Br@y
+- Baud rate: 9600
+- Data bits: 8
+- Parity: none 
+- Stop bits: 1 
+- Handshaking: none
+
+Si quiero guardar los datos recibidos pulsar "StartLog".
+
+## Actualización cada 1 segundo
+Se puede temporizar mediante un Timer.
+
+## Sección crítica
+Cuando tanto la tarea de background como la de foreground podrían escribir sobre una variable compartida (flag) a la vez, debo proteger el acceso a la variable mediante cli() y sei().
 
 ## Ejercicio del Motor (RPM)
 T_MOTOR = 13,33 ms
-Contador = 16726
 
 1) Medición de RPM
 
