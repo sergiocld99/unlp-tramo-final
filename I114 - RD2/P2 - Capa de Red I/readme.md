@@ -1,1 +1,19 @@
 # Práctica 2 - Capa de Red (I) - IPv4/IPv6
+
+## Ej 10 - Sumarizar 
+¿Cómo se podrían sumarizar las siguientes direcciones aplicando CIDR?
+- 200.10.0.0/24
+- 200.10.1.0/24
+- 200.10.2.0/24
+- 200.10.3.0/24
+
+Vemos que las 4 redes son consecutivas, así que vemos cuales son los bits en común (desde el más significativo)
+
+* Con 200.10.X.X tenemos 16 bits comunes 
+* Luego de 0 a 3 tenemos formato 0000 00XX
+* Resultan 22 bits comunes
+
+Luego, verificamos que no haya ninguna red de más en el grupo. 
+Todo bien. Se pasan los bits XX a cero y se especifica la nueva máscara. 
+
+- Respuesta final: Si, es 200.10.0.0/22
