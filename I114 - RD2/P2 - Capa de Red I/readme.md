@@ -51,3 +51,13 @@ Sumarizo las primeras 2 y la tercera no puedo (verdad?)
 Los mensajes ARP, ¿son re-enviados por los routers? Justifique.
 
 * Respuesta: NO, porque sino se repartirán fuera de una red, inundando Internet??
+
+## Ej 24
+¿Cuál sería una abreviatura correcta de 3f80:0000:0000:0a00:0000:0000:0000:0845?
+- 3f80::a00::845
+- 3f80::a:845
+- 3f80::a00:0:0:0:845:4567
+- 3f80:0:0:a00::845
+- 3f8:0:0:a00::845
+
+* Respuesta: la cuarta
