@@ -47,3 +47,7 @@ Sumarizo las primeras 2 y la tercera no puedo (verdad?)
 
 * Respuesta: 195.80.0.0/23 para las 2 primeras
 
+## Ej 20
+Los mensajes ARP, ¿son re-enviados por los routers? Justifique.
+
+* Respuesta: NO, porque sino se repartirán fuera de una red, inundando Internet??
