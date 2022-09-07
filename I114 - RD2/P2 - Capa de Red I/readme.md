@@ -17,3 +17,14 @@ Luego, verificamos que no haya ninguna red de más en el grupo.
 Todo bien. Se pasan los bits XX a cero y se especifica la nueva máscara. 
 
 - Respuesta final: Si, es 200.10.0.0/22
+
+## Ej 11
+¿Cómo quedará la sumarización si necesita agrupar las 8 primeras redes (hasta las
+200.10.7.0/24)
+
+* De 0 a 7 tenemos formato 0000 0XXX
+* Resultan 21 bits comunes
+
+Nuevamente no hay redes de más.
+
+* Respuesta: 200.10.0.0/21
