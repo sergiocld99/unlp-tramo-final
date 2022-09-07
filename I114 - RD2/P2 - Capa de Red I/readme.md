@@ -28,3 +28,22 @@ Todo bien. Se pasan los bits XX a cero y se especifica la nueva máscara.
 Nuevamente no hay redes de más.
 
 * Respuesta: 200.10.0.0/21
+
+## Ej 12
+Y las siguientes:
+- 195.80.0.0/24
+- 195.80.1.0/24
+- 195.80.2.0/24
+
+* De 0 a 2 tenemos formato 0000 00XX
+* Son 22 bits comunes, PERO estamos incluyendo a 195.80.3.0
+
+Entonces no se puede sumarizar en 1 solo grupo. 
+
+* De 0 a 1 tenemos formato 0000 000X
+* Son 23 bits comunes para las primeras 2.
+
+Sumarizo las primeras 2 y la tercera no puedo (verdad?)
+
+* Respuesta: 195.80.0.0/23 para las 2 primeras
+
