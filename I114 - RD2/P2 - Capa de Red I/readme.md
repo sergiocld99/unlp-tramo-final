@@ -47,6 +47,13 @@ Sumarizo las primeras 2 y la tercera no puedo (verdad?)
 
 * Respuesta: 195.80.0.0/23 para las 2 primeras
 
+## Ej 17
+Carpeta compartida: punto de montaje dentro de "/home/rysa/", con automontaje y permiso habilitado mediante:
+
+``` sudo usermod -a -G vboxsf rysa ```
+
+Luego reiniciamos y ya está todo listo para usar.
+
 ## Ej 20
 Los mensajes ARP, ¿son re-enviados por los routers? Justifique.
 
