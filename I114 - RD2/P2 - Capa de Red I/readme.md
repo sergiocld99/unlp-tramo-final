@@ -54,6 +54,42 @@ Carpeta compartida: punto de montaje dentro de "/home/rysa/", con automontaje y 
 
 Luego reiniciamos y ya está todo listo para usar.
 
+### Asignación de direcciones IP
+
+* En Router n1:
+``` 
+root@n1:/tmp/pycore.37217/n1.conf# ifconfig eth0 10.0.0.1
+root@n1:/tmp/pycore.37217/n1.conf# ifconfig eth1 10.0.1.2
+root@n1:/tmp/pycore.37217/n1.conf# ifconfig eth2 10.0.2.1 
+```
+
+* En Router n2:
+``` 
+root@n2:/tmp/pycore.37217/n2.conf# ifconfig eth0 10.0.1.1
+root@n2:/tmp/pycore.37217/n2.conf# ifconfig eth1 10.0.3.1
+root@n2:/tmp/pycore.37217/n2.conf# ifconfig eth2 10.0.4.1
+``` 
+
+* En Router n3:
+``` 
+root@n3:/tmp/pycore.37217/n3.conf# ifconfig eth0 10.0.2.2
+root@n3:/tmp/pycore.37217/n3.conf# ifconfig eth1 10.0.3.2
+root@n3:/tmp/pycore.37217/n3.conf# ifconfig eth2 10.0.5.1
+``` 
+
+* En las PC (n6 a n12):
+``` 
+root@n6:/tmp/pycore.37217/n1.conf# ifconfig eth0 10.0.0.10 
+root@n7:/tmp/pycore.37217/n7.conf# ifconfig eth0 10.0.4.22
+root@n8:/tmp/pycore.37217/n8.conf# ifconfig eth0 10.0.4.21
+root@n9:/tmp/pycore.37217/n9.conf# ifconfig eth0 10.0.4.20
+root@n10:/tmp/pycore.37217/n10.conf# ifconfig eth0 10.0.5.20
+root@n11:/tmp/pycore.37217/n11.conf# ifconfig eth0 10.0.5.21
+root@n12:/tmp/pycore.37217/n12.conf# ifconfig eth0 10.0.5.22
+```
+
+
+
 ## Ej 20
 Los mensajes ARP, ¿son re-enviados por los routers? Justifique.
 
