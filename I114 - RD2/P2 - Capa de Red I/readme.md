@@ -88,6 +88,38 @@ root@n11:/tmp/pycore.37217/n11.conf# ifconfig eth0 10.0.5.21
 root@n12:/tmp/pycore.37217/n12.conf# ifconfig eth0 10.0.5.22
 ```
 
+### Verificación de conectividad
+
+* Del host n6 al router n1:
+```
+root@n6:/tmp/pycore.43267/n6.conf# ping -a 10.0.0.1 
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+64 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=0.058 ms
+64 bytes from 10.0.0.1: icmp_seq=2 ttl=64 time=0.092 ms
+64 bytes from 10.0.0.1: icmp_seq=3 ttl=64 time=0.070 ms
+64 bytes from 10.0.0.1: icmp_seq=4 ttl=64 time=0.083 ms
+64 bytes from 10.0.0.1: icmp_seq=5 ttl=64 time=0.050 ms
+64 bytes from 10.0.0.1: icmp_seq=6 ttl=64 time=0.065 ms
+64 bytes from 10.0.0.1: icmp_seq=7 ttl=64 time=0.057 ms
+```
+
+### Tablas de ruteo
+* Para el tráfico desconocido: de n1 a n2, de n2 a n3, y de n3 a n1.
+```
+root@n1:/tmp/pycore.38455/n1.conf# route add default gw 10.0.1.2
+root@n2:/tmp/pycore.38455/n2.conf# route add default gw 10.0.3.1
+root@n3:/tmp/pycore.38455/n3.conf# route add default gw 10.0.2.2
+```
+
+* Para paquetes a la red 10.0.4.0
+```
+root@n2:/tmp/pycore.38455/n2.conf# ip route add 10.0.4.0/24 via 10.0.4.1
+```
+
+* Para paquetes a la red 10.0.5.0
+```
+root@n3:/tmp/pycore.38455/n3.conf# ip route add 10.0.5.0/24 via 10.0.5.1
+```
 
 
 ## Ej 20
