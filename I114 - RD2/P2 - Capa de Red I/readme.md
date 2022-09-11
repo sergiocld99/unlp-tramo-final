@@ -104,23 +104,45 @@ PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
 ```
 
 ### Tablas de ruteo
-* Para el tráfico desconocido: de n1 a n2, de n2 a n3, y de n3 a n1.
+* Para el tráfico desconocido: de n1 a n2, de n2 a n3, y de n3 a n1. NOTA: se indica la puerta de entrada del próximo router.
 ```
-root@n1:/tmp/pycore.38455/n1.conf# route add default gw 10.0.1.2
-root@n2:/tmp/pycore.38455/n2.conf# route add default gw 10.0.3.1
-root@n3:/tmp/pycore.38455/n3.conf# route add default gw 10.0.2.2
-```
-
-* Para paquetes a la red 10.0.4.0
-```
-root@n2:/tmp/pycore.38455/n2.conf# ip route add 10.0.4.0/24 via 10.0.4.1
+root@n1:/tmp/pycore.38455/n1.conf# route add default gw 10.0.1.1
+root@n2:/tmp/pycore.38455/n2.conf# route add default gw 10.0.3.2
+root@n3:/tmp/pycore.38455/n3.conf# route add default gw 10.0.2.1
 ```
 
-* Para paquetes a la red 10.0.5.0
+### Traceroute
+* De n6 a n7. Vemos que pasa por n1 > n2 > n7.
 ```
-root@n3:/tmp/pycore.38455/n3.conf# ip route add 10.0.5.0/24 via 10.0.5.1
+root@n6:/tmp/pycore.34143/n6.conf# traceroute 10.0.4.22
+traceroute to 10.0.4.22 (10.0.4.22), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)  0.032 ms  0.012 ms  0.007 ms
+ 2  10.0.1.1 (10.0.1.1)  0.018 ms  0.009 ms  0.009 ms
+ 3  10.0.4.22 (10.0.4.22)  0.024 ms  0.014 ms  0.022 ms
 ```
 
+* De n6 a n10. Vemos que pasa por n1 > n3 > n10.
+```
+root@n6:/tmp/pycore.34143/n6.conf# traceroute 10.0.5.20
+traceroute to 10.0.5.20 (10.0.5.20), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)  0.029 ms  0.006 ms  0.006 ms
+ 2  10.0.2.2 (10.0.2.2)  0.020 ms  0.009 ms  0.009 ms
+ 3  10.0.5.20 (10.0.5.20)  0.023 ms  0.014 ms  0.013 ms
+root@n6:/tmp/pycore.34143/n6.conf# 
+```
+
+* De n6 a desconocido. Vemos que da vueltas entre n1 > n2 > n3 > n1... hasta que TTL = 0. Se muestra una parte:
+```
+root@n6:/tmp/pycore.34143/n6.conf# traceroute 10.0.8.19
+traceroute to 10.0.8.19 (10.0.8.19), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)  0.030 ms  0.022 ms  0.009 ms
+ 2  10.0.1.1 (10.0.1.1)  0.023 ms  0.014 ms  0.012 ms
+ 3  10.0.2.2 (10.0.2.2)  0.019 ms  0.010 ms  0.010 ms
+ 4  10.0.0.1 (10.0.0.1)  0.010 ms  0.009 ms  0.009 ms
+ 5  10.0.1.1 (10.0.1.1)  0.012 ms  0.012 ms  0.012 ms
+ 6  10.0.2.2 (10.0.2.2)  0.013 ms  0.027 ms  0.014 ms
+ 7  * * *
+```
 
 ## Ej 20
 Los mensajes ARP, ¿son re-enviados por los routers? Justifique.
