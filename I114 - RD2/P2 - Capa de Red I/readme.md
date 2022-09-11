@@ -1,5 +1,9 @@
 # Práctica 2 - Capa de Red (I) - IPv4/IPv6
 
+## Datagrama ipv4 vs ipv6
+![ipv4](https://github.com/sergiocarp10/unlp-tramo-final/blob/main/I114%20-%20RD2/P2%20-%20Capa%20de%20Red%20I/ipv4-datagram.png)
+![ipv6](https://github.com/sergiocarp10/unlp-tramo-final/blob/main/I114%20-%20RD2/P2%20-%20Capa%20de%20Red%20I/ipv6-datagram.png)
+
 ## Ej 10 - Sumarizar 
 ¿Cómo se podrían sumarizar las siguientes direcciones aplicando CIDR?
 - 200.10.0.0/24
@@ -56,6 +60,8 @@ Luego reiniciamos y ya está todo listo para usar.
 
 ### Asignación de direcciones IP
 
+![esquema ej17](https://github.com/sergiocarp10/unlp-tramo-final/blob/main/I114%20-%20RD2/P2%20-%20Capa%20de%20Red%20I/ej17-esquema.png)
+
 * En Router n1:
 ``` 
 root@n1:/tmp/pycore.37217/n1.conf# ifconfig eth0 10.0.0.1
@@ -111,6 +117,67 @@ root@n2:/tmp/pycore.38455/n2.conf# route add default gw 10.0.3.2
 root@n3:/tmp/pycore.38455/n3.conf# route add default gw 10.0.2.1
 ```
 
+* Asi quedó para el router n1:
+```
+root@n1:/tmp/pycore.34143/n1.conf# route -n
+Tabla de rutas IP del núcleo
+Destino         Pasarela        Genmask         Indic Métric Ref    Uso Interfaz
+0.0.0.0         10.0.1.1        0.0.0.0         UG    0      0        0 eth1
+10.0.0.0        0.0.0.0         255.255.255.0   U     0      0        0 eth0
+10.0.1.0        0.0.0.0         255.255.255.0   U     0      0        0 eth1
+10.0.2.0        0.0.0.0         255.255.255.0   U     0      0        0 eth2
+10.0.3.0        10.0.1.1        255.255.255.0   UG    20     0        0 eth1
+10.0.4.0        10.0.1.1        255.255.255.0   UG    20     0        0 eth1
+10.0.5.0        10.0.2.2        255.255.255.0   UG    20     0        0 eth2
+```
+
+* n2:
+```
+root@n2:/tmp/pycore.34143/n2.conf# route -n
+Tabla de rutas IP del núcleo
+Destino         Pasarela        Genmask         Indic Métric Ref    Uso Interfaz
+0.0.0.0         10.0.3.2        0.0.0.0         UG    0      0        0 eth1
+10.0.0.0        10.0.1.2        255.255.255.0   UG    20     0        0 eth0
+10.0.1.0        0.0.0.0         255.255.255.0   U     0      0        0 eth0
+10.0.2.0        10.0.1.2        255.255.255.0   UG    20     0        0 eth0
+10.0.3.0        0.0.0.0         255.255.255.0   U     0      0        0 eth1
+10.0.4.0        0.0.0.0         255.255.255.0   U     0      0        0 eth2
+10.0.5.0        10.0.3.2        255.255.255.0   UG    20     0        0 eth1
+```
+
+* n3:
+```
+root@n3:/tmp/pycore.34143/n3.conf# route -n
+Tabla de rutas IP del núcleo
+Destino         Pasarela        Genmask         Indic Métric Ref    Uso Interfaz
+0.0.0.0         10.0.2.1        0.0.0.0         UG    0      0        0 eth0
+10.0.0.0        10.0.2.1        255.255.255.0   UG    20     0        0 eth0
+10.0.1.0        10.0.2.1        255.255.255.0   UG    20     0        0 eth0
+10.0.2.0        0.0.0.0         255.255.255.0   U     0      0        0 eth0
+10.0.3.0        0.0.0.0         255.255.255.0   U     0      0        0 eth1
+10.0.4.0        10.0.3.1        255.255.255.0   UG    20     0        0 eth1
+10.0.5.0        0.0.0.0         255.255.255.0   U     0      0        0 eth2
+```
+
+* Host n6:
+```
+root@n6:/tmp/pycore.34143/n6.conf# route -n
+Tabla de rutas IP del núcleo
+Destino         Pasarela        Genmask         Indic Métric Ref    Uso Interfaz
+0.0.0.0         10.0.0.1        0.0.0.0         UG    0      0        0 eth0
+10.0.0.0        0.0.0.0         255.255.255.0   U     0      0        0 eth0
+```
+
+* Host n10:
+```
+root@n10:/tmp/pycore.34143/n10.conf# route -n
+Tabla de rutas IP del núcleo
+Destino         Pasarela        Genmask         Indic Métric Ref    Uso Interfaz
+0.0.0.0         10.0.5.1        0.0.0.0         UG    0      0        0 eth0
+10.0.5.0        0.0.0.0         255.255.255.0   U     0      0        0 eth0
+```
+
+
 ### Traceroute
 * De n6 a n7. Vemos que pasa por n1 > n2 > n7.
 ```
@@ -142,6 +209,15 @@ traceroute to 10.0.8.19 (10.0.8.19), 30 hops max, 60 byte packets
  5  10.0.1.1 (10.0.1.1)  0.012 ms  0.012 ms  0.012 ms
  6  10.0.2.2 (10.0.2.2)  0.013 ms  0.027 ms  0.014 ms
  7  * * *
+```
+
+* De n10 a n8. Vemos que pasa por n3 > n2 > n8.
+```
+root@n10:/tmp/pycore.34143/n10.conf# traceroute 10.0.4.21
+traceroute to 10.0.4.21 (10.0.4.21), 30 hops max, 60 byte packets
+ 1  10.0.5.1 (10.0.5.1)  0.035 ms  0.008 ms  0.008 ms
+ 2  10.0.3.1 (10.0.3.1)  0.029 ms  0.017 ms  0.016 ms
+ 3  10.0.4.21 (10.0.4.21)  0.029 ms  0.020 ms  0.023 ms
 ```
 
 ## Ej 20
