@@ -132,3 +132,28 @@ Si interpreto PC1_hub a PC2_SW, no hay tráfico detectado en PC3_SW y no hay cam
 18:23:21.364144 ARP, Reply 10.0.0.20 is-at 00:00:00:aa:00:02 (oui Ethernet), length 28
 18:23:21.364147 ARP, Reply 10.0.0.1 is-at 00:00:00:aa:00:00 (oui Ethernet), length 28
 ```
+
+## Inciso 5
+![figura](fig4.png)
+
+1. Si PC1 envía un ARP Request para saber la dirección MAC de PC2, ¿qué dispositivos los recibirán? ¿Y a la respuesta de PC2?
+
+Respuesta: solo lo recibe la red 172.16.2.0, es decir, el request PC2 y el reply PC1.
+
+2. Agregue una entrada estática en la tabla ARP de PC1 para que pueda llegar a su router sin utilizar el protocolo. Usar el comando arp -s <IP> <MAC>
+
+```
+arp -s 172.16.2.1 A:eth0
+```
+
+3. Si PC3 le envía un ping a PC4, ¿cuál es toda la secuencia de mensajes suponiendo que las tablas ARP están vacías? ¿Cómo estarían compuestos estos mensajes?
+
+* ARP Request (PC3 Sender, PC4 Target)
+* ARP Reply (PC4 Sender, PC3 Target)
+* Echo Request (PC3 > PC4)
+* Echo Reply (PC4 > PC3)
+
+4. Si PC1 le envía un ping a PC4, ¿cuál sería toda la secuencia de mensajes suponiendo que las tablas ARP contienen los datos de la consulta anterior? ¿Cómo estarían compuestos estos mensajes? ¿Cambian las direcciones IP
+en los paquetes IP? ¿Y las direcciones MACs en las tramas Ethernet?
+
+* Echo Request (PC1 > A > ?)
