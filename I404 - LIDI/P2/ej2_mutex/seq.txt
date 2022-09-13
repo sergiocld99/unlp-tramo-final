@@ -1,0 +1,8 @@
+N=8192, x=10, ocurrencias=410. Tiempo en segundos 0.000020
+N=16384, x=10, ocurrencias=819. Tiempo en segundos 0.000040
+N=32768, x=10, ocurrencias=1638. Tiempo en segundos 0.000080
+N=65536, x=10, ocurrencias=3277. Tiempo en segundos 0.000161
+N=800000, x=10, ocurrencias=40000. Tiempo en segundos 0.001676
+N=8000000, x=10, ocurrencias=400000. Tiempo en segundos 0.012965
+N=80000000, x=10, ocurrencias=4000000. Tiempo en segundos 0.127403
+N=800000000, x=10, ocurrencias=40000000. Tiempo en segundos 1.276223
