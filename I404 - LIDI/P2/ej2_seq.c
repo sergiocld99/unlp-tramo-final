@@ -55,7 +55,10 @@ int main(int argc,char*argv[]){
     }
 
     // marcamos fin de tiempo
-    printf("Ocurrrencias de %d en vector: %d. Tiempo en segundos %f\n",X,ocurrencias, dwalltime() - timetick);
+    printf("Ocurrrencias de x=%d en vector: %d. Tiempo en segundos %f\n",X,ocurrencias, dwalltime() - timetick);
+
+    // liberar memoria
+    free(v);
 
     return 0;
 }
@@ -64,10 +67,10 @@ static void init_vector(int* v, int N, int max){
     int i;
 
     // nueva seed
-    srand(time(NULL));
+    // srand(time(NULL));
 
     for (i=0; i<N; i++){
         // asignar numero entre 0 y 2X
-        v[i] = rand() % max;
+        v[i] = i % max;
     }
 }

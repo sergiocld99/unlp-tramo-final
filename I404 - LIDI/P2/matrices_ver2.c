@@ -110,6 +110,11 @@ int main(int argc,char*argv[])
     if (errores) printf("Ejecución terminada con %d errores\n", errores);
     else printf("Ejecución finalizada con éxito!\n");
 
+    // liberar memoria
+    free(A);
+    free(B);
+    free(C);
+
     return 0;
 }
 

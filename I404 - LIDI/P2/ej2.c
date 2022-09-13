@@ -30,7 +30,7 @@ static int ocurrencias = 0;
 static pthread_mutex_t mutex;
 
 // estructura de params
-struct {
+typedef struct {
     int startIndex;
     int querySize;
 } pthread_params_t;
@@ -62,6 +62,9 @@ int main(int argc,char*argv[]){
     pthread_t threads[T];
     pthread_params_t params[T];
 
+    // inicializar atributos
+    pthread_attr_init(&attr);
+
     // inicializar mutex
     pthread_mutex_init(&mutex, NULL);
 
@@ -69,7 +72,7 @@ int main(int argc,char*argv[]){
     timetick = dwalltime();
 
     // crear hilos
-    for (i=0; i<N; i++){
+    for (i=0; i<T; i++){
         params[i].startIndex = i*(N/T);
         params[i].querySize = N/T;
 
@@ -82,7 +85,10 @@ int main(int argc,char*argv[]){
     }
 
     // marcamos fin de tiempo
-    printf("Ocurrrencias de %d en vector: %d. Tiempo en segundos %f\n",X,ocurrencias, dwalltime() - timetick);
+    printf("Ocurrrencias de x=%d en vector: %d. Tiempo en segundos %f\n",X,ocurrencias, dwalltime() - timetick);
+
+    // liberar memoria
+    free(v);
 
     return 0;
 }
@@ -91,23 +97,24 @@ static void init_vector(int* v, int N, int max){
     int i;
 
     // nueva seed
-    srand(time(NULL));
+    // srand(time(NULL));
 
     for (i=0; i<N; i++){
         // asignar numero entre 0 y 2X
-        v[i] = rand() % max;
+        //v[i] = rand() % max;
+        v[i] = i % max;
     }
 }
 
 void* resolver(void* arg){
 
     int i, ocurrenciasLocal = 0;
-    pthread_params_t params = (pthread_params_t*) arg;
+    pthread_params_t* params = (pthread_params_t*) arg;
     int startIndex = (*params).startIndex;
     int querySize = (*params).querySize;
 
-    for (i=startIndex; i<querySize, i++){
-        if (v[i] == X) ocurrenciasLocal++;
+    for (i=0; i<querySize; i++){
+        if (v[startIndex+i] == X) ocurrenciasLocal++;
     }
 
     // actualizar variable compartida
