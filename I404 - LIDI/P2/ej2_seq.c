@@ -55,7 +55,7 @@ int main(int argc,char*argv[]){
     }
 
     // marcamos fin de tiempo
-    printf("Ocurrrencias de x=%d en vector: %d. Tiempo en segundos %f\n",X,ocurrencias, dwalltime() - timetick);
+    printf("N=%d, x=%d, ocurrencias=%d. Tiempo en segundos %f\n", N, X, ocurrencias, dwalltime() - timetick);
 
     // liberar memoria
     free(v);

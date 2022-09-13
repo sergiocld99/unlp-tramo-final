@@ -1,10 +1,11 @@
-// Dado un vector de N elementos, contar las ocurrencias de un numero dado
+// Buscar promedio, minimo y máximo de un vector con semaforos
 
 #include <stdio.h>
 #include <stdlib.h>
 
 // Librería P-threads
-#include <pthread.h>
+#include <pthread.h>        // hilos
+#include <semaphore.h>      // semaforos
 
 // Cabecera para dwall time
 #include <sys/time.h>
@@ -24,10 +25,9 @@ double dwalltime(){
 // ----------------------------------------------------------------------
 
 // variables compartidas
-static int *v;
-static const int X = 10;
-static int ocurrencias = 0;
-static pthread_mutex_t mutex;
+static double *v;
+static double minimo = 9999.9, maximo = -9999.9, sumaParcial = 0.0;
+static sem_t semaforo;
 
 // estructura de params
 typedef struct {
@@ -37,7 +37,7 @@ typedef struct {
 
 // Prototipos de funcion
 void* resolver(void* arg);
-static void init_vector(int* v, int N, int max);
+static void init_vector(double* v, int N);
 
 int main(int argc,char*argv[]){
 
@@ -52,10 +52,10 @@ int main(int argc,char*argv[]){
     }
 
     // reservar memoria
-    v = (int*) malloc(sizeof(int)*N);
+    v = (double*) malloc(sizeof(double)*N);
 
     // rellenar vector
-    init_vector(v, N, 2*X);
+    init_vector(v, N);
 
     // variables para los threads
     pthread_attr_t attr;
@@ -65,8 +65,8 @@ int main(int argc,char*argv[]){
     // inicializar atributos
     pthread_attr_init(&attr);
 
-    // inicializar mutex
-    pthread_mutex_init(&mutex, NULL);
+    // inicializar semaforo
+    sem_init(&semaforo, NULL, 1);   // sem semaforo = 1;
 
     // marcar inicio de tiempo
     timetick = dwalltime();
@@ -85,7 +85,7 @@ int main(int argc,char*argv[]){
     }
 
     // marcamos fin de tiempo
-    printf("Ocurrrencias de x=%d en vector: %d. Tiempo en segundos %f\n",X,ocurrencias, dwalltime() - timetick);
+    printf("N=%d, T=%d, min: %f, max: %f, prom: %f. Tiempo en segundos %f\n", N, T, minimo, maximo, sumaParcial / N, dwalltime() - timetick);
 
     // liberar memoria
     free(v);
@@ -93,34 +93,39 @@ int main(int argc,char*argv[]){
     return 0;
 }
 
-static void init_vector(int* v, int N, int max){
+static void init_vector(double* v, int N){
     int i;
 
     // nueva seed
     // srand(time(NULL));
 
     for (i=0; i<N; i++){
-        // asignar numero entre 0 y 2X
-        //v[i] = rand() % max;
-        v[i] = i % max;
+        v[i] = (i % 64) + 1.0;
     }
 }
 
 void* resolver(void* arg){
 
-    int i, ocurrenciasLocal = 0;
+    int i;
+    double aux, minimoLocal = 9999.9, maximoLocal = -9999.9, sumaLocal = 0.0;
     pthread_params_t* params = (pthread_params_t*) arg;
+
     int startIndex = (*params).startIndex;
     int querySize = (*params).querySize;
 
     for (i=0; i<querySize; i++){
-        if (v[startIndex+i] == X) ocurrenciasLocal++;
+        aux = v[startIndex+i];
+        if (aux > maximoLocal) maximoLocal = aux;
+        if (aux < minimoLocal) minimoLocal = aux;
+        sumaLocal += aux;
     }
 
-    // actualizar variable compartida
-    pthread_mutex_lock(&mutex);
-    ocurrencias += ocurrenciasLocal;
-    pthread_mutex_unlock(&mutex);
+    // actualizar variables compartidas
+    sem_wait(&semaforo);                                // P(semaforo)
+    if (minimoLocal < minimo) minimo = minimoLocal;
+    if (maximoLocal > maximo) maximo = maximoLocal;
+    sumaParcial += sumaLocal;
+    sem_post(&semaforo);                                // V(semaforo)
 
     return NULL;   
 }
