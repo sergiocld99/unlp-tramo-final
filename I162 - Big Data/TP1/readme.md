@@ -1,5 +1,46 @@
 # Práctica 1
 
+## Ej 1
+### Inciso a
+* Se ejecuta map() unas 16 veces
+* Se ejecuta reduce() unas 4 veces
+* Se ejecutan 4 mappers
+* Se ejecuta 1 reducer
+* El reducer recibe la lista de values
+* La salida del job es (1,16)
+
+### Inciso b
+* Se ejecuta map() unas 16 veces
+* Se ejecuta reduce() unas 4 veces
+* Se ejecutan 4 mappers
+* Se ejecuta 1 reducer
+* El reducer recibe la lista de values
+* La salida del job es (1, suma de values)
+
+### Inciso c
+* Se ejecuta map() unas 16 veces
+* Se ejecuta reduce() unas 8 veces
+* Se ejecutan 4 mappers
+* Se ejecutan 2 reducers
+* Cada reducer recibe una lista de keys
+* Las salidas del job son (1,23) y (1,36)
+
+### Inciso d
+* Se ejecuta map() unas 16 veces
+* Se ejecuta reduce() unas 15 veces (unique keys)
+* Se ejecutan 4 mappers
+* Se ejecutan 14 reducers (unique keys)
+* Cada reducer recibe el value unas value veces
+* Las salidas del job son (key, suma de values)
+
+### Inciso e
+* Se ejecuta map() unas 16 veces
+* Se ejecuta reduce() unas 16 veces
+* Se ejecutan 4 mappers
+* Se ejecutan 13 reducers (unique values)
+* ...
+
+
 ## Ej 3
 ¿Cómo  haría  para obtener el  top  20  de  las palabras  más usadas?
 * La función reduce no conoce resultados anteriores y posteriores, y además cada palabra puede aparecer en diferentes lineas, asi que no puedo pasar las apariciones de una palabra en cada linea procesada (map) como clave, entonces no me queda otra que mostrar las apariciones totales de cada palabra en la salida de manera desordenada, y luego aplicar un procesamiento posterior (ejemplo Excel)
