@@ -7,7 +7,7 @@
 * Se ejecutan 4 mappers
 * Se ejecuta 1 reducer
 * El reducer recibe la lista de values
-* La salida del job es (1,16)
+* La salida del job es (1,16) [CHEQUEADO]
 
 ### Inciso b
 * Se ejecuta map() unas 16 veces
@@ -15,7 +15,7 @@
 * Se ejecutan 4 mappers
 * Se ejecuta 1 reducer
 * El reducer recibe la lista de values
-* La salida del job es (1, suma de values)
+* La salida del job es (1, 565) [CHEQUEADO]
 
 ### Inciso c
 * Se ejecuta map() unas 16 veces
@@ -23,7 +23,7 @@
 * Se ejecutan 4 mappers
 * Se ejecutan 2 reducers
 * Cada reducer recibe una lista de keys
-* Las salidas del job son (1,23) y (1,36)
+* Las salidas del job son (1,36) y (2,32) [CHEQUEADO]
 
 ### Inciso d
 * Se ejecuta map() unas 16 veces
@@ -31,14 +31,14 @@
 * Se ejecutan 4 mappers
 * Se ejecutan 14 reducers (unique keys)
 * Cada reducer recibe el value unas value veces
-* Las salidas del job son (key, suma de values)
+* Las salidas del job son (key, suma de values) [CHEQUEADO]
 
 ### Inciso e
 * Se ejecuta map() unas 16 veces
 * Se ejecuta reduce() unas 16 veces
 * Se ejecutan 4 mappers
 * Se ejecutan 13 reducers (unique values)
-* ...
+* Las salidas del job son (key, numero entre 1 y veces que aparece su value) [CHEQUEADO]
 
 
 ## Ej 3
