@@ -34,9 +34,10 @@ Una  empresa  proveedora de  internet  realizó  una  encuesta  para  conocer  e
 ## Ej 7
 El dataset <b>Inversionistas</b>  posee  los nombres, dni, fecha de nacimiento (día, mes y año como  campos  separados) e importe invertido por  diferentes personas en la apertura de un nuevo negocio en la ciudad. Se desea saber:
 1) El nombre del inversionista más joven
-2) El total delimporteinvertido por todos los inversionistas
+2) El total del importe invertido por todos los inversionistas
 3) El promedio de edad
 
 Implemente una solución en MapReduce. ¿Se puede resolver los tres problemas en un único job?
 
 * Columnas separadas por tabulación!
+* Las columnas 1-3 (contando desde 0) son DD, MM y YYYY
