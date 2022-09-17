@@ -17,7 +17,7 @@ Indique si utilizando el dataset Libros es posible resolver los siguientes probl
 Respuestas:
 
 1) Si, ya que el offset del titulo es 0 en todos los archivos.
-2) Se puede obtener la cantidad de palabras que tiene cada párrafo (ya que cada uno ocupa 1 linea en los archivos), pero el promedio seria un procesamiento posterior (entonces no)
+2) Si, la función map pasa la cantidad de palabras del párrafo que procesó, y la reduce calcula el promedio sumando las cantidades de palabras pasadas, y la cantidad de párrafos se obtiene a partir de la cantidad de VALORES recibidos.
 3) No, porque la clave no contiene info del archivo origen?
 4) Se puede obtener la cantidad de caracteres de cada párrafo (ordenado de menor a mayor ya que el valor es único por dato/linea), el máximo estará al final de alguna salida...
 5) Si, ya que siguen un mismo "prefijo" y se pueden contabilizar todos bajo una única clave, de modo de obtener un solo resultado
@@ -30,3 +30,13 @@ Una  empresa  proveedora de  internet  realizó  una  encuesta  para  conocer  e
 * La función map enviará los datos de una misma opción bajo una misma clave, asi luego la función reduce las contabiliza.
 
 * Vemos que el formato no siempre se respeta...
+
+## Ej 7
+El dataset <b>Inversionistas</b>  posee  los nombres, dni, fecha de nacimiento (día, mes y año como  campos  separados) e importe invertido por  diferentes personas en la apertura de un nuevo negocio en la ciudad. Se desea saber:
+1) El nombre del inversionista más joven
+2) El total delimporteinvertido por todos los inversionistas
+3) El promedio de edad
+
+Implemente una solución en MapReduce. ¿Se puede resolver los tres problemas en un único job?
+
+* Columnas separadas por tabulación!
