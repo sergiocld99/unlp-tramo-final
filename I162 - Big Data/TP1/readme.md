@@ -82,3 +82,7 @@ Implemente una solución en MapReduce. ¿Se puede resolver los tres problemas en
 
 * Columnas separadas por tabulación!
 * Las columnas 1-3 (contando desde 0) son DD, MM y YYYY
+
+## Ej 8
+- Producir en los mappers unas tuplas con clave "POSITIVO" + random(33)
+- Esto permite forzar la paralelización

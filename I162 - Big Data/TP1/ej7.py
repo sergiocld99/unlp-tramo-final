@@ -26,7 +26,7 @@ def fmap(key, value, context):
 
     # edad en dias
     edad = (2022*365+9*12+17) - (year*365+month*12+day)
-    context.write(edad, value)
+    context.write(-3, (edad, value))
 
     # edad en años
     anios = edad / 365
@@ -52,10 +52,19 @@ def fred(key, values, context):
         
         context.write("edad promedio", total / cant)
     else:
-        ## mandar cada valor de dedad
+        ## obtener edad minima
+        min = 9999
+        data_min = 0
+
         for v in values:
-            context.write(key, v)
-    
+            edad = v[0]
+
+            if (edad < min):
+              min = edad
+              data_min = v[1]
+            
+        context.write("mas joven", data_min)
+
 
 job = Job(inputDir, outputDir, fmap, fred)
 success = job.waitForCompletion()
