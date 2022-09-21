@@ -61,33 +61,56 @@ Para 2000 hosts -> 11 bits (/21) para 2^5 = 32 redes
 
 Para 500 hosts -> 9 bits (/23) para 2^2 = 4 redes
 * 100.0.16.0/23: red C (0001 000X XXXX XXXX)
-* 100.0.16.2/23: red D (0001 001X XXXX XXXX)
-* 100.0.16.4/23: libre (0001 010X XXXX XXXX) [510 dir]
-* 100.0.16.6/23: libre (0001 011X XXXX XXXX) [510 dir]
+* 100.0.18.0/23: red D (0001 001X XXXX XXXX)
+* 100.0.20.0/23: libre (0001 010X XXXX XXXX) [510 dir]
+* 100.0.22.0/23: libre (0001 011X XXXX XXXX) [510 dir]
 
 Para 300 hosts -> 9 bits (/23). Haciendo subnetting desde /21, cada subred tiene 4 redes E, necesitando ocupar 5 redes /21 (24, 32, 40, 48 y 56)
 
 * 100.0.24.0/23: red E1 (0001 100X XXXX XXXX)
-* 100.0.24.2/23: red E2 (0001 101X XXXX XXXX)
-* 100.0.24.4/23: red E3 (0001 110X XXXX XXXX)
-* 100.0.24.6/23: red E4 (0001 111X XXXX XXXX)
+* 100.0.26.0/23: red E2 (0001 101X XXXX XXXX)
+* 100.0.28.0/23: red E3 (0001 110X XXXX XXXX)
+* 100.0.30.0/23: red E4 (0001 111X XXXX XXXX)
 * 100.0.32.0/23: red E5 (0010 000X XXXX XXXX)
-* 100.0.32.2/23: red E6 (0010 001X XXXX XXXX)
-* 100.0.32.4/23: red E7 (0010 010X XXXX XXXX)
-* 100.0.32.6/23: red E8 (0010 011X XXXX XXXX)
+* 100.0.34.0/23: red E6 (0010 001X XXXX XXXX)
+* 100.0.36.0/23: red E7 (0010 010X XXXX XXXX)
+* 100.0.38.0/23: red E8 (0010 011X XXXX XXXX)
 * 100.0.40.0/23: red E9 (0010 100X XXXX XXXX)
-* 100.0.40.2/23: red E10 (0010 101X XXXX XXXX)
-* 100.0.40.4/23: red E11 (0010 110X XXXX XXXX)
-* 100.0.40.6/23: red E12 (0010 111X XXXX XXXX)
+* 100.0.42.0/23: red E10 (0010 101X XXXX XXXX)
+* 100.0.44.0/23: red E11 (0010 110X XXXX XXXX)
+* 100.0.46.0/23: red E12 (0010 111X XXXX XXXX)
 * 100.0.48.0/23: red E13 (0011 000X XXXX XXXX)
-* 100.0.48.2/23: red E14 (0011 001X XXXX XXXX)
-* 100.0.48.4/23: red E15 (0011 010X XXXX XXXX)
-* 100.0.48.6/23: red E16 (0011 011X XXXX XXXX)
+* 100.0.50.0/23: red E14 (0011 001X XXXX XXXX)
+* 100.0.52.0/23: red E15 (0011 010X XXXX XXXX)
+* 100.0.54.0/23: red E16 (0011 011X XXXX XXXX)
 * 100.0.56.0/23: red E17 (0011 100X XXXX XXXX)
-* 100.0.56.2/23: red E18 (0011 101X XXXX XXXX)
-* 100.0.56.4/23: red E19 (0011 110X XXXX XXXX)
-* 100.0.56.6/23: red E20 (0011 111X XXXX XXXX)
+* 100.0.58.0/23: red E18 (0011 101X XXXX XXXX)
+* 100.0.60.0/23: red E19 (0011 110X XXXX XXXX)
+* 100.0.62.0/23: red E20 (0011 111X XXXX XXXX)
 
 Para 200 hosts -> 8 bits (/24). Haciendo subnetting desde /21, cada subred tiene 8 redes F, necesitando ocupar 7 redes /21...
 
-Por último, para 74 hosts -> 7 bits (/25). Solo necesitamos una red, podemos subnetear con 100.0.248/21 -> red G: 100.0.248/25.
+Por último, para 74 hosts -> 7 bits (/25). Solo necesitamos una red, subneteo con 100.0.248.0/21 -> red G: 100.0.248.0/25.
+
+## Ej 2
+Aumentan los hosts un 20%, salvo en red G
+
+* Las A y B pasan a 2400 -> 12 bits (/20)
+* Las C y D pasan a 600 -> 10 bits (/22)
+* Las E pasan a 360 -> 9 bits (/23) [ok]
+* Las F pasan a 240 -> 8 bits (/24) [ok]
+
+Entonces, para /20 tenemos 2^4 = 16 redes
+* 100.0.0.0/20: red A (0000 XXXX XXXX XXXX)
+* 100.0.16.0/20: red B (0001 XXXX XXXX XXXX)
+* 100.0.32.0/20: libre (0010 XXXX XXXX XXXX) [para C y D]
+* 100.0.48.0/20: libre (0011 XXXX XXXX XXXX) [para E1...]
+* quedan 13 redes libres...
+
+Luego, para /22, haciendo subnetting:
+* 100.0.32.0/22: red C (0010 00XX XXXX XXXX)
+* 100.0.36.0/22: red D (0010 01XX XXXX XXXX)
+* 100.0.40.0/22: libre
+* 100.0.44.0/22: libre
+
+Respecto a /23, con subnetting desde /20 se ocupan 3 bits para definir la subred E, resultando 8 redes E para cada /23 (x4).
