@@ -105,7 +105,13 @@ Entonces, para /20 tenemos 2^4 = 16 redes
 * 100.0.16.0/20: red B (0001 XXXX XXXX XXXX)
 * 100.0.32.0/20: libre (0010 XXXX XXXX XXXX) [para C y D]
 * 100.0.48.0/20: libre (0011 XXXX XXXX XXXX) [para E1...]
-* quedan 13 redes libres...
+* 100.0.64.0/20: libre (0100 XXXX XXXX XXXX) [para E9...]
+* 100.0.80.0/20: libre (0101 XXXX XXXX XXXX) [para E17...]
+* 100.0.96.0/20: libre (0110 XXXX XXXX XXXX) [para F1...]
+* 100.0.112.0/20: libre (0111 XXXX XXXX XXXX) [para F17...]
+* 100.0.128.0/20: libre (1000 XXXX XXXX XXXX) [para F33...]
+* 100.0.144.0/20: libre (1001 XXXX XXXX XXXX) [para F49 y F50]
+* quedan 6 redes libres...
 
 Luego, para /22, haciendo subnetting:
 * 100.0.32.0/22: red C (0010 00XX XXXX XXXX)
@@ -113,4 +119,20 @@ Luego, para /22, haciendo subnetting:
 * 100.0.40.0/22: libre
 * 100.0.44.0/22: libre
 
-Respecto a /23, con subnetting desde /20 se ocupan 3 bits para definir la subred E, resultando 8 redes E para cada /23 (x4).
+Respecto a /23, con subnetting desde /20 se ocupan 3 bits para definir la subred E, resulta 8 redes E para cada /23 (3x8=24).
+
+Respecto a /24, resultan 16 redes F para cada /23 (4x16=64)
+
+## Ej 3
+Resolver los ejercicios 1a) y 1b) con la red IPv6: 2001:db8:1111::/48
+
+* Pista: ipv6 tiene direcciones de 128 bits, quedaron 80 bits.
+
+- Para 2000 hosts -> 11 bits (/117)
+- Para 500 y 300 hosts -> 9 bits (/119)
+- Para 200 hosts -> 8 bits (/120)
+- Para 74 direcciones -> 7 bits (/121)
+
+[POSTERGADO]
+
+## Ej 4
