@@ -4,7 +4,6 @@
 #include<omp.h>
 #include<math.h>
 
-
 int main(int argc,char*argv[]){
  double x,scale;
  int i;
@@ -14,10 +13,28 @@ int main(int argc,char*argv[]){
  scale=2.78;
  x=0.0;
 
- #pragma omp parallel for
+ // PROBLEMA: x siempre da distinto.
+ // CAUSA: las iteraciones NO son independientes entre sí
+ // OBSERVACIÓN: sqrt(i*scale) es independiente
+ // SOLUCIÓN: DIRECTIVA ORDERED para asignar x
+
+ double aux;
+
+ // double timetick = dwalltime();
+
+ #pragma omp parallel for private(aux) ordered
  for(i=1;i<=N;i++){
-	x= x + sqrt(i*scale) + 2*x;
+	aux = sqrt(i*scale);
+
+	#pragma omp ordered
+	{
+		x= 3*x + aux;
+	}
+
  }
+
+ // el tiempo de ejecucion es muy chico para x grande
+ // printf("N=%d, T=%d, t[s] = %f\n", N, numThreads, dwalltime() - timetick);
 
  printf("\n Resultado: %f \n",x);
 

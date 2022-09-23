@@ -43,18 +43,23 @@ int main(int argc,char*argv[]){
 
 #pragma omp parallel default(none) private(i,j,temp,timetick,tid) shared(A,N)
 { 
- tid= omp_get_thread_num();
- timetick = dwalltime();
- #pragma omp for private(i,j,temp) nowait
+  tid= omp_get_thread_num();
+  timetick = dwalltime();
+
+  // PROBLEMA: carga no balanceada, el primer hilo trabaja con más columnas que el resto
+  // SOLUCIÓN: usar cláusula schedule adecuada (static, dynamic, guided...) -> DYNAMIC
+
+  #pragma omp for private(i,j,temp) schedule(dynamic) nowait
   for(i=0;i<N;i++){
-   for(j=i+1;j<N;j++){
-		temp = A[i*N+j];
-		A[i*N+j]= A[j*N+i];
-		A[j*N+i]= temp;
+    for(j=i+1;j<N;j++){
+		  temp = A[i*N+j];
+		  A[i*N+j]= A[j*N+i];
+		  A[j*N+i]= temp;
    
-   }
+    }
   }   
-    printf("Tiempo en segundos para el thread %d: %f \n", tid,dwalltime() - timetick);
+  
+  printf("Tiempo en segundos para el thread %d: %f \n", tid,dwalltime() - timetick);
 }
 
    
