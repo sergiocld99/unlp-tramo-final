@@ -43,7 +43,7 @@ int main(int argc,char*argv[]){
  //Realiza la multiplicacion
  for(i=0;i<N;i++){
 
-   #pragma omp parallel for
+   #pragma omp parallel for schedule(static)
    for(j=0;j<N;j++){
       C[i*N+j]=0;
 

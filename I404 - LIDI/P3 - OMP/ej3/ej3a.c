@@ -41,7 +41,7 @@ int main(int argc,char*argv[]){
  // resultado: se reduce el tiempo proporcional a la cantidad de threads
 
  //Realiza la multiplicacion
- #pragma omp parallel for
+ #pragma omp parallel for schedule(static)
  for(i=0;i<N;i++){
     for(j=0;j<N;j++){
         C[i*N+j]=0;
