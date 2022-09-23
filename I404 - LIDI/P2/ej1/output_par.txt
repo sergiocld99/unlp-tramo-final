@@ -1,0 +1,24 @@
+N=512, T=2, Tiempo en segundos 0.105058
+Ejecución finalizada con éxito!
+N=512, T=4, Tiempo en segundos 0.053553
+Ejecución finalizada con éxito!
+N=512, T=8, Tiempo en segundos 0.027429
+Ejecución finalizada con éxito!
+N=1024, T=2, Tiempo en segundos 1.488944
+Ejecución finalizada con éxito!
+N=1024, T=4, Tiempo en segundos 1.180321
+Ejecución finalizada con éxito!
+N=1024, T=8, Tiempo en segundos 0.591863
+Ejecución finalizada con éxito!
+N=2048, T=2, Tiempo en segundos 12.806691
+Ejecución finalizada con éxito!
+N=2048, T=4, Tiempo en segundos 10.169964
+Ejecución finalizada con éxito!
+N=2048, T=8, Tiempo en segundos 5.087505
+Ejecución finalizada con éxito!
+N=4096, T=2, Tiempo en segundos 104.950278
+Ejecución finalizada con éxito!
+N=4096, T=4, Tiempo en segundos 81.899432
+Ejecución finalizada con éxito!
+N=4096, T=8, Tiempo en segundos 43.518418
+Ejecución finalizada con éxito!
