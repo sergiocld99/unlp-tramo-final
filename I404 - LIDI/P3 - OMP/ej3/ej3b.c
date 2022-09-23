@@ -38,7 +38,7 @@ int main(int argc,char*argv[]){
   timetick = dwalltime();
 
  // INCISO B: REPARTIR EL TRABAJO DEL SEGUNDO FOR (CALCULO DE COLUMNAS)
- // resultado: prácticamente los mismos que en A
+ // resultado: tarda un poco más que A porque crea hilos varias veces, y éstos hacen poco cómputo
 
  //Realiza la multiplicacion
  for(i=0;i<N;i++){
