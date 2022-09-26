@@ -136,3 +136,13 @@ Resolver los ejercicios 1a) y 1b) con la red IPv6: 2001:db8:1111::/48
 [POSTERGADO]
 
 ## Ej 4
+2001:db8:2::1/64 = 2001:0db8:0002:0000:0000:0000:0000:0001/64
+- la red "A" es: 2001:0db8:0002:0000
+
+entonces para n5 la red es 2001:0db8:0002:0000, y le podemos asignar la dirección 2001:db8:2::30/64, por ejemplo.
+
+- la red "B" donde está n6 es: 2001:0db8:0001:0000, entonces le asignamos la dirección 2001:db8:1::1/64 a eth1 de router n2.
+
+solo falta el enlace punto a punto. La interfaz eth0 del router n1 tiene dirección 2001:db8::128/64, por lo que la red del punto a punto es 2001:0db8:0000:0000
+
+- interfaz eth0 de router n2 es: 2001:db8::129/64.
