@@ -15,13 +15,14 @@ outputDir = parent_path + "output/"
 # --------------------------------------
 
 # key es el nombre de variable despejada, value son los coeficientes del resto
-# para Jacobi.txt tenemos 16 coeficientes
+# para Jacobi.txt tenemos 15 coeficientes
 def fmap_1(key, value, context):
     vars = context["incognitas"]
 
     coefs = value.split('\t')
     res = 0
 
+    # para TI (vars[0]) el coef siempre debe ser 1
     for i in range(len(coefs)):
         res = res + vars[i] * float(coefs[i])
 

@@ -1,0 +1,7 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH --exclusive
+#SBATCH --tasks-per-node=8
+#SBATCH -o output_1_nodo.txt
+#SBATCH -e errores.txt
+mpirun matmul.out $1
