@@ -98,6 +98,8 @@ int main(int argc, char* argv[]){
 	// recolectar resultados parciales
 	if (rank==COORDINATOR){
 		// el master recibe las multiplicaciones parciales que realizó cada worker
+		// se van recibiendo diferentes conjuntos de filas de C
+		// se puede reemplazar por gather
 		for (i=1; i<numProcs; i++) {
 			MPI_Recv(c+i*stripSize*n, n*stripSize, MPI_DOUBLE, i, 2, MPI_COMM_WORLD, &status);			
 		}
