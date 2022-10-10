@@ -30,4 +30,8 @@ En ARM:
             SUBLEQ  R1, R0, R3
             ...
 
+![](img14.png)
+
 Itanium ejecuta las instrucciones de ambas bifurcaciones aunque no se conozca el resultado (predicado = 0), pero no se efectiviza el commit hasta conocerse dicha condición.
+
+La ejecución condicional de ARM hace que cada instrucción se ejecute o no según los flags del CPSR (current program status register)
