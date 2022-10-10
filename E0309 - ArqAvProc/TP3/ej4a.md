@@ -21,4 +21,4 @@ Los resultados temporales se almacenan en un ROB.
                         I6              I5
                                         I6
 
-La ejecución toma 7 ciclos.
+La ejecución toma 7 ciclos. Las UF se utilizan durante un 46% del tiempo (ciclos 2-6).
