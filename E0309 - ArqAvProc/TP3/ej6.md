@@ -1,0 +1,19 @@
+![](img11.png)
+
+Con 1 iteración:
+
+- I1: LDD RF0, LDD RF1, ADD R0 + 4
+- I2: ADF RF3, BNE
+- I3: STD RF3
+
+Con 2 iteraciones:
+- I1: LDD RF0, LDD RF1, ADD R0 + 8
+- I2: LDD RF4, LDD RF5, ADF RF3, BNE R0
+- I3: STD RF3, ADF RF6
+- I4: STD RF6
+
+Con 3 iteraciones:
+- I1: LDD RF0, LDD RF1, ADD R0 + 12
+- I2: LDD RF4, LDD RF5, ADF RF3, BNE R0
+- I3: LDD RF7, LDD RF8, ADF RF6
+- I4: STD RF3, STD RF6
