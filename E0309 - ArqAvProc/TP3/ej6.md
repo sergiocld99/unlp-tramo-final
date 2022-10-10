@@ -1,19 +1,27 @@
 ![](img11.png)
 
-Con 1 iteración:
+Con 1 iteración: todas op tardan 1 ciclo
 
-- I1: LDD RF0, LDD RF1, ADD R0 + 4
-- I2: ADF RF3, BNE
-- I3: STD RF3
+    C   MEM     MEM     PF      PF      INT
+    1   LDD     LDD
+    2                   ADDF            ADD 4
+    3   STD                             BNE
 
 Con 2 iteraciones:
-- I1: LDD RF0, LDD RF1, ADD R0 + 8
-- I2: LDD RF4, LDD RF5, ADF RF3, BNE R0
-- I3: STD RF3, ADF RF6
-- I4: STD RF6
+
+    C   MEM     MEM     PF      PF      INT
+    1   LDD0    LDD1
+    2   LDD4    LDD5    ADDF3
+    3   STD3            ADDF6           ADD 8
+    4   STD6                            BNE
 
 Con 3 iteraciones:
-- I1: LDD RF0, LDD RF1, ADD R0 + 12
-- I2: LDD RF4, LDD RF5, ADF RF3, BNE R0
-- I3: LDD RF7, LDD RF8, ADF RF6
-- I4: STD RF3, STD RF6
+
+    C   MEM     MEM     PF      PF      INT
+    1   LDD0    LDD1
+    2   LDD4    LDD5    ADDF3
+    3   LDD7    LDD8    ADDF6      
+    4   STD3    STD6    ADDF9           ADD 12
+    5   STD9                            BNE
+
+Vemos que siempre queda una PF sin usar

@@ -29,3 +29,5 @@ En ARM:
             ADDGT   R1, R3, R0
             SUBLEQ  R1, R0, R3
             ...
+
+Itanium ejecuta las instrucciones de ambas bifurcaciones aunque no se conozca el resultado (predicado = 0), pero no se efectiviza el commit hasta conocerse dicha condición.

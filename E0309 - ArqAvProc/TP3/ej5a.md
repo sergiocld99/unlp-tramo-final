@@ -9,10 +9,12 @@
 
 ![](img9.png)
 
-Dentro de la iteración se tienen instrucciones con dependencia verdadera entre sí. La carga llevaría 2 ciclos, la suma 3 ciclos, el store 1 ciclo?, la resta 1 ciclo y el salto 1 ciclo?
-
-- I1 = LDD + SUB (2 ciclos)
-- I2 = ADDF + BGEZ (3 ciclos)
-- I3 = STD (1 ciclo)
+    C   MEM     MEM     PF      PF      INT
+    1   LDD
+    2   LDD
+    3                   ADDF
+    4                   ADDF
+    5                   ADDF            SUB
+    6   STD                             BGEZ
 
 Una iteración se resuelve en 6 ciclos
