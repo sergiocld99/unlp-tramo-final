@@ -61,6 +61,10 @@ int main(int argc, char* argv[]){
 	commTimes[0] = MPI_Wtime();
 
 	/* distribuir datos*/
+	// ¿se puede usar una colectiva?
+
+	
+
 	if (rank==COORDINATOR){
 	
 		// el master le pasa a cada worker una porción de la matriz A y toda la matriz B
