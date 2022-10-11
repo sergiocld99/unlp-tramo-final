@@ -61,11 +61,12 @@ int main(int argc, char* argv[]){
 	commTimes[0] = MPI_Wtime();
 
 	/* distribuir datos*/
+	double* z = (double*) malloc(sizeof(double)*stripSize*n);
  
 	// la matriz A se reparte
 	// scatter: bufenv, cant envio, tipo envio, bufrec, origen, comm
 	// cant envio es la cantidad de datos a enviar a cada proceso, no el total
-	MPI_Scatter(a, stripSize*n, MPI_DOUBLE, a, stripSize*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
+	MPI_Scatter(a, stripSize*n, MPI_DOUBLE, z, stripSize*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
 
 	// la matriz B se copia completa a cada proceso (broadcast)
 	// bcast: buf, tamaño, tipo, origen, comm
@@ -73,7 +74,13 @@ int main(int argc, char* argv[]){
 
 	/*
 	if (rank==COORDINATOR){
+		// el master le pasa a cada worker una porción de la matriz A y toda la matriz B
+		// la matriz A se reparte por filas (cada workers trabaja con tantas filas completas)
+		// coordinador trabaja con la primera porción de datos
 		for (i=1; i<numProcs; i++) {
+			// send: dato, tamaño, tipo, dest, tag, comm
+			// reemplazable por scatter
+
 			MPI_Send(a+i*stripSize*n, stripSize*n, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 			MPI_Send(b, n*n, MPI_DOUBLE, i, 1, MPI_COMM_WORLD);
 		}
@@ -86,31 +93,30 @@ int main(int argc, char* argv[]){
 	commTimes[1] = MPI_Wtime();
 
 	/* computar multiplicacion parcial */
-	// este es el bloque paralelo
 
 	for (i=0; i<stripSize; i++) {
 		for (j=0; j<n; j++) {
-			c[i*n+j]=0;					
+			c[i*n+j]=0;					// por si las moscas, celda inicializada en 0
 			for (k=0; k<n; k++) { 
-				c[i*n+j] += (a[i*n+k]*b[j*n+k]); 
+				c[i*n+j] += (z[i*n+k]*b[j*n+k]); 
 			}
 		}
 	}
+		
 
 	commTimes[2] = MPI_Wtime();
 
 	// recolectar resultados parciales
-	MPI_Gather(c, n*stripSize, MPI_DOUBLE, c, n*stripSize, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
-
-	/*
 	if (rank==COORDINATOR){
+		// el master recibe las multiplicaciones parciales que realizó cada worker
+		// el puntero del buffer es distinto para cada iteración
 		for (i=1; i<numProcs; i++) {
 			MPI_Recv(c+i*stripSize*n, n*stripSize, MPI_DOUBLE, i, 2, MPI_COMM_WORLD, &status);			
 		}
 	} else {
+		// los workers envian sus resultados parciales al master (son N*M celdas)
 		MPI_Send(c, n*stripSize, MPI_DOUBLE, COORDINATOR, 2, MPI_COMM_WORLD);
 	}
-	*/
 
 	commTimes[3] = MPI_Wtime();
 
