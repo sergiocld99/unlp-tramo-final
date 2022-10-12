@@ -4,6 +4,23 @@
 
 #define COORDINATOR 0
 
+/*****************************************************************/
+
+#include <stdio.h>
+#include <sys/time.h>
+
+double dwalltime()
+{
+	double sec;
+	struct timeval tv;
+
+	gettimeofday(&tv,NULL);
+	sec = tv.tv_sec + tv.tv_usec/1000000.0;
+	return sec;
+}
+
+/**********************************************/
+
 int main(int argc, char* argv[]){
 	int i, j, k, numProcs, rank, n, stripSize, check=1;
 	double * a, * b, *c;
@@ -59,14 +76,22 @@ int main(int argc, char* argv[]){
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	commTimes[0] = MPI_Wtime();
+	double timetick = dwalltime();
 
 	/* distribuir datos*/
+ 
+	// la matriz A se reparte
+	// scatter: bufenv, cant envio, tipo envio, bufrec, origen, comm
+	// cant envio es la cantidad de datos a enviar a cada proceso, no el total
+	MPI_Scatter(a, stripSize*n, MPI_DOUBLE, a, stripSize*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
+
+	// la matriz B se copia completa a cada proceso (broadcast)
+	// bcast: buf, tamaño, tipo, origen, comm
+	MPI_Bcast(b, n*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
+
+	/*
 	if (rank==COORDINATOR){
-	
-		// el master le pasa a cada worker una porción de la matriz A y toda la matriz B
-		// la matriz A se reparte por filas (cada workers trabaja con tantas filas completas)
 		for (i=1; i<numProcs; i++) {
-			// send: dato, tamaño, tipo, dest, tag, comm
 			MPI_Send(a+i*stripSize*n, stripSize*n, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
 			MPI_Send(b, n*n, MPI_DOUBLE, i, 1, MPI_COMM_WORLD);
 		}
@@ -74,45 +99,42 @@ int main(int argc, char* argv[]){
 		MPI_Recv(a, stripSize*n, MPI_DOUBLE, COORDINATOR, 0, MPI_COMM_WORLD, &status);
 		MPI_Recv(b, n*n, MPI_DOUBLE, COORDINATOR, 1, MPI_COMM_WORLD, &status);
 	}
+	*/
 
 	commTimes[1] = MPI_Wtime();
 
 	/* computar multiplicacion parcial */
-	// calcula la celda c[i,j] con un bloque limitado por el tamaño de la porción de A
-	// entonces el resultado no está completo, se combinará con los demás workers
-
-	// PROBLEMA: el primer worker (i=1) tiene que computar más celdas que el resto...
+	// este es el bloque paralelo
 
 	for (i=0; i<stripSize; i++) {
 		for (j=0; j<n; j++) {
-			c[i*n+j]=0;					// por si las moscas, celda inicializada en 0
+			c[i*n+j]=0;					
 			for (k=0; k<n; k++) { 
 				c[i*n+j] += (a[i*n+k]*b[j*n+k]); 
 			}
 		}
 	}
-		
 
 	commTimes[2] = MPI_Wtime();
 
 	// recolectar resultados parciales
+	MPI_Gather(c, n*stripSize, MPI_DOUBLE, c, n*stripSize, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
+
+	/*
 	if (rank==COORDINATOR){
-		// el master recibe las multiplicaciones parciales que realizó cada worker
-		// se van recibiendo diferentes conjuntos de filas de C
-		// se puede reemplazar por gather
 		for (i=1; i<numProcs; i++) {
-			MPI_Gather(c, 0, MPI_DOUBLE, c, n*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD)
-			//MPI_Recv(c+i*stripSize*n, n*stripSize, MPI_DOUBLE, i, 2, MPI_COMM_WORLD, &status);			
+			MPI_Recv(c+i*stripSize*n, n*stripSize, MPI_DOUBLE, i, 2, MPI_COMM_WORLD, &status);			
 		}
 	} else {
-		// los workers envian sus resultados parciales al master (son N*M celdas)
-		// bufferEnv, tamañoEnv, tipoEnv, bufferRec, tamañoRec, tipoRec, dest, comm
-		MPI_Gather(c, n*stripSize, MPI_DOUBLE, c, 0, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD)
-		//MPI_Send(c, n*stripSize, MPI_DOUBLE, COORDINATOR, 2, MPI_COMM_WORLD);
+		MPI_Send(c, n*stripSize, MPI_DOUBLE, COORDINATOR, 2, MPI_COMM_WORLD);
 	}
+	*/
 
 	commTimes[3] = MPI_Wtime();
+	double workTime = dwalltime() - timetick;
+	printf("Worktime: %f\n", workTime);
 
+	// esto es para medidas de tiempo
 	MPI_Reduce(commTimes, minCommTimes, 4, MPI_DOUBLE, MPI_MIN, COORDINATOR, MPI_COMM_WORLD);
 	MPI_Reduce(commTimes, maxCommTimes, 4, MPI_DOUBLE, MPI_MAX, COORDINATOR, MPI_COMM_WORLD);
 
