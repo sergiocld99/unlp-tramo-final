@@ -4,28 +4,11 @@
 
 #define COORDINATOR 0
 
-/*****************************************************************/
-
-#include <stdio.h>
-#include <sys/time.h>
-
-double dwalltime()
-{
-	double sec;
-	struct timeval tv;
-
-	gettimeofday(&tv,NULL);
-	sec = tv.tv_sec + tv.tv_usec/1000000.0;
-	return sec;
-}
-
-/**********************************************/
-
 int main(int argc, char* argv[]){
 	int i, j, k, numProcs, rank, n, stripSize, check=1;
 	double * a, * b, *c;
 	MPI_Status status;
-	double commTimes[4], maxCommTimes[4], minCommTimes[4], commTime, totalTime;
+	double commTimes[4], commTime, totalTime;
 
 	/* Lee par�metros de la l�nea de comando */
 	if ((argc != 2) || ((n = atoi(argv[1])) <= 0) ) {
@@ -75,33 +58,10 @@ int main(int argc, char* argv[]){
 	// No permito que los workers avancen hasta que el master inicialice A y B
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	commTimes[0] = MPI_Wtime();
-	double timetick = dwalltime();
-
-	/* distribuir datos*/
- 
-	// la matriz A se reparte
-	// scatter: bufenv, cant envio, tipo envio, bufrec, origen, comm
-	// cant envio es la cantidad de datos a enviar a cada proceso, no el total
+	if (rank == COORDINATOR) commTimes[0] = MPI_Wtime();
 	MPI_Scatter(a, stripSize*n, MPI_DOUBLE, a, stripSize*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
-
-	// la matriz B se copia completa a cada proceso (broadcast)
-	// bcast: buf, tamaño, tipo, origen, comm
 	MPI_Bcast(b, n*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
-
-	/*
-	if (rank==COORDINATOR){
-		for (i=1; i<numProcs; i++) {
-			MPI_Send(a+i*stripSize*n, stripSize*n, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
-			MPI_Send(b, n*n, MPI_DOUBLE, i, 1, MPI_COMM_WORLD);
-		}
-	} else {
-		MPI_Recv(a, stripSize*n, MPI_DOUBLE, COORDINATOR, 0, MPI_COMM_WORLD, &status);
-		MPI_Recv(b, n*n, MPI_DOUBLE, COORDINATOR, 1, MPI_COMM_WORLD, &status);
-	}
-	*/
-
-	commTimes[1] = MPI_Wtime();
+	if (rank == COORDINATOR) commTimes[1] = MPI_Wtime();
 
 	/* computar multiplicacion parcial */
 	// este es el bloque paralelo
@@ -115,28 +75,9 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	commTimes[2] = MPI_Wtime();
-
-	// recolectar resultados parciales
+	if (rank == COORDINATOR) commTimes[2] = MPI_Wtime();
 	MPI_Gather(c, n*stripSize, MPI_DOUBLE, c, n*stripSize, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
-
-	/*
-	if (rank==COORDINATOR){
-		for (i=1; i<numProcs; i++) {
-			MPI_Recv(c+i*stripSize*n, n*stripSize, MPI_DOUBLE, i, 2, MPI_COMM_WORLD, &status);			
-		}
-	} else {
-		MPI_Send(c, n*stripSize, MPI_DOUBLE, COORDINATOR, 2, MPI_COMM_WORLD);
-	}
-	*/
-
-	commTimes[3] = MPI_Wtime();
-	double workTime = dwalltime() - timetick;
-	printf("Worktime: %f\n", workTime);
-
-	// esto es para medidas de tiempo
-	MPI_Reduce(commTimes, minCommTimes, 4, MPI_DOUBLE, MPI_MIN, COORDINATOR, MPI_COMM_WORLD);
-	MPI_Reduce(commTimes, maxCommTimes, 4, MPI_DOUBLE, MPI_MAX, COORDINATOR, MPI_COMM_WORLD);
+	if (rank == COORDINATOR) commTimes[3] = MPI_Wtime();
 
 	MPI_Finalize();
 
@@ -153,8 +94,8 @@ int main(int argc, char* argv[]){
 			printf("Multiplicacion de matrices resultado erroneo\n");
 		}
 		
-		totalTime = maxCommTimes[3] - minCommTimes[0];
-		commTime = (maxCommTimes[1] - minCommTimes[0]) + (maxCommTimes[3] - minCommTimes[2]);		
+		totalTime = commTimes[3] - commTimes[0];
+		commTime = (commTimes[1] - commTimes[0]) + (commTimes[3] - commTimes[2]);		
 
 		printf("Multiplicacion de matrices (N=%d)\tTiempo total=%lf\tTiempo comunicacion=%lf\n",n,totalTime,commTime);
 	}

@@ -11,9 +11,9 @@
 // N se recibe por parámetro
 int main(int argc, char* argv[]){
     int i, numProcs, rank, n, stripSize, check=1;
-	double *v;
+	double *v, *res, min = 9999.9, max = -9999.9, acum = 0.0, prom;
 	MPI_Status status;
-	double commTimes[4], commTime, totalTime;
+	double commTimes[5], commTime, totalTime;
 
 	/* Leer argumentos */
 	if ((argc != 2) || ((n = atoi(argv[1])) <= 0) ) {
@@ -37,9 +37,11 @@ int main(int argc, char* argv[]){
 
     if (rank == COORDINATOR){
         v = (double*) malloc(sizeof(double)*n);
+        res = (double*) malloc(sizeof(double)*3*numProcs);
         for (i=0; i<n; i++) v[i] = i;
     } else {
         v = (double*) malloc(sizeof(double)*stripSize);
+        res = (double*) malloc(sizeof(double)*3);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -50,37 +52,55 @@ int main(int argc, char* argv[]){
     if (rank == COORDINATOR) commTimes[1] = MPI_Wtime();
 
     // buscar valores
-    double min = 9999.9, max = -9999.9, acum = 0.0;
+    res[0] = 9999.9;    // min
+    res[1] = -9999.9;   // max
+    res[2] = 0.0;       // acumulado
 
     for (i=0; i<stripSize; i++){
-        if (v[i] < min) min = v[i];
-        if (v[i] > max) max = v[i];
-        acum += v[i];
+        if (v[i] < res[0]) res[0] = v[i];
+        if (v[i] > res[1]) res[1] = v[i];
+        res[2] += v[i];
     }
 
     // RECOLECTAR
-    double minGeneral, maxGeneral, acumGeneral, prom;
-
     if (rank == COORDINATOR) commTimes[2] = MPI_Wtime();
-    MPI_Reduce(&min, &minGeneral, 1, MPI_DOUBLE, MPI_MIN, COORDINATOR, MPI_COMM_WORLD);
-    MPI_Reduce(&max, &maxGeneral, 1, MPI_DOUBLE, MPI_MAX, COORDINATOR, MPI_COMM_WORLD);
-    MPI_Reduce(&acum, &acumGeneral, 1, MPI_DOUBLE, MPI_SUM, COORDINATOR, MPI_COMM_WORLD);
+    MPI_Gather(res, 3, MPI_DOUBLE, res, 3, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
     if (rank == COORDINATOR) commTimes[3] = MPI_Wtime();
+
+    // buscar minimos, maximos y promedio con datos reducidos -> paralelizable?
+    if (rank == COORDINATOR){
+        
+        for(i=0; i<3*numProcs; i+=3){
+            if (res[i] < min) min = res[i];
+        }
+
+        for (i=1; i<3*numProcs; i+=3){
+            if (res[i] > max) max = res[i];
+        }
+
+        for (i=2; i<3*numProcs; i+=3){
+            acum += res[i];
+        }
+
+        prom = acum / (3*numProcs);
+        commTimes[4] = MPI_Wtime();
+    }
 
     MPI_Finalize();
 
     // muestra de resultados
     if (rank == COORDINATOR){
-        if (minGeneral == 0) printf("min correcto \n");
-        if (maxGeneral == n-1) printf("max correcto \n");
+        if (min == 0) printf("min correcto \n");
+        if (max == n-1) printf("max correcto \n");
 
         // total time
-        totalTime = commTimes[3] - commTimes[0];
+        totalTime = commTimes[4] - commTimes[0];
         commTime = (commTimes[1] - commTimes[0]) + (commTimes[3] - commTimes[2]);
 
         printf("Multiplicacion (N=%d)\tTiempo total=%lf\tTiempo comm=%lf\n",n,totalTime,commTime);
     }
 
     free(v);
+    free(res);
     return 0;
 }
