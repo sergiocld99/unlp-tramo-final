@@ -33,14 +33,12 @@ Para 150 hosts, necesito log(256) = 8 bits, máscara /24.
 
 Siguiendo el procedimiento anterior, elegimos 189.30.1.0/24 como subred de LAN 4, pudiendo subnetear 189.30.0.0/24.
 
-Por último, para las redes interconectadas necesito 6 direcciones, ya que son 4 routers. Se asigna una subred con 3 bits en la parte de nodos, es decir, máscara /29.
+Por último, para las redes interconectadas necesito 4 direcciones, ya que FR es como un switch desde IP. Se asigna una subred con 3 bits en la parte de nodos (8-2 >= 4), es decir, máscara /29.
 
     Subred 189.30.0.X/29
     donde X = XXXX X000     <-- resolución 8
 
 Elegimos entonces 189.30.0.8/29 para interconexión.
-
-![](img4.png)
 
 Así resultó la distribución entre 189.30.0.0 y 189.30.0.11.255:
 
