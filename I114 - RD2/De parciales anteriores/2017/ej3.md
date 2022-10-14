@@ -41,3 +41,7 @@ Por último, para las redes interconectadas necesito 6 direcciones, ya que son 4
 Elegimos entonces 189.30.0.8/29 para interconexión.
 
 ![](img4.png)
+
+Así resultó la distribución entre 189.30.0.0 y 189.30.0.11.255:
+
+![](img5.png)
