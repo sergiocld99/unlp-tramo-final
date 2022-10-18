@@ -8,9 +8,34 @@
 
 // ------------------ MODULARIZACION -------------------
 
+void blkmul(double *ablk, double *bblk, double *cblk, int n, int bs)
+{
+  int i, j, k;
+
+  for (i = 0; i < bs; i++){
+    for (j = 0; j < bs; j++){
+      for  (k = 0; k < bs; k++){
+        cblk[i*n + j] += ablk[i*n + k] * bblk[j*n + k];
+      }
+    }
+  }
+}
+
 void matmul(double* a, double* b, double* c, int stripSize, int n){
     int i,j,k;
 
+    // version por bloques
+    int bs = 32;
+
+	for (i=0; i<stripSize; i+=bs){
+		for (j=0; j<n; j+=bs){
+			for (k=0; k<n; k+=bs){
+				blkmul(&a[i*n + k], &b[j*n + k], &c[i*n + j], n, bs);
+			}
+		}
+	}
+
+    /*
     for (i=0; i<stripSize; i++) {
 		for (j=0; j<n; j++) {
 			c[i*n+j]=0;	
@@ -21,6 +46,7 @@ void matmul(double* a, double* b, double* c, int stripSize, int n){
 			}
 		}
 	}
+    */
 }
 
 void matsum(double *a, double *b, double *c, double *res, int stripSize, int n){
@@ -41,7 +67,7 @@ int main(int argc, char* argv[]){
     int i, j, k, numProcs, rank, n, stripSize, check=1;
 	double *a, *b, *c, *d, *e, *f, *r1, *r2, *r3, *rf;
 	MPI_Status status;
-	double commTimes[4], maxCommTimes[4], minCommTimes[4], commTime, totalTime;
+	double commTimes[4], commTime, totalTime;
 
 	/* Leer argumentos */
 	if ((argc != 2) || ((n = atoi(argv[1])) <= 0) ) {
@@ -99,7 +125,7 @@ int main(int argc, char* argv[]){
     MPI_Barrier(MPI_COMM_WORLD);
 
     // tiempo 0 = arranque de las comunicaciones
-	commTimes[0] = MPI_Wtime();
+	if (rank == COORDINATOR) commTimes[0] = MPI_Wtime();
 
     // ------------------------- TRABAJO ---------------------------------
 
@@ -114,21 +140,17 @@ int main(int argc, char* argv[]){
     MPI_Bcast(f, n*n, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
 
     // computo paralelo
-    commTimes[1] = MPI_Wtime();
+    if (rank == COORDINATOR) commTimes[1] = MPI_Wtime();
     matmul(a, b, r1, stripSize, n);
     matmul(c, d, r2, stripSize, n);
     matmul(e, f, r3, stripSize, n);
     matsum(r1, r2, r3, rf, stripSize, n);
-    commTimes[2] = MPI_Wtime();
+    if (rank == COORDINATOR) commTimes[2] = MPI_Wtime();
 
     // recolectar suma
     MPI_Gather(rf, n*stripSize, MPI_DOUBLE, rf, n*stripSize, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
-
-    commTimes[3] = MPI_Wtime();
-
-    // esto es para medidas de tiempo
-	MPI_Reduce(commTimes, minCommTimes, 4, MPI_DOUBLE, MPI_MIN, COORDINATOR, MPI_COMM_WORLD);
-	MPI_Reduce(commTimes, maxCommTimes, 4, MPI_DOUBLE, MPI_MAX, COORDINATOR, MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (rank == COORDINATOR) commTimes[3] = MPI_Wtime();
 
     MPI_Finalize();
 
@@ -145,8 +167,8 @@ int main(int argc, char* argv[]){
 		else printf("Multiplicacion de matrices resultado erroneo\n");
 
         // total time
-        totalTime = maxCommTimes[3] - minCommTimes[0];
-        commTime = (maxCommTimes[1] - minCommTimes[0]) + (maxCommTimes[3] - minCommTimes[2]);
+        totalTime = commTimes[3] - commTimes[0];
+        commTime = (commTimes[1] - commTimes[0]) + (commTimes[3] - commTimes[2]);
 
         printf("Multiplicacion (N=%d)\tTiempo total=%lf\tTiempo comm=%lf\n",n,totalTime,commTime);
 	}
