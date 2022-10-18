@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
 #include <mpi.h>
 #include <omp.h>
 
@@ -55,6 +57,7 @@ int main(int argc, char* argv[]){
   int i, j, k, numProcs, rank, n, stripSize, check=1;
 	double *a, *b, *c, *d, *e, *f, *r1, *r2, *r3, *rf;
 	double commTimes[4], commTime, totalTime;
+  int provided;
 
   MPI_Status status;
 
@@ -65,7 +68,7 @@ int main(int argc, char* argv[]){
 	}
 
   // inicialización de MPI
-	MPI_Init(&argc,&argv);
+	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided);
 	MPI_Comm_size(MPI_COMM_WORLD,&numProcs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
@@ -135,21 +138,25 @@ int main(int argc, char* argv[]){
   if (rank == COORDINATOR) commTimes[1] = MPI_Wtime();
 
   // las 3 multiplicaciones son independientes entre sí, usar 3 hilos
-  #pragma omp parallel sections shared(stripSize, n)
+  #pragma omp parallel sections num_threads(3)
   {
     #pragma omp section
     {
+      // sleep(5);
       matmul(a, b, r1, stripSize, n);
+      // printf("Hilo %d. Termino AxB\n", omp_get_thread_num());
     }
 
     #pragma omp section
     {
       matmul(c, d, r2, stripSize, n);
+      // printf("Hilo %d. Termino CxD\n", omp_get_thread_num());
     }
 
     #pragma omp section
     {
       matmul(e, f, r3, stripSize, n);
+      // printf("Hilo %d. Termino ExF\n", omp_get_thread_num());
     }
   }
 
