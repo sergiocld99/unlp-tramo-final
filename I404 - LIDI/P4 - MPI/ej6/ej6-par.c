@@ -22,7 +22,6 @@ int main(int argc, char* argv[]){
 	}
 
 	MPI_Init(&argc,&argv);
-
 	MPI_Comm_size(MPI_COMM_WORLD,&numProcs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
@@ -34,6 +33,9 @@ int main(int argc, char* argv[]){
 
     // calcular porcion de cada worker
 	stripSize = n / numProcs;
+
+    // debug
+    printf("stripSize = %d\n", stripSize);
 
     if (rank == COORDINATOR){
         v = (double*) malloc(sizeof(double)*n);
