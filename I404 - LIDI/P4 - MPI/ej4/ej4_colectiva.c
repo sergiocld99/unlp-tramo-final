@@ -4,6 +4,24 @@
 
 #define COORDINATOR 0
 
+// ------------------------- MULTIPLICACION POR BLOQUES ------------------------
+
+/* Multiply (block)submatrices */
+void blkmul(double *ablk, double *bblk, double *cblk, int n, int bs)
+{
+  int i, j, k;
+
+  for (i = 0; i < bs; i++){
+    for (j = 0; j < bs; j++){
+      for  (k = 0; k < bs; k++){
+        cblk[i*n + j] += ablk[i*n + k] * bblk[j*n + k];
+      }
+    }
+  }
+}
+
+// ------------------------------------------------------------------------------
+
 int main(int argc, char* argv[]){
 	int i, j, k, numProcs, rank, n, stripSize, check=1;
 	double * a, * b, *c;
@@ -64,8 +82,18 @@ int main(int argc, char* argv[]){
 	if (rank == COORDINATOR) commTimes[1] = MPI_Wtime();
 
 	/* computar multiplicacion parcial */
-	// este es el bloque paralelo
+	// para mejorar el speedup, se computa por bloques
+	int bs = 32;
 
+	for (i=0; i<stripSize; i+=bs){
+		for (j=0; j<n; j+=bs){
+			for (k=0; k<n; k+=bs){
+				blkmul(&a[i*n + k], &b[j*n + k], &c[i*n + j], n, bs);
+			}
+		}
+	}
+
+	/*
 	for (i=0; i<stripSize; i++) {
 		for (j=0; j<n; j++) {
 			c[i*n+j]=0;					
@@ -74,9 +102,11 @@ int main(int argc, char* argv[]){
 			}
 		}
 	}
-
+	*/
+	
 	if (rank == COORDINATOR) commTimes[2] = MPI_Wtime();
 	MPI_Gather(c, n*stripSize, MPI_DOUBLE, c, n*stripSize, MPI_DOUBLE, COORDINATOR, MPI_COMM_WORLD);
+	MPI_Barrier(MPI_COMM_WORLD);
 	if (rank == COORDINATOR) commTimes[3] = MPI_Wtime();
 
 	MPI_Finalize();
@@ -88,11 +118,8 @@ int main(int argc, char* argv[]){
 			for(j=0;j<n;j++)
 				check=check&&(c[i*n+j]==n);
 
-		if(check){
-			printf("Multiplicacion de matrices resultado correcto\n");
-		}else{
-			printf("Multiplicacion de matrices resultado erroneo\n");
-		}
+		if(check) printf("Multiplicacion de matrices resultado correcto\n");
+		else printf("Multiplicacion de matrices resultado erroneo\n");
 		
 		totalTime = commTimes[3] - commTimes[0];
 		commTime = (commTimes[1] - commTimes[0]) + (commTimes[3] - commTimes[2]);		
