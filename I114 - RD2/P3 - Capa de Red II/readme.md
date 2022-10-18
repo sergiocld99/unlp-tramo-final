@@ -155,3 +155,13 @@ para agregar default gw: ```route add -A inet6 default gw <GW IP Address>```
 
 - no sé pero el router n2 no tiene bien definidas las interfaces eth0 y eth1, así que ```ip -6 route add 2001:db8::128/64 dev eth0``` para ping punto a punto.
 
+# ej 4
+precondición: se activó el servicio forwarding en AMBOS routers (ipv6 solamente es el necesario)
+
+en caso de no modificar el servicio DefaultRoute, en router n1 y n2: reparar la default gateway
+- ip -6 route delete default
+- ip -6 route add default via ...
+
+# ej 9
+red D:
+- IP publicas: 201.0.0.0/24 a 201.0.0.5/24
