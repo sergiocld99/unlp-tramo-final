@@ -24,12 +24,28 @@ void blkmul(double *ablk, double *bblk, double *cblk, int n, int bs)
   }
 }
 
+void matmul_noblk(double* a, double* b, double* c, int stripSize, int n){
+  int i,j,k;
+
+  // paralelizamos con 8 hilos
+  #pragma omp for schedule(static) nowait
+	for (i=0; i<stripSize; i++){
+    // printf("Hola, soy el hilo %d ejecutando la iteracion %d\n", omp_get_thread_num(), i);
+		for (j=0; j<n; j++){
+			for (k=0; k<n; k++){
+				c[i*n+j] += (a[i*n+k]*b[j*n+k]); 
+			}
+		}
+	}
+}
+
 void matmul(double* a, double* b, double* c, int stripSize, int n, int bs){
   int i,j,k;
 
   // paralelizamos con 8 hilos
-  #pragma omp parallel for schedule(static)
+  #pragma omp for schedule(static) nowait
 	for (i=0; i<stripSize; i+=bs){
+    // printf("Hola, soy el hilo %d ejecutando la iteracion %d\n", omp_get_thread_num(), i);
 		for (j=0; j<n; j+=bs){
 			for (k=0; k<n; k+=bs){
 				blkmul(&a[i*n + k], &b[j*n + k], &c[i*n + j], n, bs);
@@ -42,7 +58,7 @@ void matsum(double *a, double *b, double *c, double *res, int stripSize, int n){
   int i,j;
 
   // paralelizamos con 8 hilos
-  #pragma omp parallel for schedule(static)
+  #pragma omp for schedule(static)
   for (i=0; i<stripSize; i++) {
 		for (j=0; j<n; j++) {
       // A y B accedidos por filas
@@ -150,9 +166,16 @@ int main(int argc, char* argv[]){
   if (rank == COORDINATOR) commTimes[1] = MPI_Wtime();
 
   // es preferible usar parallel for en lugar de sections
-  matmul(a, b, r1, stripSize, n, bs);
-  matmul(c, d, r2, stripSize, n, bs);
-  matmul(e, f, r3, stripSize, n, bs);
+  #pragma omp parallel
+  {
+    matmul(a, b, r1, stripSize, n, bs);
+    matmul(c, d, r2, stripSize, n, bs);
+    matmul(e, f, r3, stripSize, n, bs);
+    //matmul_noblk(a, b, r1, stripSize, n);
+    //matmul_noblk(c, d, r2, stripSize, n);
+    //matmul_noblk(e, f, r3, stripSize, n);
+  }
+
   matsum(r1, r2, r3, rf, stripSize, n);
   if (rank == COORDINATOR) commTimes[2] = MPI_Wtime();
 
@@ -178,7 +201,7 @@ int main(int argc, char* argv[]){
     totalTime = commTimes[3] - commTimes[0];
     commTime = (commTimes[1] - commTimes[0]) + (commTimes[3] - commTimes[2]);
 
-    printf("Multiplicacion (N=%d)\tTiempo total=%lf\tTiempo comm=%lf\n",n,totalTime,commTime);
+    printf("Multiplicacion (N=%d, bs=%d)\tTiempo total=%lf\tTiempo comm=%lf\n",n,bs,totalTime,commTime);
 	}
 
   // ------------------------ FREE ------------------------------------

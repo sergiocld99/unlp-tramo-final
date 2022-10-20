@@ -64,7 +64,7 @@ void matsum(double *a, double *b, double *c, double *res, int stripSize, int n){
 
 // N se recibe por parámetro
 int main(int argc, char* argv[]){
-    int i, j, k, numProcs, rank, n, stripSize, check=1;
+    int i, j, k, numProcs, rank, n, bs = 32, stripSize, check=1;
 	double *a, *b, *c, *d, *e, *f, *r1, *r2, *r3, *rf;
 	MPI_Status status;
 	double commTimes[4], commTime, totalTime;
@@ -88,6 +88,11 @@ int main(int argc, char* argv[]){
 
     // calcular porcion de cada worker
 	stripSize = n / numProcs;
+
+  if (stripSize < bs){
+    printf("stripSize < bs, no se puede proseguir\n");
+    exit(2);
+  }
 
     // el master es quien reparte -> n*n
     // los workers reciben porcion -> stripSize*n
