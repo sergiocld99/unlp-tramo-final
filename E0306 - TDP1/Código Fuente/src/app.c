@@ -20,7 +20,6 @@ static volatile uint8_t FLAG_UP = 0;
 static volatile uint8_t FLAG_DOWN = 0;
 static volatile uint8_t FLAG_LEFT = 0;
 static volatile uint8_t FLAG_RIGHT = 0;
-static volatile uint8_t FLAG_ENTER = 0;
 
 // Prototipos de funciones privadas
 static void encenderPares();
@@ -115,20 +114,15 @@ void checkForPressedKeys( void* unused )
    if( !gpioRead( TEC1 ) || FLAG_UP ){
       usbDeviceKeyboardPress( USB_KEY_W ); // 'c' or 'C'
    }
-   
-   if( !gpioRead( TEC2) || FLAG_RIGHT ){
+   else if( !gpioRead( TEC2) || FLAG_RIGHT ){
       usbDeviceKeyboardPress( USB_KEY_D ); // 'i' or 'I'
    }
-   
-   if( !gpioRead( TEC3 ) || FLAG_LEFT ){         
+   else if( !gpioRead( TEC3 ) || FLAG_LEFT ){         
       usbDeviceKeyboardPress( USB_KEY_A ); // 'a' or 'A'
    }
-   
-   if( !gpioRead( TEC4 ) || FLAG_DOWN ){         
+   else if( !gpioRead( TEC4 ) || FLAG_DOWN ){         
       usbDeviceKeyboardPress( USB_KEY_S ); // Enter
    }
-   
-   if (FLAG_ENTER) usbDeviceKeyboardPress( USB_KEY_ENTER );
 }
 
 // FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE ENCENDIDO O RESET.
@@ -190,7 +184,6 @@ int main( void )
       FLAG_DOWN = 0;
       FLAG_LEFT = 0;
       FLAG_RIGHT = 0;
-      FLAG_ENTER = 0;
       
       switch(dirs[0]){
          case NONE:
@@ -201,7 +194,7 @@ int main( void )
             break;
          case RIGHT:
             Board_LED_Set(4, true);
-            FLAG_RIGHT = 1;
+            FLAG_RIGHT = 0;
             break;
          default:
             break;
@@ -225,7 +218,6 @@ int main( void )
       // Lectura del botón SW
       if( !gpioRead( T_COL1 ) ){
          Board_LED_Set(5, true);
-         FLAG_ENTER = 1;
       } else Board_LED_Set(5, false);
       
       /*
