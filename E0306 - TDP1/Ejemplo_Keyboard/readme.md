@@ -13,6 +13,15 @@ Nos interesa estudiar la primera, para ver cómo se realiza la configuración de
 ### USBD Keyboard HID Desc
 Se define Keyboard_ReportDescSize y Keyboard_ReportDescriptor[], siendo el primero un sizeof del segundo.
 
+- Plantilla oficial de descriptor (TinyUSB): ![link](https://github.com/hathach/tinyusb/blob/fd5bb6e5db8e8e997d66775e689cc73f149e7fc1/src/class/hid/hid_device.h). Notar que las macros NO están escritas exactamente igual.
+
+## Librerias > LPC Open > LPC Chip 43xx > USBD ROM > USBD HID
+Acá están varias macros usadas para los descriptores. Resultan de interés:
+- HID_USAGE_GENERIC_GAMEPAD = 0x05, pasar como segundo valor con HID Usage.
+- HID_USAGE_GENERIC_X = 0x30
+- HID_USAGE_GENERIC_Y = 0x31
+- HID_USAGE_GENERIC_Z = 0x32 ...
+
 
 ## Librerias > sAPI > sAPI v0.6.2 > SoC > Periféricos > USB > Device
 
@@ -36,3 +45,5 @@ Acá están implementadas varias funciones públicas, destacando usbDeviceKeyboa
 - KeyboardEpIN_Hdlr: manejador de interrupción de entrada (desde PC), marca TX busy como 0 en la variable g_keyBoard
 
 Este archivo pide que, externamente, se defina Keyboard_ReportDescSize y Keyboard_ReportDescriptor[], cosa que se hace en el ejemplo. También se posee una variable privada (global al archivo) llamada "g_keyBoard", que en realidad es un struct que guarda la información cargada en la inicialización, un reporte y un flag de TX ocupado. La referencia a la función de callback de teclas presionadas también se almacena en este archivo como keyboardCheckKeysFunction.
+
+Justamente, la función usbDeviceKeyboardPress(tecla) está definida acá también como un llamado a HID_KEYBOARD_REPORT_SET_KEY_PRESS, pasando el campo reporte de g_keyBoard y la tecla propiamente dicha.
