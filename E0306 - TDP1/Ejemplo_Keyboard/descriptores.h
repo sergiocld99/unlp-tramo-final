@@ -1,0 +1,63 @@
+// CASO GAMEPAD - SEGÚN TINYUSB: https://github.com/hathach/tinyusb/blob/fd5bb6e5db8e8e997d66775e689cc73f149e7fc1/src/class/hid/hid_device.h
+// Para la adaptación a EDU-CIAA, se traduce DESKTOP a GENERIC, HID_Application, y las macros de mayúscula a camelCase.
+// Cambios importantes: report size pasa de 1 a 8
+const uint8_t Gamepad_ReportDescriptor[] = {
+   HID_UsagePage( HID_USAGE_PAGE_GENERIC ),
+   HID_Usage( HID_USAGE_GENERIC_GAMEPAD ),
+   HID_Collection( HID_Application ),
+   HID_UsagePage( HID_USAGE_PAGE_GENERIC ),
+   HID_Usage( HID_USAGE_GENERIC_X ),
+   HID_Usage( HID_USAGE_GENERIC_Y ) ,
+   HID_Usage( HID_USAGE_GENERIC_Z ) ,
+   HID_Usage( HID_USAGE_GENERIC_RZ ) ,
+   HID_Usage( HID_USAGE_GENERIC_RX ) ,
+   HID_Usage( HID_USAGE_GENERIC_RY ) ,
+   HID_LogicalMin( 0x81 ),
+   HID_LogicalMax( 0x7f ),
+   HID_ReportCount(6),
+   HID_ReportSize(8),
+   HID_Input(HID_Data | HID_Variable | HID_Absolute),
+   HID_UsagePage( HID_USAGE_PAGE_GENERIC ),
+   HID_Usage( HID_USAGE_GENERIC_HATSWITCH ),
+   HID_LogicalMin( 1 ),
+   HID_LogicalMax( 8 ),
+   HID_PhysicalMin(0),
+   ??
+}
+
+// CASO TECLADO - IMPORTADO DESDE EDU-CIAA
+const uint8_t Keyboard_ReportDescriptor[] = {
+   HID_UsagePage(HID_USAGE_PAGE_GENERIC),
+   HID_Usage(HID_USAGE_GENERIC_KEYBOARD),
+   HID_Collection(HID_Application),
+   HID_UsagePage(HID_USAGE_PAGE_KEYBOARD),
+   HID_UsageMin(224),
+   HID_UsageMax(231),
+   HID_LogicalMin(0),
+   HID_LogicalMax(1),
+   HID_ReportSize(1),
+   HID_ReportCount(8),
+   HID_Input(HID_Data | HID_Variable | HID_Absolute),
+   HID_ReportCount(1),
+   HID_ReportSize(8),
+   HID_Input(HID_Constant),
+   HID_ReportCount(5),
+   HID_ReportSize(1),
+   HID_UsagePage(HID_USAGE_PAGE_LED),
+   HID_UsageMin(1),
+   HID_UsageMax(5),
+   HID_Output(HID_Data | HID_Variable | HID_Absolute),
+   HID_ReportCount(1),
+   HID_ReportSize(3),
+   HID_Output(HID_Constant),
+   HID_ReportCount(6),
+   HID_ReportSize(8),
+   HID_LogicalMin(0),
+   HID_LogicalMax(101),
+   HID_UsagePage(HID_USAGE_PAGE_KEYBOARD),
+   HID_UsageMin(0),
+   HID_UsageMax(101),
+   HID_Input(HID_Array),
+   HID_EndCollection,
+};
+

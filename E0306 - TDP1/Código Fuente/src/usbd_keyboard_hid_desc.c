@@ -41,8 +41,34 @@
  ****************************************************************************/
 
 /**
- * HID Keyboard Report Descriptor
+ * HID Gamepad Report Descriptor
  */
+const uint8_t Keyboard_ReportDescriptor[] = {
+   HID_UsagePage(HID_USAGE_PAGE_GENERIC),
+   HID_Usage(HID_USAGE_GENERIC_GAMEPAD),
+   HID_Collection(HID_Application),
+   HID_UsagePage( HID_USAGE_PAGE_GENERIC ),
+   HID_Usage( HID_USAGE_GENERIC_X ),
+   HID_Usage( HID_USAGE_GENERIC_Y ) ,
+   HID_Usage( HID_USAGE_GENERIC_Z ) ,
+   HID_Usage( HID_USAGE_GENERIC_RZ ) ,
+   HID_Usage( HID_USAGE_GENERIC_RX ) ,
+   HID_Usage( HID_USAGE_GENERIC_RY ) ,
+   HID_LogicalMin( 0x81 ),
+   HID_LogicalMax( 0x7f ),
+   HID_ReportCount(6),
+   HID_ReportSize(8),
+   HID_Input(HID_Data | HID_Variable | HID_Absolute),
+   HID_UsagePage( HID_USAGE_PAGE_GENERIC ),
+   HID_Usage( HID_USAGE_GENERIC_HATSWITCH ),
+   HID_LogicalMin( 1 ),
+   HID_LogicalMax( 8 ),
+   HID_PhysicalMin(0),
+   
+   HID_EndCollection,
+};
+
+/*
 const uint8_t Keyboard_ReportDescriptor[] = {
    HID_UsagePage(HID_USAGE_PAGE_GENERIC),
    HID_Usage(HID_USAGE_GENERIC_KEYBOARD),
@@ -77,7 +103,10 @@ const uint8_t Keyboard_ReportDescriptor[] = {
    HID_Input(HID_Array),
    HID_EndCollection,
 };
+*/
+
 const uint16_t Keyboard_ReportDescSize = sizeof(Keyboard_ReportDescriptor);
+
 
 /**
  * USB Standard Device Descriptor
@@ -142,7 +171,7 @@ ALIGNED(4) uint8_t USB_HsConfigDescriptor[] = {
    0x01,                                       /* bNumEndpoints */
    USB_DEVICE_CLASS_HUMAN_INTERFACE,           /* bInterfaceClass */
    HID_SUBCLASS_BOOT,                          /* bInterfaceSubClass */
-   HID_PROTOCOL_KEYBOARD,                      /* bInterfaceProtocol */
+   HID_PROTOCOL_NONE,                      /* bInterfaceProtocol */
    0x04,                                       /* iInterface */
    /* HID Class Descriptor */
    /* HID_DESC_OFFSET = 0x0012 */
@@ -168,6 +197,7 @@ ALIGNED(4) uint8_t USB_HsConfigDescriptor[] = {
  * USB FSConfiguration Descriptor
  * All Descriptors (Configuration, Interface, Endpoint, Class, Vendor)
  */
+
 ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
    /* Configuration 1 */
    USB_CONFIGURATION_DESC_SIZE,                /* bLength */
@@ -192,7 +222,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
    0x01,                                       /* bNumEndpoints */
    USB_DEVICE_CLASS_HUMAN_INTERFACE,           /* bInterfaceClass */
    HID_SUBCLASS_BOOT,                          /* bInterfaceSubClass */
-   HID_PROTOCOL_KEYBOARD,                      /* bInterfaceProtocol */
+   HID_PROTOCOL_NONE,                      /* bInterfaceProtocol */
    0x04,                                       /* iInterface */
    /* HID Class Descriptor */
    /* HID_DESC_OFFSET = 0x0012 */
@@ -213,6 +243,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
    /* Terminator */
    0                                           /* bLength */
 };
+
 
 /**
  * USB String Descriptor (optional)
@@ -254,14 +285,14 @@ const uint8_t USB_StringDescriptor[] = {
    'x', 0,
    'x', 0,
    ' ', 0,
-   'K', 0,
-   'E', 0,
-   'Y', 0,
-   'B', 0,
-   'O', 0,
+   'G', 0,
    'A', 0,
-   'R', 0,
+   'M', 0,
+   'E', 0,
+   'P', 0,
+   'A', 0,
    'D', 0,
+   ' ', 0,
    /* Index 0x03: Serial Number */
    (13 * 2 + 2),					   /* bLength (13 Char + Type + length) */
    USB_STRING_DESCRIPTOR_TYPE,   /* bDescriptorType */
