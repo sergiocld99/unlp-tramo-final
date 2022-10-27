@@ -4,16 +4,9 @@
  * Fecha:
  *===========================================================================*/
 
-// Inlcusiones
+// Inclusiones
 
 #include "app.h"         // <= Su propia cabecera
-#include "sapi.h"        // <= Biblioteca sAPI
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include "joystick.h"
-
-#define TICKRATE_HZ (1000)
 
 static volatile uint32_t tick_ct = 0;
 static volatile uint8_t FLAG_UP = 0;
@@ -21,92 +14,11 @@ static volatile uint8_t FLAG_DOWN = 0;
 static volatile uint8_t FLAG_LEFT = 0;
 static volatile uint8_t FLAG_RIGHT = 0;
 
-// Prototipos de funciones privadas
-static void encenderPares();
-static void encenderImpares();
-static void apagarPares();
-static void apagarImpares();
-
-// Auxiliares
-static void delayBloqueante(uint32_t);
-
-char* itoa(int value, char* result, int base) {
-   // check that the base if valid
-   if (base < 2 || base > 36) { *result = '\0'; return result; }
-
-   char* ptr = result, *ptr1 = result, tmp_char;
-   int tmp_value;
-
-   do {
-      tmp_value = value;
-      value /= base;
-      *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
-   } while ( value );
-
-   // Apply negative sign
-   if (tmp_value < 0) *ptr++ = '-';
-   *ptr-- = '\0';
-   while(ptr1 < ptr) {
-      tmp_char = *ptr;
-      *ptr--= *ptr1;
-      *ptr1++ = tmp_char;
-   }
-   return result;
-}
-
-/*
-void SysTick_Handler(void) {
-   tick_ct++;
-}
-*/
-
-/*
-void delay(uint32_t tk) {
-   uint32_t end = tick_ct + tk;
-   while(tick_ct < end)
-       __WFI();
-}
-*/
-
-static void delayBloqueante(uint32_t ms){
+void delayBloqueante(uint32_t ms){
    uint32_t end = tick_ct + ms;
    while (tick_ct < end) tick_ct++;
 }
 
-static void encenderPares(){
-   Board_LED_Set(0, true);
-   Board_LED_Set(2, true);
-   Board_LED_Set(4, true);
-   // gpioWrite(LED2, ON);
-}
-
-static void encenderImpares(){
-   Board_LED_Set(1, true);
-   Board_LED_Set(3, true);
-   Board_LED_Set(5, true);
-   //gpioWrite(LED1, ON);
-   // gpioWrite(LED3, ON);
-}
-
-static void apagarPares(){
-   Board_LED_Set(0, false);
-   Board_LED_Set(2, false);
-   Board_LED_Set(4, false);
-   //gpioWrite(LED2, OFF);
-}
-
-static void apagarImpares(){
-   Board_LED_Set(1, false);
-   Board_LED_Set(3, false);
-   Board_LED_Set(5, false);
-   // gpioWrite(LED1, OFF);
-   // gpioWrite(LED3, OFF);
-}
-
-static void apagarTodos(){
-   apagarPares();
-   apagarImpares();
-}
 
 void checkForPressedKeys( void* unused )
 {
@@ -139,8 +51,11 @@ int main( void )
    boardConfig();
 
    // Configuration routine for HID Keyboard example   
-   usbDeviceConfig(USB_HID_KEYBOARD);   
-   usbDeviceKeyboardCheckKeysCallbackSet( checkForPressedKeys );
+   // usbDeviceConfig(USB_HID_KEYBOARD);   
+   // usbDeviceKeyboardCheckKeysCallbackSet( checkForPressedKeys );
+   
+   // Configuración/Inicialización de HID Gamepad
+   usbDeviceConfig(USB_HID_GAMEPAD);
    
    // Habilitar ADC
    adcConfig( ADC_ENABLE ); /* ADC */
@@ -154,8 +69,6 @@ int main( void )
 
    // ---------- REPETIR POR SIEMPRE --------------------------
    while (1) {
-      /* Do Keyboard tasks */      
-      // usbDeviceKeyboardTasks();
       
       // Leer entrada CH3 (eje X: el 0 está izquierda)
       uint16_t valorEjeX = adcRead( CH3 );
@@ -220,46 +133,9 @@ int main( void )
          Board_LED_Set(5, true);
       } else Board_LED_Set(5, false);
       
-      /*
-      if (valorEjeX > 400 && valorEjeX < 624){
-         apagarPares();
-         apagarImpares();
-      } else if (valorEjeX <= 400) {
-         encenderPares();
-         apagarImpares();
-      } else if (valorEjeX >= 624) {
-         encenderImpares();
-         apagarPares();
-      }*/
+      usbDeviceGamepadPress(1);
       
-      /*
-      if (valorEjeX < 10){
-         encenderPares();
-      } else apagarPares();
-      
-      if (valorEjeY > 1000){
-         encenderImpares();
-      } else apagarImpares();*/
-      
-      /* Sleep until next Interrupt happens */
-      // sleepUntilNextInterrupt();
-      
-      // Si el pulsador TEC_1 está presionado
-      /*
-      if (gpioRead(TEC1) == 0){
-         encenderImpares();
-         delay(200);
-         apagarImpares();
-         delay(200);
-      } else {
-         encenderPares();
-         delay(100);
-         apagarPares();
-         delay(100);
-      }
-      */
-      
-      usbDeviceKeyboardTasks();
+      usbDeviceGamepadTasks();
    }
 
    // NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa se ejecuta
