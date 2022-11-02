@@ -1,1 +1,43 @@
-<mxfile host="app.diagrams.net" modified="2022-11-02T15:10:42.359Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36" version="20.5.1" etag="gQX2iKhWuSggLLEYYMCN" type="github"><diagram id="e8JUsBOcteEVdz9P48fI">UzV2zq1wL0osyPDNT0nNUTV2VTV2LsrPL4GwciucU3NyVI0MMlNUjV1UjYwMgFjVyA2HrCFY1qAgsSg1rwSLBiADYTaQg2Y1AA==</diagram></mxfile>
+<mxfile host="app.diagrams.net" modified="2022-11-02T16:05:20.780Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36" etag="pI-oaZa3-TnL2WNtW2eD" version="20.5.1" type="github">
+  <diagram id="e8JUsBOcteEVdz9P48fI" name="Página-1">
+    <mxGraphModel dx="868" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-1" value="Tren" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="110" y="310" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-2" value="+ estado : int&#xa;+ espera : int&#xa;+ t_anden : int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="1RcWZxl8Y98s81eZnNkB-1">
+          <mxGeometry y="26" width="140" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-5" value="Pasajero" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#f8cecc;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="310" y="310" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-6" value="+ estado : int&#xa;+ anden_actual : int&#xa;+ anden_dest : int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="1RcWZxl8Y98s81eZnNkB-5">
+          <mxGeometry y="26" width="140" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-7" value="Agente" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
+          <mxGeometry x="210" y="120" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-8" value="+ xcor : float&#xa;+ ycor : float" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="1RcWZxl8Y98s81eZnNkB-7">
+          <mxGeometry y="26" width="140" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-11" value="Extends" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="1RcWZxl8Y98s81eZnNkB-1" target="1RcWZxl8Y98s81eZnNkB-7">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="540" y="170" as="sourcePoint" />
+            <mxPoint x="700" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-12" value="Extends" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="1RcWZxl8Y98s81eZnNkB-5" target="1RcWZxl8Y98s81eZnNkB-7">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="580" y="190" as="sourcePoint" />
+            <mxPoint x="740" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1RcWZxl8Y98s81eZnNkB-13" value="anden actual se podría sacar a partir de xcor e ycor" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="510" y="305" width="120" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
