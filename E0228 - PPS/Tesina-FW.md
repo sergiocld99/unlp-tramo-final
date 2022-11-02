@@ -57,3 +57,12 @@ Pruebo correr un programa cualquiera. Debo especificar N y T de manera obligator
         Preparing P matrix in memory . . . Done
     Executing Floyd Warshal Opt-7_8 (with loop unroll): . . .
     Execution completed. Test results: 0.5 secs, 276.880 GFLOPS
+
+## Pasar de float a double
+No hace falta repetir todos los pasos anteriores:
+
+    A 1.4) TYPE = 64
+    A 2.1) #define TYPE double
+    B) Correr "./compile_with_bs.sh"
+    C) Correr "./input/input_files_generator"
+    D) Correr "run_mixed_volley.sh"
