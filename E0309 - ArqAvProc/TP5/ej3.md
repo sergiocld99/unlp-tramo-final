@@ -15,5 +15,13 @@ Tp = Ts [f + (1-f)/N]
 
 Ts = Tp / [f + (1-f) / N]
 
-Ts = 12h / (0.3 + 0.7 / 12)
+Ts = 12h / (0.3 + 0.7 / 12) = 33.49 h
 
+# Cantidad de instrucciones 
+Se puede calcular como el producto del
+tiempo de ejecución Ts y la velocidad 
+del procesador.
+
+I = Ts x Va = 33.49h x 200 Mflops 
+I = 33.49h x 200M Inst/s x 3600 s/h
+I = 24,112,800,000,000 = 24112800 Millones
