@@ -226,7 +226,7 @@ end
 to update_pasajero_saliendo
   ;; Realizar acción del estado (acercarse a la salida)
   let signo (anden * 2 - 1)
-  let x_esperada (12 + who mod 5) * signo
+  let x_esperada (14 + who mod 3) * signo
 
   ifelse (distancexy x_esperada ycor > 0.02)
     [facexy x_esperada ycor]
@@ -294,7 +294,7 @@ end
 to update_pasajero_esperando
   ;; Realizar acción del estado (ubicarse en un lugar)
   let signo (anden * 2 - 1)
-  let x_espera (10 + who mod 7) * signo
+  let x_espera (12 + who mod 2) * signo
   let y_espera 6 - (who * 2 + 1) mod 10
 
   if (distancexy x_espera y_espera > 0.02) [

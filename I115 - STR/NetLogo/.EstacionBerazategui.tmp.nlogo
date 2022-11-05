@@ -154,9 +154,9 @@ to crear_pasajero_ingreso
   ;; hacia puente o esperando
   ifelse (random 2 = 0)[
     set estado 11
-    set xcor (8 + who mod 4) * sign
+    set xcor 11 * signo
     set anden_dest [anden] of patch (- xcor) ycor
-    set x_elegida 11
+    set x_elegida xcor
   ] [
     set estado 13
     set xcor (12 + who mod 5)
@@ -226,7 +226,7 @@ end
 to update_pasajero_saliendo
   ;; Realizar acción del estado (acercarse a la salida)
   let signo (anden * 2 - 1)
-  let x_esperada (12 + who mod 5) * signo
+  let x_esperada (1 + who mod 5) * signo
 
   ifelse (distancexy x_esperada ycor > 0.02)
     [facexy x_esperada ycor]
@@ -247,7 +247,7 @@ to update_pasajero_hacia_puente
   ;; Realizar acción del estado (acercarse a escalera)
   let signo (xcor / abs(xcor))
   let x_puente (7 * signo)
-  let x_esperada (8 + who mod 4) * signo
+  let x_esperada x_elegida
   let y_esperada 11 + anden_dest mod 2
 
   ;; ifelse (ycor > 13) [set y_esperada 13] [set y_esperada (11 + who mod 2)]
@@ -294,7 +294,7 @@ end
 to update_pasajero_esperando
   ;; Realizar acción del estado (ubicarse en un lugar)
   let signo (anden * 2 - 1)
-  let x_espera (10 + who mod 7) * signo
+  let x_espera (12 + who mod 2) * signo
   let y_espera 6 - (who * 2 + 1) mod 10
 
   if (distancexy x_espera y_espera > 0.02) [
