@@ -26,7 +26,7 @@ trenes-own [ estado espera t_anden ]
 ;;  estado 1: cruzando puente (se dirige hacia el andén destino)
 ;;  estado 12: esperando tren (se dirige y espera en un lugar random del andén)
 ;;  estado 13: subiendo a tren (se dirige hacia el tren si está en el andén)
-pasajeros-own [ estado anden_actual anden_dest molinete ]
+pasajeros-own [ estado anden_dest molinete x_elegida ]
 
 ;; plurales
 breed [trenes tren]
@@ -104,21 +104,25 @@ to crear_pasajero
 end
 
 
+;; pasajero que baja del tren lado izquierdo
 to crear_pasajero_izq
   set xcor -6.1
   crear_pasajero
 
   ;;set estado 0
-  ifelse (random 2 = 0)  [set estado 10]
-  [set estado 11 set anden_dest 1]
-
-  set anden_actual 0
+  ifelse (random 2 = 0) [set estado 10]
+  [
+    set estado 11
+    set anden_dest 1
+    set x_elegida -8 - who mod 3
+  ]
 
   ;; actualizar contador global
   set pasajeros_restantes_izq (pasajeros_restantes_izq - 1)
 end
 
 
+;; pasajero que baja del tren lado derecho
 to crear_pasajero_der
   set xcor 6.1
   crear_pasajero
@@ -132,6 +136,31 @@ to crear_pasajero_der
 
   ;; actualizar contador global
   set pasajeros_restantes_der (pasajeros_restantes_der - 1)
+end
+
+
+;; pasajero que ingresa por alguno de los 4 molinetes
+to crear_pasajero_ingreso
+  set shape "pasajero"
+  set color white
+  set size 2
+
+  ;; desde arriba o abajo
+  ifelse (random 2 = 0) [set ycor 16] [set ycor -16]
+
+  ;; anden izquierdo o derecho
+  let signo (random 2 * 2) - 1
+
+  ;; hacia puente o esperando
+  ifelse (random 2 = 0)[
+    set estado 11
+    set xcor (8 + who mod 4) * sign
+    set anden_dest [anden] of patch (- xcor) ycor
+    set x_elegida 11
+  ] [
+    set estado 13
+    set xcor (12 + who mod 5)
+  ]
 end
 
 
@@ -216,15 +245,17 @@ end
 ;; las coordenadas x=8 a x=11 están reservadas para dirigirse a la escalera
 to update_pasajero_hacia_puente
   ;; Realizar acción del estado (acercarse a escalera)
-  let signo (anden * 2 - 1)
+  let signo (xcor / abs(xcor))
   let x_puente (7 * signo)
   let x_esperada (8 + who mod 4) * signo
-  let y_esperada (11 + who mod 2)
+  let y_esperada 11 + anden_dest mod 2
+
+  ;; ifelse (ycor > 13) [set y_esperada 13] [set y_esperada (11 + who mod 2)]
 
   ;; ordenado según distancia al puente
-  ifelse (ycor >= y_esperada) [set heading (90 + 180 * anden) ]
+  ifelse (abs(ycor - y_esperada) < 0.02) [facexy x_puente y_esperada ]
   [
-    ifelse (abs(xcor) >= abs(x_esperada))
+    ifelse (abs(xcor - x_esperada) < 0.02 )
       [facexy xcor y_esperada]
       [facexy x_esperada ycor]
   ]
@@ -237,8 +268,8 @@ to update_pasajero_hacia_puente
     set estado 12                 ;; cambiar a estado "cruzando"
     set color yellow              ;; color amarillo en contraste al puente
     ifelse (anden_dest = 1)
-      [set heading 90 set anden_actual 1]
-      [set heading 270 set anden_actual 0]
+      [set heading 90]
+      [set heading 270]
   ]
 end
 
@@ -259,11 +290,12 @@ end
 
 
 ;; PASAJERO - ESTADO 13
+;; Para evitar choques con los que bajan, esperan en "y" impar
 to update_pasajero_esperando
   ;; Realizar acción del estado (ubicarse en un lugar)
   let signo (anden * 2 - 1)
   let x_espera (10 + who mod 7) * signo
-  let y_espera (4 - who mod 10)
+  let y_espera 6 - (who * 2 + 1) mod 10
 
   if (distancexy x_espera y_espera > 0.02) [
     facexy x_espera y_espera
@@ -281,7 +313,7 @@ end
 to update_pasajero_subiendo
   ;; Realizar acción del estado (acercarse a tren)
   let x_subida 6 * (anden * 2 - 1)
-  let y_subida  - (who * 2 + 1) mod 10
+  let y_subida 6 - (who * 2 + 1) mod 10
   let habilitado 0
 
   if (anden = 0 and pasajeros_restantes_izq = 0) [set habilitado 1]
@@ -301,80 +333,6 @@ to update_pasajero_subiendo
 
   ;; Matar agente si ya se encuentra en el tren
   if (abs(xcor) <= 6.02) [die]
-end
-
-
-
-to mover_pasajero
-  let limite 0
-
-  ;; si sale por los molinetes -> matarlos
-  if abs(ycor) > max-pycor - 1 [die]
-
-  ;; evitar que ingrese a las vias o se pegue a los laterales
-  ifelse abs(xcor) < 6.05 or abs(xcor) > max-pxcor - 1
-  [rt 180 set limite 1 fd 0.03]
-  [if round(xcor) mod 3 = 0 [
-    orientar_anden_dest
-    rt random 4
-  ]]
-
-  ;; avanzar 1 pixel
-  ;; if ticks mod 2 = 0
-  fd 0.03
-
-  ;; si estoy en el comienzo de un puente
-  if (ycor > 11 and ycor < 11.5) and abs(xcor) < 9 and anden_dest != anden_actual
-  [set estado 1 cambiar_anden]
-
-  ;; if limite = 0 and abs(xcor) > 10 [rt random 360]
-end
-
-to orientar_anden_dest
-  ;; si el anden que quiere ir es el otro
-  if anden_dest != anden_actual
-  [
-    ifelse anden_actual = 0 [facexy -8 11.25] [facexy 8 11.25]
-    ;;if ycor < 11.25 [set heading 0]
-  ]
-end
-
-to cambiar_anden
-  ifelse anden_actual = 0 [set heading 90 set anden_actual 1]
-  [set heading 270 set anden_actual 0]
-
-  set color yellow
-end
-
-to cruzar_puente
-  fd 0.03
-  if abs(xcor) > 9 [set estado 2 set color green]
-end
-
-to acercar_pasajero
-  let y_random 5 - (who mod 15)
-  let x_random 0
-
-  let y_subida 2 - (who mod 4)
-  let x_subida 0
-
-  let speed 0
-  let llego_tren? [estado] of tren anden_dest = 1
-
-  ifelse anden_dest = 0
-  [set x_random -6 - (who mod 10) set x_subida -6]
-  [set x_random 6 + (who mod 10) set x_subida 6]
-
-  ifelse llego_tren? [set speed 0.01] [set speed 0.004]
-
-  ifelse llego_tren? [
-    ;; el tren a tomar está en el andén
-    ifelse abs(xcor) > 6 [facexy x_subida y_subida fd speed] [die]
-  ][
-    ;; el tren a tomar no está en el andén
-    ;; esperar en un sitio random
-    if distancexy x_random y_random > 1 [facexy x_random y_random fd speed]
-  ]
 end
 
 
@@ -402,28 +360,32 @@ to go
   ask pasajeros with [estado = 13] [update_pasajero_esperando]
   ask pasajeros with [estado = 14] [update_pasajero_subiendo]
 
-
-  ;; actualizar pasajeros que están vagando o están en el andén contrario
-  ask pasajeros with [estado = 0] [
-    ifelse anden_dest != anden_actual and [espera] of tren anden_dest < 2000
-    [if ticks mod 4 = 0 [mover_pasajero] ]
-    [if ticks mod 10 = 0 [mover_pasajero] ]
-  ]
-
-  ;; actualizar pasajeros que están en el puente
-  ask pasajeros with [estado = 1] [
-    ifelse [espera] of tren anden_dest < 1000 [if ticks mod 4 = 0 [cruzar_puente] ]
-    [if ticks mod 10 = 0 [cruzar_puente] ]
-  ]
-
-  ;; actualizar pasajeros que están en el andén correcto
-  ask pasajeros with [estado = 2] [acercar_pasajero]
-
   ;; update 4/11 - creación de pasajeros al llegar un tren
   ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
   if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
   if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
 
+  ;; generación espontánea de pasajeros (desde molinetes)
+  if (ticks mod 1000 = 999) [create-pasajeros 1 [crear_pasajero_ingreso] ]
+
+  ;; actualizar pasajeros que están vagando o están en el andén contrario
+  ;;ask pasajeros with [estado = 0] [
+  ;;  ifelse anden_dest != anden_actual and [espera] of tren anden_dest < 2000
+  ;;  [if ticks mod 4 = 0 [mover_pasajero] ]
+  ;;  [if ticks mod 10 = 0 [mover_pasajero] ]
+  ;;]
+
+  ;; actualizar pasajeros que están en el puente
+  ;;ask pasajeros with [estado = 1] [
+  ;;  ifelse [espera] of tren anden_dest < 1000 [if ticks mod 4 = 0 [cruzar_puente] ]
+  ;;  [if ticks mod 10 = 0 [cruzar_puente] ]
+  ;;]
+
+  ;; actualizar pasajeros que están en el andén correcto
+  ;;ask pasajeros with [estado = 2] [acercar_pasajero]
+
+
+  ;; incrementar ticks
   tick
 end
 
@@ -539,7 +501,7 @@ cant_bajan
 cant_bajan
 0
 50
-10.0
+50.0
 1
 1
 NIL
