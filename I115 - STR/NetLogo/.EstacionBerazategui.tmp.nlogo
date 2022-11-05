@@ -170,8 +170,8 @@ to go
 
   ;; update 4/11 - creación de pasajeros al llegar un tren
   ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
-  if (ticks mod 20 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
-  if (ticks mod 200 = 100 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
+  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
+  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
 
   tick
 end
@@ -400,7 +400,7 @@ cant_bajan
 cant_bajan
 0
 50
-50.0
+10.0
 1
 1
 NIL
@@ -410,7 +410,7 @@ PLOT
 4
 217
 204
-367
+423
 Pasajeros en la estación
 ticks
 count pasajeros
@@ -427,23 +427,45 @@ PENS
 "a subir" 1.0 0 -13840069 true "" "plot count pasajeros with [estado = 2]"
 
 MONITOR
-10
-394
-66
-439
+676
+23
+785
+68
 PLAZA C
-[round(espera / 1000)] of tren 0
+word [round(espera / 1000)] of tren 0 \" min\"
 17
 1
 11
 
 MONITOR
-74
-395
-191
-440
+676
+92
+790
+137
 LA PLATA / BOSQUES
-[round(espera / 1000)] of tren 1
+word [round(espera / 1000)] of tren 1 \" min\"
+17
+1
+11
+
+MONITOR
+807
+21
+964
+66
+Saliendo de Tren Norte
+pasajeros_restantes_izq
+17
+1
+11
+
+MONITOR
+808
+93
+960
+138
+Saliendo de Tren Sur
+pasajeros_restantes_der
 17
 1
 11
