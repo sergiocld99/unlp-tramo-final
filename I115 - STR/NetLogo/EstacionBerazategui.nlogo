@@ -21,11 +21,11 @@ patches-own [ elevacion anden ]
 trenes-own [ estado espera t_anden ]
 
 ;; pasajeros
-;;  estado 11: saliendo de la estación (se dirige hacia los molinetes)
-;;  estado 12: yendo a puente (se dirige hacia el comienzo del puente)
+;;  estado 10: saliendo de la estación (se dirige hacia los molinetes)
+;;  estado 11: yendo a puente (se dirige hacia el comienzo del puente)
 ;;  estado 1: cruzando puente (se dirige hacia el andén destino)
-;;  estado 14: esperando tren (se dirige y espera en un lugar random del andén)
-;;  estado 15: subiendo a tren (se dirige hacia el tren si está en el andén)
+;;  estado 12: esperando tren (se dirige y espera en un lugar random del andén)
+;;  estado 13: subiendo a tren (se dirige hacia el tren si está en el andén)
 pasajeros-own [ estado anden_actual anden_dest molinete ]
 
 ;; plurales
@@ -38,7 +38,7 @@ breed [pasajeros pasajero]
 to setup-patches
   ask patches with [ abs(pxcor) < 6 ] [set elevacion 0]
   ask patches with [ abs(pxcor) >= 6 ] [set elevacion 1]
-  ask patches with [ pycor > 9 and pycor < 12 and abs(pxcor) < 8 ] [set elevacion 2]
+  ask patches with [ pycor >= 10 and pycor <= 12 and abs(pxcor) < 8 ] [set elevacion 2]
   ask patches with [ elevacion = 1 and pxcor < 0 ] [set anden 0]
   ask patches with [ elevacion = 1 and pxcor > 0 ] [set anden 1]
 
@@ -99,7 +99,7 @@ to crear_pasajero
   set color orange
   set size 2
   lt random 360
-  ifelse (random 2 = 0) [set molinete 16] [set molinete -16]
+  ifelse (ycor > 0) [set molinete 16] [set molinete -16]
 end
 
 
@@ -108,9 +108,10 @@ to crear_pasajero_izq
   crear_pasajero
 
   ;;set estado 0
-  set estado 10
+  ifelse (random 2 = 0)  [set estado 10]
+  [set estado 11 set anden_dest 1]
+
   set anden_actual 0
-  set anden_dest random 2
 
   ;; actualizar contador global
   set pasajeros_restantes_izq (pasajeros_restantes_izq - 1)
@@ -202,6 +203,26 @@ to update_pasajero_saliendo
   ;; Camino 1 - ¿Llegó al molinete?
   if (abs(ycor) >= max-pycor) [die]
 
+end
+
+
+to update_pasajero_hacia_puente
+  ;; Realizar acción del estado (acercarse a escalera)
+  let x_esperada (7 * (anden - 1))
+  let y_esperada (11 + who mod 2)
+
+  ifelse (distancexy x_esperada ycor > 0.02)
+    [facexy x_esperada ycor]
+    [facexy xcor y_esperada]
+
+  ;; avanzar solo si no hay nadie delante
+  if (count pasajeros-on patch-ahead 1 = 0) [fd 0.01]
+
+  ;; Camino 1 - ¿Llego al puente?
+  if (ycor > y_esperada) [
+    set estado 1
+    cambiar_anden
+  ]
 end
 
 
@@ -297,6 +318,7 @@ to go
 
   ;; actualización de pasajeros según su estado
   ask pasajeros with [estado = 10] [update_pasajero_saliendo]
+  ask pasajeros with [estado = 11] [update_pasajero_hacia_puente]
 
 
   ;; actualizar pasajeros que están vagando o están en el andén contrario
@@ -435,7 +457,7 @@ cant_bajan
 cant_bajan
 0
 50
-10.0
+50.0
 1
 1
 NIL
