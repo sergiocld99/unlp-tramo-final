@@ -190,9 +190,11 @@ end
 ;; ------------------------- UPDATE DE PASAJEROS SEGÚN ESTADO ---------------------------
 
 ;; PASAJERO - ESTADO 10
+;; las coordenadas x=12 a x=16 están reservadas para dirigirse a los molinetes
 to update_pasajero_saliendo
   ;; Realizar acción del estado (acercarse a la salida)
-  let x_esperada (12 + who mod 5) * (anden - 1)
+  let signo (anden * 2 - 1)
+  let x_esperada (12 + who mod 5) * signo
 
   ifelse (distancexy x_esperada ycor > 0.02)
     [facexy x_esperada ycor]
@@ -207,10 +209,13 @@ to update_pasajero_saliendo
 end
 
 
+;; PASAJERO - ESTADO 11
+;; las coordenadas x=8 a x=11 están reservadas para dirigirse a la escalera
 to update_pasajero_hacia_puente
   ;; Realizar acción del estado (acercarse a escalera)
-  let x_puente (7 * (anden - 1))
-  let x_esperada (8 + who mod 4) * (anden - 1)
+  let signo (anden * 2 - 1)
+  let x_puente (7 * signo)
+  let x_esperada (8 + who mod 4) * signo
   let y_esperada (11 + who mod 2)
 
   ;; ordenado según distancia al puente
@@ -226,7 +231,7 @@ to update_pasajero_hacia_puente
 
   ;; Camino 1 - ¿Llego al puente?
   if (distancexy x_puente y_esperada < 0.02) [
-    set estado 1                  ;; cambiar a estado "cruzando"
+    set estado 12                 ;; cambiar a estado "cruzando"
     set color yellow              ;; color amarillo en contraste al puente
     ifelse (anden_dest = 1)
       [set heading 90 set anden_actual 1]
@@ -235,18 +240,56 @@ to update_pasajero_hacia_puente
 end
 
 
+;; PASAJERO - ESTADO 12
 to update_pasajero_cruzando
   ;; Realizar acción del estado (ir hacia andén destino)
   fd 0.01
 
  ;; Si llegó al andén destino...
- if (abs(xcor) > 7) [
+ if (abs(xcor) > 8) [
     ;; Camino 1/2 - Según estado del tren (detenido o no)
-    ifelse ([estado] of tren anden_dest != 1)
-      [set estado 12]
-      [set estado 13]
+    ifelse ([estado] of tren anden_dest = 1)
+      [set estado 14 set color blue]
+      [set estado 13 set color blue]
   ]
 end
+
+
+;; PASAJERO - ESTADO 13
+to update_pasajero_esperando
+  ;; Realizar acción del estado (ubicarse en un lugar)
+  let signo (anden * 2 - 1)
+  let x_espera (10 + who mod 7) * signo
+  let y_espera (4 - who mod 10)
+
+  if (distancexy x_espera y_espera > 0.02) [
+    facexy x_espera y_espera
+    fd 0.01
+  ]
+
+  ;; Cambiar a estado "subiendo a tren" si llegó
+  if ([estado] of tren anden = 1) [set estado 14]
+end
+
+
+;; PASAJERO - ESTADO 14
+to update_pasajero_subiendo
+  ;; Realizar acción del estado (acercarse a tren)
+  let x_subida 6 * (anden * 2 - 1)
+  let y_subida (4 - who mod 10)
+
+  if (distancexy x_subida y_subida > 0.02) [
+    facexy x_subida y_subida
+    fd 0.01
+  ]
+
+  ;; Cambiar a estado "esperando" si se fue el tren
+  if ([estado] of tren anden != 1) [set estado 13]
+
+  ;; Matar agente si ya se encuentra en el tren
+  if (abs(xcor) <= 6.02) [die]
+end
+
 
 
 to mover_pasajero
@@ -342,6 +385,9 @@ to go
   ;; actualización de pasajeros según su estado
   ask pasajeros with [estado = 10] [update_pasajero_saliendo]
   ask pasajeros with [estado = 11] [update_pasajero_hacia_puente]
+  ask pasajeros with [estado = 12] [update_pasajero_cruzando]
+  ask pasajeros with [estado = 13] [update_pasajero_esperando]
+  ask pasajeros with [estado = 14] [update_pasajero_subiendo]
 
 
   ;; actualizar pasajeros que están vagando o están en el andén contrario
@@ -534,7 +580,7 @@ MONITOR
 964
 66
 Actividad en Tren Norte
-word pasajeros_restantes_izq \" por salir\"
+word \npasajeros_restantes_izq \" por salir, \"\ncount pasajeros with [estado = 14 and anden = 0] \" por entrar\"
 17
 1
 11
@@ -545,7 +591,7 @@ MONITOR
 960
 138
 Actividad en Tren Sur
-word pasajeros_restantes_der \" por salir\"
+word pasajeros_restantes_der \" por salir, \"\ncount pasajeros with [estado = 14 and anden = 1] \" por entrar\"
 17
 1
 11
