@@ -9,7 +9,7 @@ globals [
 
 ;; -------------------- DEFINICIÓN DE AGENTE ESTACIONARIO ---------------------------------
 
-patches-own [ elevacion anden ]
+patches-own [ elevacion anden lugar_espera ]
 
 
 ;; -------------------- DEFINICIÓN DE AGENTES MÓVILES -----------------------------
@@ -26,7 +26,7 @@ trenes-own [ estado espera t_anden ]
 ;;  estado 1: cruzando puente (se dirige hacia el andén destino)
 ;;  estado 12: esperando tren (se dirige y espera en un lugar random del andén)
 ;;  estado 13: subiendo a tren (se dirige hacia el tren si está en el andén)
-pasajeros-own [ estado anden_dest molinete x_elegida ]
+pasajeros-own [ estado anden_dest molinete x_elegida lugar_elegido ]
 
 ;; plurales
 breed [trenes tren]
@@ -41,6 +41,15 @@ to setup-patches
   ask patches with [ pycor >= 10 and pycor <= 12 and abs(pxcor) < 8 ] [set elevacion 2]
   ask patches with [ elevacion = 1 and pxcor < 0 ] [set anden 0]
   ask patches with [ elevacion = 1 and pxcor > 0 ] [set anden 1]
+
+  ;; definir zonas de espera
+  let x_posibles (list 6 7 12 13)
+
+  ask patches with [ elevacion = 1 ] [
+    if (member? abs(pxcor) x_posibles ) [
+      if (pycor < 10 and pycor mod 2 = 1) [set lugar_espera 1]
+    ]
+  ]
 
   ;; pintar según elevación
   ask patches with [ elevacion = 0 ] [set pcolor black]
@@ -96,7 +105,7 @@ end
 ;; para evitar choques con los que ingresan al tren, se crean en "y" par
 to crear_pasajero
   set shape "pasajero"
-  set ycor 4 - (who * 2) mod 10
+  set ycor 4 - 2 * (who mod 5)
 
   ;; solo crear pasajeros si hay espacio
   if (any? pasajeros-on neighbors) [die]
@@ -163,7 +172,10 @@ to crear_pasajero_ingreso
     set x_elegida xcor
   ] [
     set estado 13
-    set xcor (12 + who mod 5)
+    set xcor (12 + who mod 2) * signo
+
+    let aux anden
+    set lugar_elegido (one-of patches with [anden = aux and lugar_espera = 1])
   ]
 end
 
@@ -281,14 +293,21 @@ end
 ;; PASAJERO - ESTADO 12
 to update_pasajero_cruzando
   ;; Realizar acción del estado (ir hacia andén destino)
-  fd 0.01
+  ;; avanzar solo si no hay nadie delante
+  if (count pasajeros-on patch-ahead 1 = 0) [fd 0.01]
 
  ;; Si llegó al andén destino...
  if (abs(xcor) > 8) [
+    elegir_lugar_espera
+
     ;; Camino 1/2 - Según estado del tren (detenido o no)
-    ifelse ([estado] of tren anden_dest = 1)
-      [set estado 14 set color blue]
-      [set estado 13 set color blue]
+    ifelse ([estado] of tren anden_dest = 1)  [
+      set estado 14
+      set color blue
+    ] [
+      set estado 13
+      set color blue
+    ]
   ]
 end
 
@@ -301,9 +320,11 @@ to update_pasajero_esperando
   let x_espera (12 + who mod 2) * signo
   let y_espera 6 - (who * 2 + 1) mod 10
 
-  if (distancexy x_espera y_espera > 0.02) [
-    facexy x_espera y_espera
+  if (distance lugar_elegido > 0.02) [
+    face lugar_elegido
     fd 0.01
+    ;; set heading towards one-of patches with [anden = anden_actual]
+    ;; if (count pasajeros-on patch-ahead 1 = 0) [x]
   ]
 
   ;; Cambiar a estado "subiendo a tren" si llegó
@@ -324,8 +345,10 @@ to update_pasajero_subiendo
   if (anden = 1 and pasajeros_restantes_der = 0) [set habilitado 1]
 
   ;; primero se acerca a la coordenada y correcta
-  ifelse (ycor > y_subida) [set heading 180 fd 0.01]
-  [
+  ifelse (ycor > y_subida and count pasajeros-on patch-ahead 1 = 0) [
+    set heading 180
+    fd 0.01
+  ] [
     if (habilitado = 1 and distancexy x_subida y_subida > 0.02) [
       facexy x_subida y_subida
       fd 0.01
@@ -396,6 +419,15 @@ to go
 
   ;; incrementar ticks
   tick
+end
+
+
+to elegir_lugar_espera
+  let aux anden
+
+  set lugar_elegido (
+    one-of patches with [anden = aux and lugar_espera = 1 and not (any? pasajeros-on pasajeros-here)]
+  )
 end
 
 
@@ -510,7 +542,7 @@ cant_bajan
 cant_bajan
 0
 50
-50.0
+10.0
 1
 1
 NIL
