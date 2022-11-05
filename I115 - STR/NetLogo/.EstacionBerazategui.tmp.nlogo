@@ -170,8 +170,8 @@ to go
 
   ;; update 4/11 - creación de pasajeros al llegar un tren
   ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
-  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
-  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
+  if (ticks mod 20 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
+  if (ticks mod 200 = 100 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
 
   tick
 end
