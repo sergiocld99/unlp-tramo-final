@@ -92,7 +92,7 @@ to setup-trenes
 end
 
 
-;; parámetros comunes para ambos andenes
+;; parámetros comunes en ambos andenes
 to crear_pasajero
   set shape "pasajero"
   set ycor 4 - (who mod 10)
@@ -189,9 +189,10 @@ end
 
 ;; ------------------------- UPDATE DE PASAJEROS SEGÚN ESTADO ---------------------------
 
+;; PASAJERO - ESTADO 10
 to update_pasajero_saliendo
   ;; Realizar acción del estado (acercarse a la salida)
-  let x_esperada (8 + who mod 8) * (anden - 1)
+  let x_esperada (12 + who mod 5) * (anden - 1)
 
   ifelse (distancexy x_esperada ycor > 0.02)
     [facexy x_esperada ycor]
@@ -208,20 +209,42 @@ end
 
 to update_pasajero_hacia_puente
   ;; Realizar acción del estado (acercarse a escalera)
-  let x_esperada (7 * (anden - 1))
+  let x_puente (7 * (anden - 1))
+  let x_esperada (8 + who mod 4) * (anden - 1)
   let y_esperada (11 + who mod 2)
 
-  ifelse (distancexy x_esperada ycor > 0.02)
-    [facexy x_esperada ycor]
-    [facexy xcor y_esperada]
+  ;; ordenado según distancia al puente
+  ifelse (ycor >= y_esperada) [set heading (90 + 180 * anden) ]
+  [
+    ifelse (abs(xcor) >= abs(x_esperada))
+      [facexy xcor y_esperada]
+      [facexy x_esperada ycor]
+  ]
 
   ;; avanzar solo si no hay nadie delante
   if (count pasajeros-on patch-ahead 1 = 0) [fd 0.01]
 
   ;; Camino 1 - ¿Llego al puente?
-  if (ycor > y_esperada) [
-    set estado 1
-    cambiar_anden
+  if (distancexy x_puente y_esperada < 0.02) [
+    set estado 1                  ;; cambiar a estado "cruzando"
+    set color yellow              ;; color amarillo en contraste al puente
+    ifelse (anden_dest = 1)
+      [set heading 90 set anden_actual 1]
+      [set heading 270 set anden_actual 0]
+  ]
+end
+
+
+to update_pasajero_cruzando
+  ;; Realizar acción del estado (ir hacia andén destino)
+  fd 0.01
+
+ ;; Si llegó al andén destino...
+ if (abs(xcor) > 7) [
+    ;; Camino 1/2 - Según estado del tren (detenido o no)
+    ifelse ([estado] of tren anden_dest != 1)
+      [set estado 12]
+      [set estado 13]
   ]
 end
 
@@ -457,7 +480,7 @@ cant_bajan
 cant_bajan
 0
 50
-50.0
+44.0
 1
 1
 NIL
