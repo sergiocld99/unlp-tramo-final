@@ -93,9 +93,10 @@ end
 
 
 ;; parámetros comunes en ambos andenes
+;; para evitar choques con los que ingresan al tren, se crean en "y" par
 to crear_pasajero
   set shape "pasajero"
-  set ycor 4 - (who mod 10)
+  set ycor 4 - (who * 2) mod 10
   set color orange
   set size 2
   lt random 360
@@ -276,10 +277,11 @@ end
 
 ;; PASAJERO - ESTADO 14
 ;; No se acercarán al tren hasta que terminen de bajar
+;; Para evitar choques con los que bajan, se sube por "y" impar
 to update_pasajero_subiendo
   ;; Realizar acción del estado (acercarse a tren)
   let x_subida 6 * (anden * 2 - 1)
-  let y_subida (4 - who mod 10)
+  let y_subida  - (who * 2 + 1) mod 10
   let habilitado 0
 
   if (anden = 0 and pasajeros_restantes_izq = 0) [set habilitado 1]
@@ -288,7 +290,10 @@ to update_pasajero_subiendo
   ;; primero se acerca a la coordenada y correcta
   ifelse (ycor > y_subida) [set heading 180 fd 0.01]
   [
-if (habilitado = 1 and distancexy x_subida y_subida > 0.02) [facexy x_subida y_subida fd 0.01]
+    if (habilitado = 1 and distancexy x_subida y_subida > 0.02) [
+      facexy x_subida y_subida
+      fd 0.01
+    ]
   ]
 
   ;; Cambiar a estado "esperando" si se fue el tren
