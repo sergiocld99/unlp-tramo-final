@@ -1,7 +1,10 @@
 ;; Actualmente tenemos 1 min es aprox 1000 ticks
 
 ;; variables globales inicializadas por defecto en cero
-globals [ pasajeros_restantes_izq pasajeros_restantes_der ]
+globals [
+  pasajeros_restantes_izq
+  pasajeros_restantes_der
+]
 
 
 ;; -------------------- DEFINICIÓN DE AGENTE ESTACIONARIO ---------------------------------
@@ -12,17 +15,17 @@ patches-own [ elevacion anden ]
 ;; -------------------- DEFINICIÓN DE AGENTES MÓVILES -----------------------------
 
 ;; trenes: estado 0 (yendo), 1 (en anden), 2 (lejano)
-;;  estado 0: yendo (se acerca o aleja del centro de la estación)
-;;  estado 1: en andén (se encuentra demorado durante un cierto tiempo)
+;;  estado 0: en marcha (se acerca o aleja del centro de la estación)
+;;  estado 1: detenido (se encuentra en el andén durante un cierto tiempo)
 ;;  estado 2: lejano (es invisible durante un cierto tiempo)
 trenes-own [ estado espera t_anden ]
 
 ;; pasajeros
-;;  estado 1: saliendo de la estación (se dirige hacia los molinetes)
-;;  estado 2: yendo a puente (se dirige hacia el comienzo del puente)
-;;  estado 3: cruzando puente (se dirige hacia el andén destino)
-;;  estado 4: esperando tren (se dirige y espera en un lugar random del andén)
-;;  estado 5: subiendo a tren (se dirige hacia el tren si está en el andén)
+;;  estado 11: saliendo de la estación (se dirige hacia los molinetes)
+;;  estado 12: yendo a puente (se dirige hacia el comienzo del puente)
+;;  estado 1: cruzando puente (se dirige hacia el andén destino)
+;;  estado 14: esperando tren (se dirige y espera en un lugar random del andén)
+;;  estado 15: subiendo a tren (se dirige hacia el tren si está en el andén)
 pasajeros-own [ estado anden_actual anden_dest ]
 
 ;; plurales
@@ -124,86 +127,35 @@ to crear_pasajero_der
 end
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Setup procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+;; ------------------------- UPDATE DE AGENTES TREN ---------------------------
 
-to setup
-  clear-all
-  ;;create-trenes 2
-
-  setup-patches
-  setup-trenes
-
-  ;;create-pasajeros 10
-
-  ;;ask patches [set pcolor black]
-  ;;ask patches [crear_estacion]
-
-  ;;ask trenes [crear_tren]
-  ;;ask pasajeros [crear_pasajero]
-
-  reset-ticks
-end
-
-;; para cada tick del sistema
-to go
-  ask trenes with [estado = 0] [update_tren_en_marcha]
-  ask trenes with [estado = 1] [update_tren_detenido]
-  ask trenes with [estado = 2] [update_tren_lejano]
-
-  ;; actualizar pasajeros que están vagando o están en el andén contrario
-  ask pasajeros with [estado = 0] [
-    ifelse anden_dest != anden_actual and [espera] of tren anden_dest < 2000
-    [if ticks mod 4 = 0 [mover_pasajero] ]
-    [if ticks mod 10 = 0 [mover_pasajero] ]
-  ]
-
-  ;; actualizar pasajeros que están en el puente
-  ask pasajeros with [estado = 1] [
-    ifelse [espera] of tren anden_dest < 1000 [if ticks mod 4 = 0 [cruzar_puente] ]
-    [if ticks mod 10 = 0 [cruzar_puente] ]
-  ]
-
-  ;; actualizar pasajeros que están en el andén correcto
-  ask pasajeros with [estado = 2] [acercar_pasajero]
-
-  ;; update 4/11 - creación de pasajeros al llegar un tren
-  ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
-  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
-  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
-
-  tick
-end
-
-
-;; ------------------------- MOVIMIENTO DE TRENES ---------------------------
-
+;; TREN - ESTADO 0
 to update_tren_en_marcha
-  ifelse abs(ycor) < 0.01
-  [
-    set estado 1
-    set t_anden tolerancia_anden
+  ;; Realizar accion del estado (avanzar)
+  fd abs(ycor / 500
 
-    ;; en lugar de crear todos los pasajeros directamente desde el tren
-    ;; vamos a delegar esta tarea al observador global (impacto menor)
+  ;; Chequear entradas
+  ;; Camino 1 - ¿Se encuentra en el lugar de espera?
+  if (abs(ycor) < 0.01) [
+    set estado 1                    ;; cambiar a estado "detenido"
+    set t_anden tolerancia_anden    ;; asignar tiempo de espera
 
-    ifelse (who = 0)
-    [set pasajeros_restantes_izq cant_bajan]
-    [set pasajeros_restantes_der cant_bajan]
+    ifelse (who = 0)                ;; indicar cuantos pasajeros deben crearse
+      [set pasajeros_restantes_izq cant_bajan]
+      [set pasajeros_restantes_der cant_bajan]
+  ]
 
-    ;;ifelse who = 0
-    ;;[hatch-pasajeros cant_bajan [crear_pasajero_izq] ]
-    ;;[hatch-pasajeros cant_bajan [crear_pasajero_der] ]
-
-  ] [
-    ifelse abs(ycor) >= max-pycor
-    [set estado 2 set espera frecuencia_tren + who * random tolerancia_anden]
-    [fd (distancexy 0 0) / 500]
+  ;; Camino 2 - ¿Se alejó el tren lo suficiente?
+  if (abs(ycor) >= max-pycor) [
+    set estado 2                    ;; cambiar a estado "lejano"
+    set espera frecuencia_tren      ;; asignar tiempo hasta próximo arribo
+    set hidden? true                ;; volver invisible al usuario
   ]
 
 end
 
+
+;; TREN - ESTADO 1
 to update_tren_detenido
   ;; el tiempo de tolerancia no disminuye hasta que salgan todos los pasajeros
   if (who = 0 and pasajeros_restantes_izq = 0)[
@@ -299,6 +251,48 @@ to acercar_pasajero
     if distancexy x_random y_random > 1 [facexy x_random y_random fd speed]
   ]
 end
+
+
+;; ------------------------------------------ RESPUESTAS A BOTONES ----------------------------
+
+to setup
+  clear-all
+  setup-patches
+  setup-trenes
+  reset-ticks
+end
+
+
+;; para cada tick del sistema
+to go
+  ask trenes with [estado = 0] [update_tren_en_marcha]
+  ask trenes with [estado = 1] [update_tren_detenido]
+  ask trenes with [estado = 2] [update_tren_lejano]
+
+  ;; actualizar pasajeros que están vagando o están en el andén contrario
+  ask pasajeros with [estado = 0] [
+    ifelse anden_dest != anden_actual and [espera] of tren anden_dest < 2000
+    [if ticks mod 4 = 0 [mover_pasajero] ]
+    [if ticks mod 10 = 0 [mover_pasajero] ]
+  ]
+
+  ;; actualizar pasajeros que están en el puente
+  ask pasajeros with [estado = 1] [
+    ifelse [espera] of tren anden_dest < 1000 [if ticks mod 4 = 0 [cruzar_puente] ]
+    [if ticks mod 10 = 0 [cruzar_puente] ]
+  ]
+
+  ;; actualizar pasajeros que están en el andén correcto
+  ask pasajeros with [estado = 2] [acercar_pasajero]
+
+  ;; update 4/11 - creación de pasajeros al llegar un tren
+  ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
+  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
+  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
+
+  tick
+end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -328,10 +322,10 @@ ticks
 30.0
 
 BUTTON
-19
-121
-82
-154
+703
+179
+766
+212
 NIL
 setup
 NIL
@@ -345,10 +339,10 @@ NIL
 1
 
 BUTTON
-95
-125
-158
-158
+850
+179
+913
+212
 NIL
 go
 T
@@ -422,14 +416,14 @@ true
 false
 "" ""
 PENS
-"vagando" 1.0 0 -2674135 true "" "plot count pasajeros with [estado = 0]"
-"en puente" 1.0 0 -1184463 true "" "plot count pasajeros with [estado = 1]"
-"a subir" 1.0 0 -13840069 true "" "plot count pasajeros with [estado = 2]"
+"Andén Izq" 1.0 0 -10899396 true "" "plot count pasajeros with [elevacion = 1 and anden = 0]"
+"Andén Der" 1.0 0 -11221820 true "" "plot count pasajeros with [elevacion = 1 and anden = 1]"
+"Puente" 1.0 0 -2674135 true "" "plot count pasajeros with [elevacion = 2]"
 
 MONITOR
 676
 23
-785
+791
 68
 PLAZA C
 word [round(espera / 1000)] of tren 0 \" min\"
@@ -440,7 +434,7 @@ word [round(espera / 1000)] of tren 0 \" min\"
 MONITOR
 676
 92
-790
+793
 137
 LA PLATA / BOSQUES
 word [round(espera / 1000)] of tren 1 \" min\"
@@ -454,7 +448,7 @@ MONITOR
 964
 66
 Saliendo de Tren Norte
-pasajeros_restantes_izq
+word pasajeros_restantes_izq \" pasajeros\"
 17
 1
 11
@@ -465,7 +459,18 @@ MONITOR
 960
 138
 Saliendo de Tren Sur
-pasajeros_restantes_der
+word pasajeros_restantes_der \" pasajeros\"
+17
+1
+11
+
+MONITOR
+735
+277
+847
+322
+NIL
+[estado] of tren 0
 17
 1
 11
