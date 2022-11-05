@@ -26,7 +26,7 @@ trenes-own [ estado espera t_anden ]
 ;;  estado 1: cruzando puente (se dirige hacia el andén destino)
 ;;  estado 14: esperando tren (se dirige y espera en un lugar random del andén)
 ;;  estado 15: subiendo a tren (se dirige hacia el tren si está en el andén)
-pasajeros-own [ estado anden_actual anden_dest ]
+pasajeros-own [ estado anden_actual anden_dest molinete ]
 
 ;; plurales
 breed [trenes tren]
@@ -92,15 +92,23 @@ to setup-trenes
 end
 
 
-to crear_pasajero_izq
+;; parámetros comunes para ambos andenes
+to crear_pasajero
   set shape "pasajero"
-  set xcor -6.1
   set ycor 4 - (who mod 10)
   set color orange
   set size 2
   lt random 360
+  ifelse (random 2 = 0) [set molinete 16] [set molinete -16]
+end
 
-  set estado 0
+
+to crear_pasajero_izq
+  set xcor -6.1
+  crear_pasajero
+
+  ;;set estado 0
+  set estado 10
   set anden_actual 0
   set anden_dest random 2
 
@@ -110,12 +118,8 @@ end
 
 
 to crear_pasajero_der
-  set shape "pasajero"
   set xcor 6.1
-  set ycor 4 - (who mod 10)
-  set color orange
-  set size 2
-  lt random 360
+  crear_pasajero
 
   ;; desde este lado no hacen combinación
   set estado 0
@@ -127,7 +131,7 @@ to crear_pasajero_der
 end
 
 
-;; ------------------------- UPDATE DE AGENTES TREN ---------------------------
+;; ------------------------- UPDATE DE TRENES SEGÚN ESTADO ---------------------------
 
 ;; TREN - ESTADO 0
 to update_tren_en_marcha
@@ -151,34 +155,55 @@ to update_tren_en_marcha
     set espera frecuencia_tren      ;; asignar tiempo hasta próximo arribo
     set hidden? true                ;; volver invisible al usuario
   ]
-
 end
 
 
 ;; TREN - ESTADO 1
 to update_tren_detenido
-  ;; el tiempo de tolerancia no disminuye hasta que salgan todos los pasajeros
-  if (who = 0 and pasajeros_restantes_izq = 0)[
-    ifelse (t_anden > 0) [set t_anden (t_anden - 1)] [set estado 0 fd 0.02]
-  ]
+  ;; Realizar acción del estado (disminuir espera si nadie baja)
+  if (who = 0 and pasajeros_restantes_izq = 0) [set t_anden (t_anden - 1)]
+  if (who = 1 and pasajeros_restantes_der = 0) [set t_anden (t_anden - 1)]
 
-  if (who = 1 and pasajeros_restantes_der = 0)[
-    ifelse (t_anden > 0) [set t_anden (t_anden - 1)] [set estado 0 fd 0.02]
+  ;; Camino 1 - ¿Se cumplió el tiempo de espera?
+  if (t_anden = 0) [
+    set estado 0              ;; pasar al estado "en marcha"
+    fd 0.02                   ;; avanzar para evitar bloqueo
   ]
-
 end
 
+
+;; TREN - ESTADO 2
 to update_tren_lejano
-  ifelse espera > 0 [set hidden? true set espera espera - 1] [
+  ;; Realizar acción del estado (disminuir espera)
+  set espera (espera - 1)
+
+  ;; Camino 1 - ¿Se cumplió el tiempo de espera?
+  if (espera = 0) [
     ifelse who = 0 [set ycor min-pycor] [set ycor max-pycor]
-    fd 0.02
     set hidden? false
     set estado 0
   ]
 end
 
 
-;; ------------------------- MOVIMIENTO DE PASAJEROS ---------------------------
+;; ------------------------- UPDATE DE PASAJEROS SEGÚN ESTADO ---------------------------
+
+to update_pasajero_saliendo
+  ;; Realizar acción del estado (acercarse a la salida)
+  let x_esperada (8 + who mod 8) * (anden - 1)
+
+  ifelse (distancexy x_esperada ycor > 0.02)
+    [facexy x_esperada ycor]
+    [facexy xcor molinete]
+
+  ;; avanzar solo si no hay nadie delante
+  if  (count pasajeros-on patch-ahead 1 = 0) [fd 0.01]
+
+  ;; Camino 1 - ¿Llegó al molinete?
+  if (abs(ycor) >= max-pycor) [die]
+
+end
+
 
 to mover_pasajero
   let limite 0
@@ -265,9 +290,14 @@ end
 
 ;; para cada tick del sistema
 to go
+  ;; actualización de trenes según su estado (todo ok)
   ask trenes with [estado = 0] [update_tren_en_marcha]
   ask trenes with [estado = 1] [update_tren_detenido]
   ask trenes with [estado = 2] [update_tren_lejano]
+
+  ;; actualización de pasajeros según su estado
+  ask pasajeros with [estado = 10] [update_pasajero_saliendo]
+
 
   ;; actualizar pasajeros que están vagando o están en el andén contrario
   ask pasajeros with [estado = 0] [
@@ -469,8 +499,8 @@ MONITOR
 93
 960
 138
-Saliendo de Tren Sur
-word pasajeros_restantes_der \" pasajeros\"
+Actividad en Tren Sur
+word pasajeros_restantes_der \" por salir\"
 17
 1
 11
