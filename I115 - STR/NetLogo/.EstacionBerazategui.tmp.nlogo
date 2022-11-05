@@ -123,9 +123,11 @@ to crear_pasajero_der
   crear_pasajero
 
   ;; desde este lado no hacen combinación
-  set estado 0
-  set anden_actual 1
-  set anden_dest random 2
+  set estado 10
+
+  ;;set estado 0
+  ;;set anden_actual 1
+  ;;set anden_dest random 2
 
   ;; actualizar contador global
   set pasajeros_restantes_der (pasajeros_restantes_der - 1)
@@ -273,14 +275,20 @@ end
 
 
 ;; PASAJERO - ESTADO 14
+;; No se acercarán al tren hasta que terminen de bajar
 to update_pasajero_subiendo
   ;; Realizar acción del estado (acercarse a tren)
   let x_subida 6 * (anden * 2 - 1)
   let y_subida (4 - who mod 10)
+  let habilitado 0
 
-  if (distancexy x_subida y_subida > 0.02) [
-    facexy x_subida y_subida
-    fd 0.01
+  if (anden = 0 and pasajeros_restantes_izq = 0) [set habilitado 1]
+  if (anden = 1 and pasajeros_restantes_der = 0) [set habilitado 1]
+
+  ;; primero se acerca a la coordenada y correcta
+  ifelse (ycor > y_subida) [set heading 180 fd 0.01]
+  [
+if (habilitado = 1 and distancexy x_subida y_subida > 0.02) [facexy x_subida y_subida fd 0.01]
   ]
 
   ;; Cambiar a estado "esperando" si se fue el tren
@@ -496,7 +504,7 @@ tolerancia_anden
 tolerancia_anden
 500
 4500
-500.0
+1300.0
 100
 1
 NIL
@@ -526,7 +534,7 @@ cant_bajan
 cant_bajan
 0
 50
-44.0
+10.0
 1
 1
 NIL
