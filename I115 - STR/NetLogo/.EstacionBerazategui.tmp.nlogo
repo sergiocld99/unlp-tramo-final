@@ -109,6 +109,8 @@ to crear_pasajero_izq
   set xcor -6.1
   crear_pasajero
 
+
+
   ;;set estado 0
   ifelse (random 2 = 0) [set estado 10]
   [
@@ -226,7 +228,7 @@ end
 to update_pasajero_saliendo
   ;; Realizar acción del estado (acercarse a la salida)
   let signo (anden * 2 - 1)
-  let x_esperada (1 + who mod 5) * signo
+  let x_esperada (14 + who mod 3) * signo
 
   ifelse (distancexy x_esperada ycor > 0.02)
     [facexy x_esperada ycor]
@@ -362,8 +364,13 @@ to go
 
   ;; update 4/11 - creación de pasajeros al llegar un tren
   ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
-  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
-  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
+  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [
+    create-pasajeros 1 [crear_pasajero_izq]
+  ]
+
+  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [
+    create-pasajeros 1 [crear_pasajero_der]
+  ]
 
   ;; generación espontánea de pasajeros (desde molinetes)
   if (ticks mod 1000 = 999) [create-pasajeros 1 [crear_pasajero_ingreso] ]

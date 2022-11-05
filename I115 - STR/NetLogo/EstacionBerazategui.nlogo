@@ -97,6 +97,10 @@ end
 to crear_pasajero
   set shape "pasajero"
   set ycor 4 - (who * 2) mod 10
+
+  ;; solo crear pasajeros si hay espacio
+  if (any? pasajeros-on neighbors) [die]
+
   set color orange
   set size 2
   lt random 360
@@ -362,8 +366,13 @@ to go
 
   ;; update 4/11 - creación de pasajeros al llegar un tren
   ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
-  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [create-pasajeros 1 [crear_pasajero_izq] ]
-  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [create-pasajeros 1 [crear_pasajero_der] ]
+  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [
+    create-pasajeros 1 [crear_pasajero_izq]
+  ]
+
+  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [
+    create-pasajeros 1 [crear_pasajero_der]
+  ]
 
   ;; generación espontánea de pasajeros (desde molinetes)
   if (ticks mod 1000 = 999) [create-pasajeros 1 [crear_pasajero_ingreso] ]
