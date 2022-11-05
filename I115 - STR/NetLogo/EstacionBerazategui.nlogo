@@ -293,6 +293,17 @@ to go
   tick
 end
 
+
+;; --------------------------------------------- MONITORES -------------------------------------------
+
+to-report mostrar-hora-actual
+  let hora floor(ticks / 60000) + 8
+  let minutos floor((ticks mod 60000) / 1000)
+
+  ifelse (minutos < 10)
+    [report (word hora ":0" minutos)]
+  [report (word hora ":" minutos)]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -357,9 +368,9 @@ NIL
 
 SLIDER
 18
-32
+81
 190
-65
+114
 tolerancia_anden
 tolerancia_anden
 500
@@ -372,9 +383,9 @@ HORIZONTAL
 
 SLIDER
 18
-74
+123
 190
-107
+156
 frecuencia_tren
 frecuencia_tren
 10000
@@ -447,8 +458,8 @@ MONITOR
 21
 964
 66
-Saliendo de Tren Norte
-word pasajeros_restantes_izq \" pasajeros\"
+Actividad en Tren Norte
+word pasajeros_restantes_izq \" por salir\"
 17
 1
 11
@@ -458,19 +469,19 @@ MONITOR
 93
 960
 138
-Saliendo de Tren Sur
-word pasajeros_restantes_der \" pasajeros\"
+Actividad en Tren Sur
+word pasajeros_restantes_der \" por salir\"
 17
 1
 11
 
 MONITOR
-735
-277
-847
-322
-NIL
-[estado] of tren 0
+53
+17
+154
+62
+HORA ACTUAL
+mostrar-hora-actual
 17
 1
 11
