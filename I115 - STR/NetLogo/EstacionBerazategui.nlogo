@@ -24,9 +24,9 @@ trenes-own [ estado espera t_anden ]
 ;; pasajeros
 ;;  estado 10: saliendo de la estación (se dirige hacia los molinetes)
 ;;  estado 11: yendo a puente (se dirige hacia el comienzo del puente)
-;;  estado 1: cruzando puente (se dirige hacia el andén destino)
-;;  estado 12: esperando tren (se dirige y espera en un lugar random del andén)
-;;  estado 13: subiendo a tren (se dirige hacia el tren si está en el andén)
+;;  estado 12: cruzando puente (se dirige hacia el andén destino)
+;;  estado 13: esperando tren (se dirige y espera en un lugar random del andén)
+;;  estado 14: subiendo a tren (se dirige hacia el tren si está en el andén)
 pasajeros-own [ estado anden_dest molinete x_elegida lugar_elegido ]
 
 ;; plurales
@@ -335,16 +335,8 @@ to update_pasajero_cruzando
 
   ;; Si llegó al andén destino...
   if (abs(xcor) > 8) [
-    ;; elegir_lugar_espera
-
-    ;; Camino 1/2 - Según estado del tren (detenido o no)
-    ifelse ([estado] of tren anden_dest = 1)  [
-      set estado 13
-      set color blue
-    ] [
-      set estado 13
-      set color blue
-    ]
+    set estado 13
+    set color blue
   ]
 end
 
@@ -652,7 +644,7 @@ cant_bajan
 cant_bajan
 0
 50
-44.0
+22.0
 1
 1
 NIL

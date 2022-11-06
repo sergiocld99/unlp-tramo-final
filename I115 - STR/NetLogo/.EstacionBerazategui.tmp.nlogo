@@ -24,7 +24,7 @@ trenes-own [ estado espera t_anden ]
 ;; pasajeros
 ;;  estado 10: saliendo de la estación (se dirige hacia los molinetes)
 ;;  estado 11: yendo a puente (se dirige hacia el comienzo del puente)
-;;  estado 1: cruzando puente (se dirige hacia el andén destino)
+;;  estado 12: cruzando puente (se dirige hacia el andén destino)
 ;;  estado 12: esperando tren (se dirige y espera en un lugar random del andén)
 ;;  estado 13: subiendo a tren (se dirige hacia el tren si está en el andén)
 pasajeros-own [ estado anden_dest molinete x_elegida lugar_elegido ]
@@ -535,8 +535,9 @@ to cant_bajan_segun_mes
     mes = "Diciembre"  [set total 286682]
   )
 
-
-  set cant_bajan round(total / (30 * 160))
+  ;; divido por 30 días, 160 servicios
+  ;; la mitad bajan, la mitad suben
+  set cant_bajan round(total / (30 * 160 * 2))
 
 end
 
@@ -651,7 +652,7 @@ cant_bajan
 cant_bajan
 0
 50
-44.0
+22.0
 1
 1
 NIL
