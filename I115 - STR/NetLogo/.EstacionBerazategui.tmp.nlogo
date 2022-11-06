@@ -4,6 +4,7 @@
 globals [
   pasajeros_restantes_izq
   pasajeros_restantes_der
+  hora_actual
 ]
 
 
@@ -43,7 +44,7 @@ to setup-patches
   ask patches with [ elevacion = 1 and pxcor > 0 ] [set anden 1]
 
   ;; definir zonas de espera
-  let x_posibles (list 910 14 15 16)
+  let x_posibles (list 9 10 14 15 16)
 
   ask patches with [ elevacion = 1 ] [
     if (member? abs(pxcor) x_posibles ) [
@@ -407,6 +408,8 @@ to setup
   setup-patches
   setup-trenes
   reset-ticks
+
+  set hora_actual hora_inicio
 end
 
 
@@ -453,6 +456,16 @@ to go
   ;; actualizar pasajeros que están en el andén correcto
   ;;ask pasajeros with [estado = 2] [acercar_pasajero]
 
+  ;; actualizar frecuencia (solo 1 vez por hora)
+  if (ticks mod 60000 = 1) [
+    set hora_actual floor(ticks / 60000) + hora_inicio
+
+    if (hora_actual = 5) [set frecuencia_tren 24000]
+    if (hora_actual = 12) [set frecuencia_tren 30000]
+    if (hora_actual = 17) [set frecuencia_tren 24000]
+    if (hora_actual = 21) [set frecuencia_tren 30000]
+    if (hora_actual >= 22) [ask turyl [die] stop]
+  ]
 
   ;; incrementar ticks
   tick
@@ -497,15 +510,19 @@ to eliminar_pasajero
 end
 
 
+;; ------------------------------------------ CONSULTA DE DATOS REALES ------------------------------
+
+
+
+
 ;; --------------------------------------------- MONITORES -------------------------------------------
 
 to-report mostrar-hora-actual
-  let hora floor(ticks / 60000) + 8
   let minutos floor((ticks mod 60000) / 1000)
 
   ifelse (minutos < 10)
-    [report (word hora ":0" minutos)]
-  [report (word hora ":" minutos)]
+    [report (word hora_actual ":0" minutos)]
+  [report (word hora_actual ":" minutos)]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -570,10 +587,10 @@ NIL
 1
 
 SLIDER
-18
-81
-190
-114
+19
+165
+191
+198
 tolerancia_anden
 tolerancia_anden
 1000
@@ -585,25 +602,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-18
-123
-190
-156
+19
+210
+191
+243
 frecuencia_tren
 frecuencia_tren
 10000
 40000
-10000.0
+30000.0
 1000
 1
 NIL
 HORIZONTAL
 
 SLIDER
-18
-171
-190
-204
+19
+258
+191
+291
 cant_bajan
 cant_bajan
 0
@@ -730,6 +747,21 @@ count patches with [anden = 0 and libre? = true]
 17
 1
 11
+
+SLIDER
+19
+118
+191
+151
+hora_inicio
+hora_inicio
+5
+21
+21.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
