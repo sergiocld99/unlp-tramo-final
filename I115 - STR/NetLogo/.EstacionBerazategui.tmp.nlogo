@@ -460,11 +460,11 @@ to go
   if (ticks mod 60000 = 1) [
     set hora_actual floor(ticks / 60000) + hora_inicio
 
-    if (hora_actual = 5) [set frecuencia_tren 24000]
-    if (hora_actual = 12) [set frecuencia_tren 30000]
-    if (hora_actual = 17) [set frecuencia_tren 24000]
-    if (hora_actual = 21) [set frecuencia_tren 30000]
-    if (hora_actual >= 22) [ask turyl [die] stop]
+    if (hora_actual = 5) [set frecuencia_tren 12000]
+    if (hora_actual = 12) [set frecuencia_tren 15000]
+    if (hora_actual = 17) [set frecuencia_tren 12000]
+    if (hora_actual = 21) [set frecuencia_tren 15000]
+    if (hora_actual >= 22) [ask turtles [die] stop]
   ]
 
   ;; incrementar ticks
@@ -610,7 +610,7 @@ frecuencia_tren
 frecuencia_tren
 10000
 40000
-30000.0
+12000.0
 1000
 1
 NIL
@@ -625,7 +625,7 @@ cant_bajan
 cant_bajan
 0
 50
-50.0
+30.0
 1
 1
 NIL
@@ -757,7 +757,7 @@ hora_inicio
 hora_inicio
 5
 21
-21.0
+5.0
 1
 1
 NIL
