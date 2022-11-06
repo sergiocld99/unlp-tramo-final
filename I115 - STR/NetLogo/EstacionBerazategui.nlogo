@@ -460,11 +460,13 @@ to go
   if (ticks mod 60000 = 1) [
     set hora_actual floor(ticks / 60000) + hora_inicio
 
-    if (hora_actual = 5) [set frecuencia_tren 12000]
-    if (hora_actual = 12) [set frecuencia_tren 15000]
-    if (hora_actual = 17) [set frecuencia_tren 12000]
-    if (hora_actual = 21) [set frecuencia_tren 15000]
-    if (hora_actual >= 22) [ask turtles [die] stop]
+    (ifelse
+      hora_actual = 5 [set frecuencia_tren 12000]
+      hora_actual = 12 [set frecuencia_tren 15000]
+      hora_actual = 17 [set frecuencia_tren 12000]
+      hora_actual = 21 [set frecuencia_tren 15000]
+      hora_actual >= 22 [ask turtles [die] stop]
+    )
   ]
 
   ;; incrementar ticks
@@ -512,7 +514,10 @@ end
 
 ;; ------------------------------------------ CONSULTA DE DATOS REALES ------------------------------
 
+to cant_bajan_segun_mes
 
+
+end
 
 
 ;; --------------------------------------------- MONITORES -------------------------------------------
@@ -588,9 +593,9 @@ NIL
 
 SLIDER
 19
-165
+222
 191
-198
+255
 tolerancia_anden
 tolerancia_anden
 1000
@@ -603,14 +608,14 @@ HORIZONTAL
 
 SLIDER
 19
-210
+267
 191
-243
+300
 frecuencia_tren
 frecuencia_tren
 10000
 40000
-12000.0
+15000.0
 1000
 1
 NIL
@@ -618,9 +623,9 @@ HORIZONTAL
 
 SLIDER
 19
-258
+315
 191
-291
+348
 cant_bajan
 cant_bajan
 0
@@ -698,13 +703,13 @@ word pasajeros_restantes_der \" por salir, \"\ncount pasajeros with [estado >= 1
 MONITOR
 53
 17
-154
-62
+169
+74
 HORA ACTUAL
 mostrar-hora-actual
 17
 1
-11
+14
 
 TEXTBOX
 911
@@ -750,9 +755,9 @@ count patches with [anden = 0 and libre? = true]
 
 SLIDER
 19
-118
+89
 191
-151
+122
 hora_inicio
 hora_inicio
 5
@@ -762,6 +767,16 @@ hora_inicio
 1
 NIL
 HORIZONTAL
+
+CHOOSER
+19
+141
+193
+186
+mes
+mes
+"Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio" "Julio" "Agosto" "Septiembre" "Octubre" "Noviembre" "Diciembre"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
