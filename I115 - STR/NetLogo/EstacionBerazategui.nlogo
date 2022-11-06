@@ -410,6 +410,10 @@ to setup
   reset-ticks
 
   set hora_actual hora_inicio
+
+  ;; establecer cantidad que bajan según mes
+  cant_bajan_segun_mes
+
 end
 
 
@@ -515,7 +519,25 @@ end
 ;; ------------------------------------------ CONSULTA DE DATOS REALES ------------------------------
 
 to cant_bajan_segun_mes
+  let total 0
 
+  (ifelse
+    mes = "Enero"   [set total 212613]
+    mes = "Febrero" [set total 231473]
+    mes = "Marzo"   [set total 263145]
+    mes = "Abril"   [set total 275146]
+    mes = "Mayo"    [set total 285549]
+    mes = "Junio"   [set total 218172]
+    mes = "Agosto"  [set total 288444]
+    mes = "Septiembre" [set total 308205]
+    mes = "Octubre"    [set total 311335]
+    mes = "Noviembre"  [set total 308932]
+    mes = "Diciembre"  [set total 286682]
+  )
+
+  ;; divido por 30 días, 160 servicios
+  ;; la mitad bajan, la mitad suben
+  set cant_bajan round(total / (30 * 160 * 2))
 
 end
 
@@ -630,7 +652,7 @@ cant_bajan
 cant_bajan
 0
 50
-30.0
+44.0
 1
 1
 NIL
