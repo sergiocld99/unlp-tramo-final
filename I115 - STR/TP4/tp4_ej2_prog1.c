@@ -1,18 +1,10 @@
 
 #include <stdio.h>
-
-// Librería P-threads
-#include <pthread.h>
-
-// libreria de tiempo (linux)
+#include <stdlib.h>
 #include <unistd.h>
 
-// cantidad de hilos
-#define T 2
-#define ITERACIONES 1000
-
-// prototipo de tarea
-void* tarea(void*);
+// Para nanosleep
+#include <time.h>
 
 /*
 Para realizar el sensor de temperatura, realice un programa que lea de un archivo
@@ -27,11 +19,13 @@ con esta mecánica hasta la finalización del archivo.
 int main(int argc, char *argv[])
 {
   // variables del programa
-  double tiempo, temp;
+  int tiempo, temp;
+  int p[2];		// pipe
+  char* msg;
   FILE *arch;
   
   // abrir archivo
-	arch = fopen ( "fichero.in", "r" );        
+  arch = fopen ( "fichero.in", "r" );        
 	
   if (arch == NULL) {
     fputs("Error al abrir el archivo", stderr); 
@@ -43,18 +37,19 @@ int main(int argc, char *argv[])
     // leer linea: tiempo \t temperatura
     // leer tiempo en ns que debo esperar para entregar un dato
     // leer la temperatura (°C) que debo entregar
-    fscanf(arch, "%f\t%f\n", &tiempo, &temp);
+    fscanf(arch, "%d\t%d\n", &tiempo, &temp);
   
     // esperar que se cumpla el plazo
-    // IBM: the nsleep subroutine suspends the current process in nanoseconds
-    nsleep(tiempo);
+    nanosleep((const struct timespec[]){{0, tiempo}}, NULL);
   
-    // escribir temperatura
-    printf("%f\n", temp);
+    // escribir temperatura por pipe (usar siempre p[1])
+    write(p[1], &temp, sizeof(temp));
   }
   
   // cerrar archivo
   fclose(arch);
+
+  while(1);
   
   return 0; 
 }
