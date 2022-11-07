@@ -52,11 +52,12 @@ void* tarea1(void* args){
     nbytes = read(p[0], &valor, sizeof(valor));
 
     // controlar que no exceda 90°C
-    if (valor > 90) 
+    if (valor > 90) {
       printf("Atencion: la temperatura excede los 90°C \n");
-    else 
+    } else {
       temp = valor;
       sem_post(&semaforo);
+    }
   }
 }
 
