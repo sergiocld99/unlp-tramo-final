@@ -8,9 +8,10 @@
 
 // cantidad de hilos
 #define T 2
+#define ITERACIONES 1000
 
 // prototipo de tarea
-void tarea(void*);
+void* tarea(void*);
 
 /*****************************************************************/
 
@@ -36,13 +37,12 @@ int main(int argc, char *argv[])
     // pthread
     pthread_attr_t attr;
     pthread_t threads[T];
-    pthread_params_t params[T];
 
     // inicializar atributos
     pthread_attr_init(&attr);
 
-    for (i = 0; i < T; h++){
-        pthread_create(&threads[i], &attr, tarea, &params[i]);
+    for (i = 0; i < T; i++){
+        pthread_create(&threads[i], &attr, tarea, NULL);
     }
   
     // join
@@ -54,15 +54,22 @@ int main(int argc, char *argv[])
 }
 
 
-void tarea(void* params){
+void* tarea(void* params){
     int i;
-    double act, ant;
+    double act, ant, acum = 0.0;
 
     // se ejecutan periócamente en 1000 oportunidades
-    for(i=0; i<1000; i++){
+    for(i=0; i<ITERACIONES; i++){
         ant = dwalltime();
-        usleep(10000);
+        usleep(10000);        // dormir por 10000 us = 10 ms
         act = dwalltime();
-        printf("Latencia: %f\n", act - ant);
+        
+        // Medir lo que tarda en retomar menos la centesima
+        // de segundo que debía transcurrir (0.01 s = 10 ms)
+	acum += (act - ant - 0.01);
     } 
+
+    // imprimir resultados
+    double prom = acum / ITERACIONES;
+    printf("Latencia prom: %f s = %f us\n", prom, prom * 1000000);   
 }
