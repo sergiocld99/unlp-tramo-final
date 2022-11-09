@@ -428,7 +428,7 @@ to go
     t = 7 [ ask pasajeros with [estado = 14] [update_pasajero_subiendo] ]
   )
 
-  ;; update 4/11 - creación de pasajeros al llegar un tren
+  ;; update 4/11 - creación de pasajeros alllegar un tren
   ;; se crean cada 50 ticks = 50/1000 min = 0.05 min = 3 segundos
   if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [ create-pasajeros 1 [crear_pasajero_izq] ]
   if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [ create-pasajeros 1 [crear_pasajero_der] ]
@@ -550,8 +550,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -784,7 +784,7 @@ SWITCH
 448
 ingresantes
 ingresantes
-1
+0
 1
 -1000
 

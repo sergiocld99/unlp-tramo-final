@@ -25,8 +25,8 @@ trenes-own [ estado espera t_anden ]
 ;;  estado 10: saliendo de la estación (se dirige hacia los molinetes)
 ;;  estado 11: yendo a puente (se dirige hacia el comienzo del puente)
 ;;  estado 12: cruzando puente (se dirige hacia el andén destino)
-;;  estado 12: esperando tren (se dirige y espera en un lugar random del andén)
-;;  estado 13: subiendo a tren (se dirige hacia el tren si está en el andén)
+;;  estado 13: esperando tren (se dirige y espera en un lugar random del andén)
+;;  estado 14: subiendo a tren (se dirige hacia el tren si está en el andén)
 pasajeros-own [ estado anden_dest molinete x_elegida lugar_elegido ]
 
 ;; plurales
@@ -132,7 +132,7 @@ to crear_pasajero_izq
   ;; elección de tipo según celdas libres
   let libres (patches with [anden = 1 and libre? = true] )
 
-  ifelse (random 2 = 0 or count libres = 0) [set estado 10]
+  ifelse (random 100 >= porcentaje_cruzan or count libres = 0) [set estado 10]
   [
     set estado 11
     set anden_dest 1
@@ -183,14 +183,14 @@ to crear_pasajero_ingreso
     set anden_dest 0
     set lugar_elegido one-of libres_izq
 
-    ;; opción 1: generar en anden 0 y esperar ahi
-    ;; opción 2: generar en andén 1 y cruzar puente
-    ifelse (random 2 = 0) [
-      set estado 13
-      set xcor ([pxcor] of lugar_elegido)
-    ] [
+    ;; opción 1: generar en andén 1 y cruzar puente
+    ;; opción 2: generar en anden 0 y esperar ahi
+    ifelse (random 100 < porcentaje_cruzan) [
       set estado 11
       set xcor 11
+    ] [
+      set estado 13
+      set xcor ([pxcor] of lugar_elegido)
     ]
   ] [
     ;; hay más espacio en andén 1
@@ -222,11 +222,11 @@ end
 ;; TREN - ESTADO 0
 to update_tren_en_marcha
   ;; Realizar accion del estado (avanzar)
-  fd (abs(ycor) + 1) / 500
+  fd 8 * (abs(ycor) + 1) / 500
 
   ;; Chequear entradas
   ;; Camino 1 - ¿Se encuentra en el lugar de espera?
-  if (abs(ycor) < 0.01) [
+  if (abs(ycor) < 0.08) [
     set estado 1                    ;; cambiar a estado "detenido"
     set t_anden tolerancia_anden    ;; asignar tiempo de espera
 
@@ -247,13 +247,13 @@ end
 ;; TREN - ESTADO 1
 to update_tren_detenido
   ;; Realizar acción del estado (disminuir espera si nadie baja)
-  if (who = 0 and pasajeros_restantes_izq = 0) [set t_anden (t_anden - 1)]
-  if (who = 1 and pasajeros_restantes_der = 0) [set t_anden (t_anden - 1)]
+  if (who = 0 and pasajeros_restantes_izq = 0) [set t_anden (t_anden - 8)]
+  if (who = 1 and pasajeros_restantes_der = 0) [set t_anden (t_anden - 8)]
 
   ;; Camino 1 - ¿Se cumplió el tiempo de espera?
-  if (t_anden = 0) [
+  if (t_anden <= 0) [
     set estado 0              ;; pasar al estado "en marcha"
-    fd 0.02                   ;; avanzar para evitar bloqueo
+    fd 0.16                   ;; avanzar para evitar bloqueo
   ]
 end
 
@@ -261,10 +261,10 @@ end
 ;; TREN - ESTADO 2
 to update_tren_lejano
   ;; Realizar acción del estado (disminuir espera)
-  set espera (espera - 1)
+  set espera (espera - 8)
 
   ;; Camino 1 - ¿Se cumplió el tiempo de espera?
-  if (espera = 0) [
+  if (espera <= 0) [
     ifelse who = 0 [set ycor min-pycor] [set ycor max-pycor]
     set hidden? false
     set estado 0
@@ -281,7 +281,7 @@ to update_pasajero_saliendo
   let signo (anden * 2 - 1)
   let x_esperada (12 + who mod 2) * signo
 
-  ifelse (distancexy x_esperada ycor > 0.02)
+  ifelse (distancexy x_esperada ycor > 0.08)
     [facexy x_esperada ycor]
     [facexy xcor molinete]
 
@@ -306,9 +306,9 @@ to update_pasajero_hacia_puente
   ;; ifelse (ycor > 13) [set y_esperada 13] [set y_esperada (11 + who mod 2)]
 
   ;; ordenado según distancia al puente
-  ifelse (abs(ycor - y_esperada) < 0.02) [facexy x_puente y_esperada ]
+  ifelse (abs(ycor - y_esperada) < 0.08) [facexy x_puente y_esperada ]
   [
-    ifelse (abs(xcor - x_esperada) < 0.02 )
+    ifelse (abs(xcor - x_esperada) < 0.08 )
       [facexy xcor y_esperada]
       [facexy x_esperada ycor]
   ]
@@ -317,7 +317,7 @@ to update_pasajero_hacia_puente
   avanzar_si_hay_espacio
 
   ;; Camino 1 - ¿Llego al puente?
-  if (distancexy x_puente y_esperada < 0.02) [
+  if (distancexy x_puente y_esperada < 0.08) [
     set estado 12                 ;; cambiar a estado "cruzando"
     set color yellow              ;; color amarillo en contraste al puente
     ifelse (anden_dest = 1)
@@ -335,16 +335,8 @@ to update_pasajero_cruzando
 
   ;; Si llegó al andén destino...
   if (abs(xcor) > 8) [
-    ;; elegir_lugar_espera
-
-    ;; Camino 1/2 - Según estado del tren (detenido o no)
-    ifelse ([estado] of tren anden_dest = 1)  [
-      set estado 13
-      set color blue
-    ] [
-      set estado 13
-      set color blue
-    ]
+    set estado 13
+    set color blue
   ]
 end
 
@@ -359,11 +351,11 @@ to update_pasajero_esperando
   let avanzar? false
 
   ;; primero moverse a la coordenada "x" correcta
-  ifelse (abs(xcor - x_espera) > 0.02) [
+  ifelse (abs(xcor - x_espera) > 0.08) [
     facexy x_espera ycor
     set avanzar? true
   ] [
-    if (abs(ycor - y_espera) > 0.02) [
+    if (abs(ycor - y_espera) > 0.08) [
       facexy xcor y_espera
       set avanzar? true
     ]
@@ -388,16 +380,16 @@ to update_pasajero_subiendo
   if (anden = 0 and pasajeros_restantes_izq = 0) [set habilitado 1]
   if (anden = 1 and pasajeros_restantes_der = 0) [set habilitado 1]
 
-  if (habilitado = 1 and distancexy x_subida ycor > 0.02) [
+  if (habilitado = 1 and distancexy x_subida ycor > 0.08) [
     facexy x_subida ycor
-    fd 0.01
+    fd 0.08
   ]
 
   ;; Cambiar a estado "esperando" si se fue el tren
   if ([estado] of tren anden != 1) [set estado 13]
 
   ;; Eliminar agente si ya se encuentra en el tren
-  if (abs(xcor) <= 6.02) [eliminar_pasajero]
+  if (abs(xcor) <= 6.08) [eliminar_pasajero]
 end
 
 
@@ -419,46 +411,31 @@ end
 
 ;; para cada tick del sistema
 to go
-  ;; actualización de trenes según su estado (todo ok)
-  ask trenes with [estado = 0] [update_tren_en_marcha]
-  ask trenes with [estado = 1] [update_tren_detenido]
-  ask trenes with [estado = 2] [update_tren_lejano]
 
-  ;; actualización de pasajeros según su estado
-  ask pasajeros with [estado = 10] [update_pasajero_saliendo]
-  ask pasajeros with [estado = 11] [update_pasajero_hacia_puente]
-  ask pasajeros with [estado = 12] [update_pasajero_cruzando]
-  ask pasajeros with [estado = 13] [update_pasajero_esperando]
-  ask pasajeros with [estado = 14] [update_pasajero_subiendo]
+  let t (ticks mod 8)
 
-  ;; update 4/11 - creación de pasajeros al llegar un tren
-  ;; revisar periodo de esta tarea (cada cuantos ticks crear uno)
-  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [
-    create-pasajeros 1 [crear_pasajero_izq]
-  ]
+  (ifelse
+    ;; actualización de trenes según su estado
+    t = 0 [ ask trenes with [estado = 0] [update_tren_en_marcha] ]
+    t = 1 [ ask trenes with [estado = 1] [update_tren_detenido] ]
+    t = 2 [ ask trenes with [estado = 2] [update_tren_lejano] ]
 
-  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [
-    create-pasajeros 1 [crear_pasajero_der]
-  ]
+    ;; actualización de pasajeros según su estado
+    t = 3 [ ask pasajeros with [estado = 10] [update_pasajero_saliendo] ]
+    t = 4 [ ask pasajeros with [estado = 11] [update_pasajero_hacia_puente] ]
+    t = 5 [ ask pasajeros with [estado = 12] [update_pasajero_cruzando] ]
+    t = 6 [ ask pasajeros with [estado = 13] [update_pasajero_esperando] ]
+    t = 7 [ ask pasajeros with [estado = 14] [update_pasajero_subiendo] ]
+  )
+
+  ;; update 4/11 - creación de pasajeros que bajan del tren
+  ;; se crean cada 50 ticks = 50/1000 min = 0.05 min = 3 segundos
+  if (ticks mod 50 = 0 and pasajeros_restantes_izq > 0) [ create-pasajeros 1 [crear_pasajero_izq] ]
+  if (ticks mod 50 = 25 and pasajeros_restantes_der > 0) [ create-pasajeros 1 [crear_pasajero_der] ]
 
   ;; generación espontánea de pasajeros (desde molinetes)
-  if (ticks mod 1000 = 999) [create-pasajeros 1 [crear_pasajero_ingreso] ]
-
-  ;; actualizar pasajeros que están vagando o están en el andén contrario
-  ;;ask pasajeros with [estado = 0] [
-  ;;  ifelse anden_dest != anden_actual and [espera] of tren anden_dest < 2000
-  ;;  [if ticks mod 4 = 0 [mover_pasajero] ]
-  ;;  [if ticks mod 10 = 0 [mover_pasajero] ]
-  ;;]
-
-  ;; actualizar pasajeros que están en el puente
-  ;;ask pasajeros with [estado = 1] [
-  ;;  ifelse [espera] of tren anden_dest < 1000 [if ticks mod 4 = 0 [cruzar_puente] ]
-  ;;  [if ticks mod 10 = 0 [cruzar_puente] ]
-  ;;]
-
-  ;; actualizar pasajeros que están en el andén correcto
-  ;;ask pasajeros with [estado = 2] [acercar_pasajero]
+  ;; se crean cada 1000 ticks = 1 minuto
+  if (ingresantes = true and ticks mod 1000 = 999) [create-pasajeros 1 [crear_pasajero_ingreso] ]
 
   ;; actualizar frecuencia (solo 1 vez por hora)
   if (ticks mod 60000 = 1) [
@@ -482,7 +459,7 @@ end
 
 to avanzar_si_hay_espacio
   ifelse (patch-ahead 1 = nobody or count pasajeros-on patch-ahead 1 < 2) [
-    fd 0.01
+    fd 0.08
     if (elevacion = 2) [set color yellow]
     if (elevacion = 1 and anden = 0) [set color green]
     if (elevacion = 1 and anden = 1) [set color blue]
@@ -522,13 +499,14 @@ to cant_bajan_segun_mes
   let total 0
 
   (ifelse
-    mes = "Enero"   [set total 212613]
-    mes = "Febrero" [set total 231473]
-    mes = "Marzo"   [set total 263145]
-    mes = "Abril"   [set total 275146]
-    mes = "Mayo"    [set total 285549]
-    mes = "Junio"   [set total 218172]
-    mes = "Agosto"  [set total 288444]
+    mes = "Enero"      [set total 212613]
+    mes = "Febrero"    [set total 231473]
+    mes = "Marzo"      [set total 263145]
+    mes = "Abril"      [set total 275146]
+    mes = "Mayo"       [set total 285549]
+    mes = "Junio"      [set total 218172]
+    mes = "Julio"      [set total 197322]
+    mes = "Agosto"     [set total 288444]
     mes = "Septiembre" [set total 308205]
     mes = "Octubre"    [set total 311335]
     mes = "Noviembre"  [set total 308932]
@@ -553,10 +531,10 @@ to-report mostrar-hora-actual
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-229
-10
-666
-448
+233
+25
+670
+463
 -1
 -1
 13.0
@@ -573,17 +551,17 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
 
 BUTTON
-120
-364
-183
-397
+149
+25
+212
+58
 NIL
 setup
 NIL
@@ -597,10 +575,10 @@ NIL
 1
 
 BUTTON
-121
-406
-184
-439
+150
+65
+213
+98
 NIL
 go
 T
@@ -614,55 +592,55 @@ NIL
 1
 
 SLIDER
-19
-222
-191
-255
+22
+206
+194
+239
 tolerancia_anden
 tolerancia_anden
 1000
 5000
-1000.0
+2900.0
 100
 1
 NIL
 HORIZONTAL
 
 SLIDER
-19
-267
-191
-300
+21
+247
+193
+280
 frecuencia_tren
 frecuencia_tren
 10000
 40000
-15000.0
+12000.0
 1000
 1
 NIL
 HORIZONTAL
 
 SLIDER
-19
-315
-191
-348
+20
+289
+192
+322
 cant_bajan
 cant_bajan
 0
 50
-22.0
+32.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-702
-240
-1040
-446
+706
+255
+1044
+461
 Pasajeros en la estación
 ticks
 count pasajeros
@@ -679,10 +657,10 @@ PENS
 "Puente" 1.0 0 -2674135 true "" "plot count pasajeros with [elevacion = 2]"
 
 MONITOR
-700
-59
-853
-104
+704
+74
+857
+119
 Próximo Tren
 word [round(espera / 1000)] of tren 0 \" min\"
 17
@@ -690,10 +668,10 @@ word [round(espera / 1000)] of tren 0 \" min\"
 11
 
 MONITOR
-876
-58
-1030
-103
+880
+73
+1034
+118
 Próximo Tren
 word [round(espera / 1000)] of tren 1 \" min\"
 17
@@ -701,10 +679,10 @@ word [round(espera / 1000)] of tren 1 \" min\"
 11
 
 MONITOR
-698
-119
-853
-164
+702
+134
+857
+179
 Actividad en Tren
 word \npasajeros_restantes_izq \" por salir, \"\ncount pasajeros with [estado >= 13 and anden = 0] \" por entrar\"
 17
@@ -712,10 +690,10 @@ word \npasajeros_restantes_izq \" por salir, \"\ncount pasajeros with [estado >=
 11
 
 MONITOR
-876
-118
-1029
-163
+880
+133
+1033
+178
 Actividad en Tren
 word pasajeros_restantes_der \" por salir, \"\ncount pasajeros with [estado >= 13 and anden = 1] \" por entrar\"
 17
@@ -723,10 +701,10 @@ word pasajeros_restantes_der \" por salir, \"\ncount pasajeros with [estado >= 1
 11
 
 MONITOR
-53
-17
-169
-74
+22
+37
+138
+94
 HORA ACTUAL
 mostrar-hora-actual
 17
@@ -734,30 +712,30 @@ mostrar-hora-actual
 14
 
 TEXTBOX
-911
-20
-990
-50
+915
+35
+994
+65
 ANDEN 1
 16
 0.0
 1
 
 TEXTBOX
-733
-20
-813
-60
+737
+35
+817
+75
 ANDEN 0
 16
 0.0
 1
 
 MONITOR
-877
-179
-1032
-224
+881
+194
+1036
+239
 Lugares libres
 count patches with [anden = 1 and libre? = true]
 17
@@ -765,10 +743,10 @@ count patches with [anden = 1 and libre? = true]
 11
 
 MONITOR
-700
-178
-851
-223
+704
+193
+855
+238
 Lugares libres
 count patches with [anden = 0 and libre? = true]
 17
@@ -776,10 +754,10 @@ count patches with [anden = 0 and libre? = true]
 11
 
 SLIDER
-19
-89
-191
-122
+22
+113
+194
+146
 hora_inicio
 hora_inicio
 5
@@ -791,14 +769,40 @@ NIL
 HORIZONTAL
 
 CHOOSER
-19
-141
-193
-186
+21
+153
+195
+198
 mes
 mes
 "Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio" "Julio" "Agosto" "Septiembre" "Octubre" "Noviembre" "Diciembre"
+9
+
+SWITCH
+21
+415
+193
+448
+ingresantes
+ingresantes
 0
+1
+-1000
+
+SLIDER
+22
+376
+194
+409
+porcentaje_cruzan
+porcentaje_cruzan
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
