@@ -47,6 +47,6 @@ Por otra parte, se define ```k_col_disp```, calculado como "k x BS x BS", que re
     
 
 ### Fase 1
-Se define una variable "kk", calculado como ````k_row_disp + k_col_disp```, que representa al bloque de ronda que solo depende de sí mismo:
+Se define una variable "kk", calculado como ```k_row_disp + k_col_disp```, que representa al bloque de ronda que solo depende de sí mismo:
 
 ![](pps-kk.gif)
