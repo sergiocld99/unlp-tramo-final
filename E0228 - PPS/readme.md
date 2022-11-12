@@ -36,6 +36,10 @@ En base al archivo [block_sec](https://github.com/ulisescosti/Tesina-FW-XeonPhiK
 En la siguiente imagen se observa qué representa gráficamente ```row_of_blocks_disp```:
 
 ![](pps-row_of_blocks_disp.png)
+
+Si luego multiplicamos ```row_of_blocks_disp``` por "k", obtenemos ```k_row_disp``` (las celdas que corresponden a la fila de la ronda actual):
+
+![](pps-k_row_disp.gif)
     
 
 ### Fase 1
