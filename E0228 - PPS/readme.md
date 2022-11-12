@@ -40,11 +40,13 @@ En la siguiente imagen se observa qué representa gráficamente ```row_of_blocks
 Si luego multiplicamos ```row_of_blocks_disp``` por "k", obtenemos ```k_row_disp``` (las celdas que corresponden a la fila de la ronda actual):
 
 ![](pps-k_row_disp.gif)
+
+Por otra parte, se define ```k_col_disp```, calculado como "k x BS x BS", que representa el bloque correspondiente a la columna "k":
+
+![](pps-k_col_disp.gif)
     
 
 ### Fase 1
-Observamos qué representa la variable "kk":
+Se define una variable "kk", calculado como ````k_row_disp + k_col_disp```, que representa al bloque de ronda que solo depende de sí mismo:
 
-    kk = k_row_disp + k_col_disp
-    kk = k*row_of_blocks_disp + k*block_size
-    kk = k*n*BS + k*BS*BS
+![](pps-kk.gif)
