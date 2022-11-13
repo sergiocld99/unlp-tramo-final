@@ -50,3 +50,17 @@ Por otra parte, se define ```k_col_disp```, calculado como "k x BS x BS", que re
 Se define una variable "kk", calculado como ```k_row_disp + k_col_disp```, que representa al bloque de ronda que solo depende de sí mismo:
 
 ![](pps-kk.gif)
+
+### Fases 2 y 3
+Se encuentran paralelizados a partir de [esta version](https://github.com/ulisescosti/Tesina-FW-XeonPhiKNL/blob/master/src/floyd_versions/opt_0_1.c). 
+Una primera mitad corresponda a la fase 2 (misma fila de bloques), y la otra parte a la fase 3 (misma columna de bloques). No se computa el bloque (k,k).
+
+### Fase 4
+Se computan (r-1) x (r-1) bloques, los restantes que no fueron tratados en las fases anteriores. 
+
+## Incorporando semáforos
+La matriz está compuesta por "rxr" bloques de tamaño BSxBS, ya que n = r x BS. Entonces necesitamos una matriz "rxr" de semáforos, que se inicializan en 0. 
+Cada bloque computado en la fase 2 o 3 "levantará" su semáforo correspondiente para dar inicio al bloque que espera su ejecución en fase 4.
+
+Para disponer de un control más preciso, los semáforos serán utilizados a partir de Pthreads (semaphore.h)
+
