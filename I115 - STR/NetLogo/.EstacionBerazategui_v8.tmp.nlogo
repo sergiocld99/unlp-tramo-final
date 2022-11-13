@@ -112,7 +112,7 @@ to crear_pasajero_common
 
   ;; establecer edad (aleatoria entre 15 y 85)
   set edad (15 + random 70)
-  set label edad
+
 end
 
 
