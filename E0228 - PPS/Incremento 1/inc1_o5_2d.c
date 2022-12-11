@@ -2,25 +2,16 @@
 #include "../src/floyd_versions/common/opt_0-n.c"
 #include "../src/floyd_versions/common/malloc/aligned.c"
 
-#define likely(x)   __builtin_expect((x), 1)
-#define unlikely(x) __builtin_expect((x), 0)
-
-
-// ----------------- BLOQUE AGREGADO -------------------
-
 #include <semaphore.h>
-
-// ---------------- FIN BLOQUE AGREGADO --------------
-
 
 //Public
 char* getFloydName(){
-	return "with semaphores and branch predication";
+	return "semaphores with data alignment";
 }
 
 //Public
 char* getFloydVersion(){
-	return "Inc_1";
+	return "Inc1_Opt5";
 }
 
 static inline void FW_BLOCK(TYPE* const graph, const INT64 d1, const INT64 d2, const INT64 d3, int* const path, const INT64 base) __attribute__((always_inline));
@@ -43,7 +34,7 @@ static inline void FW_BLOCK(TYPE* const graph, const INT64 d1, const INT64 d2, c
 				dij = graph[i_disp_d1 + j];
 				dkj = graph[k_disp_d3 + j];
 				sum = dik + dkj;
-				if(unlikely(sum < dij)){
+				if(sum < dij){
 					graph[i_disp_d1 + j] = sum;
 					#ifndef NO_PATH
 						path[i_disp_d1 + j] = base + k;
@@ -75,7 +66,7 @@ static inline void FW_BLOCK_PARALLEL(TYPE* const graph, const INT64 d1, const IN
 				dij = graph[i_disp_d1 + j];
 				dkj = graph[k_disp_d3 + j];
 				sum = dik + dkj;
-				if(unlikely(sum < dij)){
+				if(sum < dij){
 					graph[i_disp_d1 + j] = sum;
 					#ifndef NO_PATH
 						path[i_disp_d1 + j] = base + k;
@@ -95,26 +86,28 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 
 	// --------------------------- BLOQUE AGREGADO -----------------------
 
-	INT64 x, cant_bloques = r*r;
-	sem_t* semaforos = (sem_t*) malloc(cant_bloques * sizeof(sem_t));
+	INT64 x, y;
+	sem_t semaforos[r][r];
 
-	// inicialización de semáforos
+	// inicializaciÃ³n de semÃ¡foros
 	// segundo parametro: compartido entre hilos (0), en lugar de procesos
 	// tercer parametro: inicializados con el valor 0
-	for (x=0; x<cant_bloques; x++){
-		sem_init(&semaforos[x], 0, 0);
+	for (x=0; x<r; x++){
+		for (y=0; y<r; y++){
+			sem_init(&semaforos[x][y], 0, 0);
+		}
 	}
 
 	// ------------------------- FIN BLOQUE AGREGADO -----------------------
 
-	// Modificación: shared(semaforos)
+	// ModificaciÃ³n: shared(semaforos)
 
 	#pragma omp parallel shared(semaforos) default(none) firstprivate(r,row_of_blocks_disp,num_of_bock_elems,D,P) num_threads(t)
 	{
 		INT64 i, j, k, b, kj, ik, kk, ij, k_row_disp, k_col_disp, i_row_disp, j_col_disp, w;
 
 		// Variable agregada
-		INT64 aux, sem_pos, sem_row, sem_col;
+		INT64 aux;
 
 		for(k=0; k<r; k++){
 			b = k*BS;
@@ -140,8 +133,7 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					// Finalizo el computo del bloque (k,j) = (k,w)
 					// Fila de semaforo es k, entonces el comienzo de fila es k*r
 					// Columna de semaforo es j, entonces el indice es k*r+j
-					sem_pos = k*r+j;
-					for (aux=0; aux<r-1; aux++) sem_post(&semaforos[sem_pos]);
+					for (aux=0; aux<r-1; aux++) sem_post(&semaforos[k][j]);
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
 
@@ -157,8 +149,7 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					// Finalizo el computo del bloque (i,k) = (w-r, k)
 					// Fila de semaforo es i, entonces el comienzo de fila es i*r
 					// Columna de semaforo es k, entonces el indice es i*r+k
-					sem_pos = i*r+k;
-					for (aux=0; aux<r-1; aux++) sem_post(&semaforos[sem_pos]);
+					for (aux=0; aux<r-1; aux++) sem_post(&semaforos[i][k]);
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
 
@@ -176,10 +167,10 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					// ----------- BLOQUE AGREGADO -----------------
 
 					// Esperar que se compute el bloque (k,j)
-					sem_wait(&semaforos[k*r+j]);
+					sem_wait(&semaforos[k][j]);
 					
 					// Esperar que se compute el bloque (i,k)
-					sem_wait(&semaforos[i*r+k]);
+					sem_wait(&semaforos[i][k]);
 
 					// ---------- FIN BLOQUE AGREGADO --------------
 
