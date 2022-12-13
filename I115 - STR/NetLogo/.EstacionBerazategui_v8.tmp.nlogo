@@ -624,7 +624,7 @@ frecuencia_tren
 frecuencia_tren
 1000
 4000
-1500.0
+1200.0
 100
 1
 ticks
