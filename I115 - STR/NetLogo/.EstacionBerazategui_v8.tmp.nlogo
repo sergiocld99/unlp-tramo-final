@@ -137,7 +137,7 @@ to crear_pasajero_izq
   ;; elección de tipo según celdas libres
   let libres (patches with [anden = 1 and libre? = true] )
 
-  ifelse (random 100 >= porcentaje_cruzan or count libres = 0) [
+  ifelse (random 100 >= porcentaje_cruzan or count libres = 0 or hora_actual >= 21) [
     set estado 10
     ifelse (ycor > 0) [set molinete 16] [set molinete -16]
   ]
@@ -264,15 +264,19 @@ end
 
 ;; TREN - ESTADO 2
 to update_tren_lejano
-  ;; Realizar acción del estado (disminuir espera)
-  set espera (espera - 8)
+  ;; Mientras no se alcance las 22 hs, seguir moviendo trenes
+  if (hora_actual < 22) [
+    ;; Realizar acción del estado (disminuir espera)
+    set espera (espera - 8)
 
-  ;; Camino 1 - ¿Se cumplió el tiempo de espera?
-  if (espera <= 0) [
-    ifelse who = 0 [set ycor min-pycor] [set ycor max-pycor]
-    set hidden? false
-    set estado 0
+    ;; Camino 1 - ¿Se cumplió el tiempo de espera?
+    if (espera <= 0) [
+      ifelse who = 0 [set ycor min-pycor] [set ycor max-pycor]
+      set hidden? false
+      set estado 0
+    ]
   ]
+
 end
 
 
@@ -440,19 +444,16 @@ to go
 
   ;; generación espontánea de pasajeros (desde molinetes)
   ;; se crean cada 100 ticks = 1 minuto
-  if (ingresantes = true and ticks mod 100 = 99) [create-pasajeros 1 [crear_pasajero_ingreso] ]
+  if (ticks mod 100 = 99 and ingresantes = true and hora_actual < 21) [create-pasajeros 1 [crear_pasajero_ingreso] ]
 
   ;; actualizar frecuencia (solo 1 vez por hora)
   if (ticks mod 6000 = 1) [
     set hora_actual floor(ticks / 6000) + hora_inicio
 
-    (ifelse
-      hora_actual = 5 [set frecuencia_tren 1200]
-      hora_actual = 12 [set frecuencia_tren 1500]
-      hora_actual = 17 [set frecuencia_tren 1200]
-      hora_actual = 21 [set frecuencia_tren 1500]
-      hora_actual >= 22 [ask turtles [die] stop]
-    )
+    if (autocorregir) [autocorregir_valores]
+
+    ;; si son las 1 PM, terminar simulación
+    if (hora_actual >= 22 and count trenes with [estado = 2] = 2) [stop]
   ]
 
   ;; incrementar ticks
@@ -501,6 +502,18 @@ to eliminar_pasajero
   die
 end
 
+to autocorregir_valores
+  ;; corregir cantidad que bajan según sea hora pico o no
+  cant_bajan_segun_mes
+
+  (ifelse
+    hora_actual = 5 [set frecuencia_tren 1200]      ;; cada 12 min
+    hora_actual = 12 [set frecuencia_tren 1500]     ;; cada 15 min
+    hora_actual = 17 [set frecuencia_tren 1200]     ;; cada 12 min
+    hora_actual = 21 [set frecuencia_tren 1500]     ;; cada 15 min
+  )
+end
+
 
 ;; ------------------------------------------ CONSULTA DE DATOS REALES ------------------------------
 
@@ -522,9 +535,20 @@ to cant_bajan_segun_mes
     mes = "Diciembre"  [set total 286682]
   )
 
+  ;; Cálculo de la hora pico: de los 80 trenes que pasan por un andén
+  ;; 55 de ellos pasan en hora pico (casi un 70%)
+  ;; suponemos que en hora pico viaja el doble de gente que en hora no pico
+  ;; resulta entonces que el 80% de los pasajeros viaja en hora pico
+
+  let hora_pico (hora_actual < 12 or (hora_actual >= 17 and hora_actual < 21))
+
+  ifelse (hora_pico)
+    [set cant_bajan round(total * 0.8 / (30 * 110 * 2))]
+    [set cant_bajan round(total * 0.2 / (30 * 50 * 2))]
+
   ;; divido por 30 días, 160 servicios
   ;; la mitad bajan, la mitad suben
-  set cant_bajan round(total / (30 * 160 * 2))
+  ;; set cant_bajan round(total / (30 * 160 * 2))
 
 end
 
@@ -609,7 +633,7 @@ tolerancia_anden
 tolerancia_anden
 100
 500
-290.0
+300.0
 10
 1
 ticks
@@ -624,7 +648,7 @@ frecuencia_tren
 frecuencia_tren
 1000
 4000
-1200.0
+1500.0
 100
 1
 ticks
@@ -639,7 +663,7 @@ cant_bajan
 cant_bajan
 0
 50
-32.0
+14.0
 1
 1
 pasajeros
@@ -654,9 +678,9 @@ Pasajeros en la estación
 ticks
 count pasajeros
 0.0
-10.0
+6000.0
 0.0
-10.0
+30.0
 true
 false
 "" ""
@@ -785,7 +809,7 @@ CHOOSER
 mes
 mes
 "Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio" "Julio" "Agosto" "Septiembre" "Octubre" "Noviembre" "Diciembre"
-9
+0
 
 SWITCH
 21
@@ -799,10 +823,10 @@ ingresantes
 -1000
 
 SLIDER
-22
-376
-194
-409
+20
+328
+192
+361
 porcentaje_cruzan
 porcentaje_cruzan
 0
@@ -812,6 +836,17 @@ porcentaje_cruzan
 1
 %
 HORIZONTAL
+
+SWITCH
+21
+376
+193
+409
+autocorregir
+autocorregir
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
