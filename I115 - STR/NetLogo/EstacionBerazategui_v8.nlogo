@@ -48,7 +48,7 @@ to setup-patches
 
   ask patches with [ elevacion = 1 ] [
     if (member? abs(pxcor) x_posibles ) [
-      if (pycor >= -6 and pycor <= 6 and pycor mod 2 = 1) [
+      if (pycor >= -6 and pycor <= 6) [
         set lugar_espera 1
         set libre? true
       ]
@@ -241,9 +241,9 @@ to update_tren_en_marcha
 
   ;; Camino 2 - ¿Se alejó el tren lo suficiente?
   if (abs(ycor) >= max-pycor) [
-    set estado 2                    ;; cambiar a estado "lejano"
-    set espera frecuencia_tren      ;; asignar tiempo hasta próximo arribo
-    set hidden? true                ;; volver invisible al usuario
+    set estado 2                                         ;; cambiar a estado "lejano"
+    set espera (frecuencia_tren + random 400 - 300)      ;; asignar tiempo hasta próximo arribo
+    set hidden? true                                     ;; volver invisible al usuario
   ]
 end
 
@@ -546,10 +546,6 @@ to cant_bajan_segun_mes
     [set cant_bajan round(total * 0.8 / (30 * 110 * 2))]
     [set cant_bajan round(total * 0.2 / (30 * 50 * 2))]
 
-  ;; divido por 30 días, 160 servicios
-  ;; la mitad bajan, la mitad suben
-  ;; set cant_bajan round(total / (30 * 160 * 2))
-
 end
 
 
@@ -633,7 +629,7 @@ tolerancia_anden
 tolerancia_anden
 100
 500
-300.0
+200.0
 10
 1
 ticks
@@ -648,7 +644,7 @@ frecuencia_tren
 frecuencia_tren
 1000
 4000
-1500.0
+4000.0
 100
 1
 ticks
@@ -663,14 +659,14 @@ cant_bajan
 cant_bajan
 0
 50
-14.0
+38.0
 1
 1
 pasajeros
 HORIZONTAL
 
 PLOT
-706
+702
 255
 1044
 461
@@ -695,7 +691,7 @@ MONITOR
 857
 119
 Próximo Tren
-word [round(espera / 1000)] of tren 0 \" min\"
+word [round(espera / 100)] of tren 0 \" min\"
 17
 1
 11
@@ -706,7 +702,7 @@ MONITOR
 1034
 118
 Próximo Tren
-word [round(espera / 1000)] of tren 1 \" min\"
+word [round(espera / 100)] of tren 1 \" min\"
 17
 1
 11
@@ -809,7 +805,7 @@ CHOOSER
 mes
 mes
 "Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio" "Julio" "Agosto" "Septiembre" "Octubre" "Noviembre" "Diciembre"
-0
+9
 
 SWITCH
 21
@@ -831,7 +827,7 @@ porcentaje_cruzan
 porcentaje_cruzan
 0
 100
-50.0
+100.0
 1
 1
 %
@@ -844,7 +840,7 @@ SWITCH
 409
 autocorregir
 autocorregir
-0
+1
 1
 -1000
 
