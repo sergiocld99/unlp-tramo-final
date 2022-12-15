@@ -1,6 +1,6 @@
-;; Actualmente tenemos 1 min = 1000 ticks
 
-;; variables globales inicializadas por defecto en cero
+
+;; Variables globales inicializadas por defecto en cero
 globals [
   pasajeros_restantes_izq
   pasajeros_restantes_der
@@ -15,13 +15,13 @@ patches-own [ elevacion anden lugar_espera libre? ]
 
 ;; -------------------- DEFINICIÓN DE AGENTES MÓVILES -----------------------------
 
-;; trenes: estado 0 (yendo), 1 (en anden), 2 (lejano)
+;; Trenes
 ;;  estado 0: en marcha (se acerca o aleja del centro de la estación)
 ;;  estado 1: detenido (se encuentra en el andén durante un cierto tiempo)
 ;;  estado 2: lejano (es invisible durante un cierto tiempo)
 trenes-own [ estado espera t_anden ]
 
-;; pasajeros
+;; Pasajeros
 ;;  estado 10: saliendo de la estación (se dirige hacia los molinetes)
 ;;  estado 11: yendo a puente (se dirige hacia el comienzo del puente)
 ;;  estado 12: cruzando puente (se dirige hacia el andén destino)
@@ -29,7 +29,7 @@ trenes-own [ estado espera t_anden ]
 ;;  estado 14: subiendo a tren (se dirige hacia el tren si está en el andén)
 pasajeros-own [ estado anden_dest edad molinete x_elegida lugar_elegido ]
 
-;; plurales
+;; Plurales
 breed [trenes tren]
 breed [pasajeros pasajero]
 
@@ -43,7 +43,7 @@ to setup-patches
   ask patches with [ elevacion = 1 and pxcor < 0 ] [set anden 0]
   ask patches with [ elevacion = 1 and pxcor > 0 ] [set anden 1]
 
-  ;; definir zonas de espera
+  ;; Definir lugares de espera
   let x_posibles (list 9 10 14 15 16)
 
   ask patches with [ elevacion = 1 ] [
@@ -55,15 +55,13 @@ to setup-patches
     ]
   ]
 
-  ;; pintar según elevación
+  ;; Pintar según elevación
   ask patches with [ elevacion = 0 ] [set pcolor black]
   ask patches with [ elevacion = 1 ] [set pcolor 5 + random(4)]
   ask patches with [ elevacion = 2 ] [set pcolor red]
-
-  ;; pintar línea de precaución
   ask patches with [ elevacion = 1 and abs(pxcor) = 6 ] [set pcolor yellow]
 
-  ;; pintar vias y durmientes
+  ;; Pintar vias y durmientes
   ask patches with [ elevacion = 0 and abs(pxcor) > 0 ] [
     if (pycor mod 2 = 0) [set pcolor brown]
     if (pxcor mod 2 = 0) [set pcolor 7]
@@ -73,8 +71,8 @@ end
 
 ;; ------------------------- CREACIÓN DE AGENTES MÓVILES ------------------------
 
-;; solo existen 2 trenes, uno por cada sentido o vía
-;; al comienzo de la simulación no se encuentran en la estación
+;; Solo existen 2 trenes, uno por cada sentido o vía
+;; Al comienzo de la simulación, no se encuentran en la estación
 to setup-trenes
   create-trenes 2
 
