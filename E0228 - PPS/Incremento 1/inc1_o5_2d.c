@@ -87,7 +87,14 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 	// --------------------------- BLOQUE AGREGADO -----------------------
 
 	INT64 x, y;
-	sem_t semaforos[r][r];
+	sem_t** semaforos;
+
+	// asignación de memoria para semaforos
+	sem_t** semaforos = (sem_t**) malloc(r * sizeof(sem_t*));
+
+	for (x=0; x<r; x++){
+		semaforos[x] = (sem_t*) malloc(r * sizeof(sem_t));
+	}
 
 	// inicialización de semáforos
 	// segundo parametro: compartido entre hilos (0), en lugar de procesos
@@ -184,4 +191,12 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 			}
 		}
 	}
+
+	// --------------------------- BLOQUE AGREGADO -----------------------
+
+	// liberación de memoria reservada
+	for (x=0; x<r; x++) free(semaforos[x]);
+	free(semaforos);
+
+	// ------------------------- FIN BLOQUE AGREGADO -----------------------
 }
