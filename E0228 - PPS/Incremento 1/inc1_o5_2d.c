@@ -90,7 +90,7 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 	sem_t** semaforos;
 
 	// asignación de memoria para semaforos
-	sem_t** semaforos = (sem_t**) malloc(r * sizeof(sem_t*));
+	semaforos = (sem_t**) malloc(r * sizeof(sem_t*));
 
 	for (x=0; x<r; x++){
 		semaforos[x] = (sem_t*) malloc(r * sizeof(sem_t));
@@ -130,17 +130,19 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 			for(w=0; w<r*2; w++){
 				if(w<r){ //Phase 2
 					j = w;
-					if(j == k) continue;		// No se computa la fila k
+					if(j == k) continue;		// No se computa la columna k
 
 					kj = k_row_disp + j*num_of_bock_elems;
 					FW_BLOCK(D, kj, kk, kj, P, b);
 
 					// -------------- BLOQUE AGREGADO -------------------
 
-					// Finalizo el computo del bloque (k,j) = (k,w)
-					// Fila de semaforo es k, entonces el comienzo de fila es k*r
-					// Columna de semaforo es j, entonces el indice es k*r+j
-					for (aux=0; aux<r-1; aux++) sem_post(&semaforos[k][j]);
+					// Finalizó el computo del bloque (k,j) = (k,w)
+					// Modif: se debe levantar semaforos de la columna actual "j"
+					for (aux=0; aux<r; aux++){
+						if (aux == k) continue;			// no se levanta actual (k,j)
+						sem_post(&semaforos[aux][j]);
+					}
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
 
@@ -154,9 +156,11 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					// -------------- BLOQUE AGREGADO -------------------
 
 					// Finalizo el computo del bloque (i,k) = (w-r, k)
-					// Fila de semaforo es i, entonces el comienzo de fila es i*r
-					// Columna de semaforo es k, entonces el indice es i*r+k
-					for (aux=0; aux<r-1; aux++) sem_post(&semaforos[i][k]);
+					// Modif: se debe levantar semaforos de la fila actual "i"
+					for (aux=0; aux<r; aux++) {
+						if (aux == k) continue;			// no se levanta actual (i,k)
+						sem_post(&semaforos[i][aux]);
+					}
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
 
@@ -173,11 +177,9 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 
 					// ----------- BLOQUE AGREGADO -----------------
 
-					// Esperar que se compute el bloque (k,j)
-					sem_wait(&semaforos[k][j]);
-					
-					// Esperar que se compute el bloque (i,k)
-					sem_wait(&semaforos[i][k]);
+					// Esperar que se computen los bloques (k,j) e (i,k)
+					sem_wait(&semaforos[i][j]);
+					sem_wait(&semaforos[i][j]);
 
 					// ---------- FIN BLOQUE AGREGADO --------------
 
