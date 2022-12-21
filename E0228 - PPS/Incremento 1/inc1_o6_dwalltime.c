@@ -2,16 +2,36 @@
 #include "../src/floyd_versions/common/opt_0-n.c"
 #include "../src/floyd_versions/common/malloc/aligned.c"
 
+#define likely(x)   __builtin_expect((x), 1)
+#define unlikely(x) __builtin_expect((x), 0)
+
+
+// ----------------- BLOQUE AGREGADO -------------------
+
 #include <semaphore.h>
+#include <pthread.h>
+#include <sys/time.h>
+
+double dwalltime1(){
+	double sec;
+	struct timeval tv;
+
+	gettimeofday(&tv,NULL);
+	sec = tv.tv_sec + tv.tv_usec/1000000.0;
+	return sec;
+}
+
+// ---------------- FIN BLOQUE AGREGADO --------------
+
 
 //Public
 char* getFloydName(){
-	return "semaphores with data alignment";
+	return "cond variables with branch predication";
 }
 
 //Public
 char* getFloydVersion(){
-	return "Inc1_Opt5";
+	return "Inc1_Opt6_v3";
 }
 
 static inline void FW_BLOCK(TYPE* const graph, const INT64 d1, const INT64 d2, const INT64 d3, int* const path, const INT64 base) __attribute__((always_inline));
@@ -34,7 +54,7 @@ static inline void FW_BLOCK(TYPE* const graph, const INT64 d1, const INT64 d2, c
 				dij = graph[i_disp_d1 + j];
 				dkj = graph[k_disp_d3 + j];
 				sum = dik + dkj;
-				if(sum < dij){
+				if(unlikely(sum < dij)){
 					graph[i_disp_d1 + j] = sum;
 					#ifndef NO_PATH
 						path[i_disp_d1 + j] = base + k;
@@ -66,7 +86,7 @@ static inline void FW_BLOCK_PARALLEL(TYPE* const graph, const INT64 d1, const IN
 				dij = graph[i_disp_d1 + j];
 				dkj = graph[k_disp_d3 + j];
 				sum = dik + dkj;
-				if(sum < dij){
+				if(unlikely(sum < dij)){
 					graph[i_disp_d1 + j] = sum;
 					#ifndef NO_PATH
 						path[i_disp_d1 + j] = base + k;
@@ -86,44 +106,27 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 
 	// --------------------------- BLOQUE AGREGADO -----------------------
 
-	INT64 x, y;
-	INT64** pendientes;
-	pthread_cond_t** cv;
-	pthread_mutex_t** mutex;
+	int terminados = 0;
+	pthread_mutex_t mutex;
+	double t1 = 0.0, t2 = 0.0, t4 = 0.0;
 
 	// asignación de memoria
-	pendientes = (INT64**) malloc(r * sizeof(INT64*));
-	cv = (pthread_cond_t**) malloc(r * sizeof(pthread_cond_t));
-	mutex = (pthread_mutex_t**) malloc(r * sizeof(pthread_mutex_t));
-
-	for (x=0; x<r; x++){
-		pendientes[x] = (INT64*) malloc(r * sizeof(INT64));
-		cv[x] = (pthread_cond_t*) malloc(r * sizeof(pthread_cond_t));
-		mutex[x] = (pthread_mutex_t*) malloc(r * sizeof(pthread_mutex_t));
-	}
+	
 
 	// inicialización de pendientes
-	for (x=0; x<r; x++){
-		for (y=0; y<r; y++){
-			pendientes[x][y] = 2;
-			pthread_cond_init(&cv[x][y], NULL);
-			pthread_mutex_init(&mutex[x][y], NULL);
-		}
-	}
-
-	// prueba pasada
-	//printf("todo inicializado\n");
+	pthread_mutex_init(&mutex, NULL);
 
 	// ------------------------- FIN BLOQUE AGREGADO -----------------------
 
 	// Modificación: shared(pendientes,mutex,cv)
 
-	#pragma omp parallel shared(pendientes,mutex,cv) default(none) firstprivate(r,row_of_blocks_disp,num_of_bock_elems,D,P) num_threads(t)
+	#pragma omp parallel shared(terminados,mutex,t1,t2,t4) default(none) firstprivate(r,row_of_blocks_disp,num_of_bock_elems,D,P) num_threads(t)
 	{
 		INT64 i, j, k, b, kj, ik, kk, ij, k_row_disp, k_col_disp, i_row_disp, j_col_disp, w;
 
 		// Variable agregada
 		INT64 aux;
+		double t0;
 
 		for(k=0; k<r; k++){
 			b = k*BS;
@@ -131,8 +134,17 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 			k_col_disp = k*num_of_bock_elems;
 
 			//Phase 1
+			t0 = dwalltime1();
 			kk = k_row_disp + k_col_disp;
 			FW_BLOCK_PARALLEL(D, kk, kk, kk, P, b);
+			
+			if (omp_get_thread_num() == 0){
+				pthread_mutex_lock(&mutex);
+				t1 += (dwalltime1() - t0);
+				pthread_mutex_unlock(&mutex);
+			}
+			
+			t0 = dwalltime1();
 
 			//Phase 2 y 3
 			#pragma omp for schedule(dynamic) nowait
@@ -141,6 +153,7 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					j = w;
 					if(j == k) continue;		// No se computa la columna k
 
+					t0 = dwalltime1();
 					kj = k_row_disp + j*num_of_bock_elems;
 					FW_BLOCK(D, kj, kk, kj, P, b);
 
@@ -148,13 +161,6 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 
 					// Finalizó el computo del bloque (k,j) = (k,w)
 					// Modif: se debe decrementar pendientes de la columna actual "j"
-					for (aux=0; aux<r; aux++){
-						if (aux == k) continue;			// no se levanta actual (k,j)
-						pthread_mutex_lock(&mutex[aux][j]);
-						pendientes[aux][j]--;
-						pthread_cond_signal(&cv[aux][j]);
-						pthread_mutex_unlock(&mutex[aux][j]);
-					}
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
 
@@ -169,18 +175,19 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 
 					// Finalizo el computo del bloque (i,k) = (w-r, k)
 					// Modif: se debe decrementar pendientes de la fila actual "i"
-					for (aux=0; aux<r; aux++) {
-						if (aux == k) continue;			// no se levanta actual (i,k)
-						pthread_mutex_lock(&mutex[i][aux]);
-						pendientes[i][aux]--;
-						pthread_cond_signal(&cv[i][aux]);
-						pthread_mutex_unlock(&mutex[i][aux]);
-					}
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
 
 				}
 			}
+
+			if (omp_get_thread_num() == 0){
+				pthread_mutex_lock(&mutex);
+				t2 += (dwalltime1() - t0);
+				pthread_mutex_unlock(&mutex);
+			}
+
+			t0 = dwalltime1();
 
 			//Phase 4
 			#pragma omp for collapse(2) schedule(dynamic)
@@ -193,10 +200,6 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					// ----------- BLOQUE AGREGADO -----------------
 
 					// Esperar que se computen los bloques (k,j) e (i,k)
-					pthread_mutex_lock(&mutex[i][j]);
-					while (pendientes[i][j] > 0) pthread_cond_wait(&cv[i][j], &mutex[i][j]);
-					pendientes[i][j] = 2;
-					pthread_mutex_unlock(&mutex[i][j]);
 
 					// ---------- FIN BLOQUE AGREGADO --------------
 
@@ -206,7 +209,14 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					kj = k_row_disp + j_col_disp;
 					ij = i_row_disp + j_col_disp;
 					FW_BLOCK(D, ij, ik, kj, P, b);
+					
 				}
+			}
+
+			if (omp_get_thread_num() == 0){
+				pthread_mutex_lock(&mutex);
+				t4 += (dwalltime1() - t0);
+				pthread_mutex_unlock(&mutex);
 			}
 		}
 	}
@@ -214,15 +224,10 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 	// --------------------------- BLOQUE AGREGADO -----------------------
 
 	// liberación de memoria reservada
-	for (x=0; x<r; x++) {
-		free(mutex[x]);
-		free(pendientes[x]);
-		free(cv[x]);
-	}
-
-	free(mutex);
-	free(pendientes);
-	free(cv);
+	printf("Tiempo de Fase 1: %f secs. \n", t1);
+	printf("Tiempo de Fase 2-3: %f secs. \n", t2);
+	printf("Tiempo de Fase 4: %f secs. \n", t4);
 
 	// ------------------------- FIN BLOQUE AGREGADO -----------------------
+	
 }
