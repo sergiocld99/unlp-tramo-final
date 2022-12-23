@@ -3,6 +3,7 @@
 #include "../src/floyd_versions/common/malloc/aligned.c"
 
 #include <semaphore.h>
+#include <pthread.h>
 
 //Public
 char* getFloydName(){
@@ -87,32 +88,28 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 	// --------------------------- BLOQUE AGREGADO -----------------------
 
 	INT64 x, y;
-	INT64** pendientes;
+	char** pendientes;
 	pthread_cond_t** cv;
 	pthread_mutex_t** mutex;
 
-	// asignación de memoria
-	pendientes = (INT64**) malloc(r * sizeof(INT64*));
-	cv = (pthread_cond_t**) malloc(r * sizeof(pthread_cond_t));
-	mutex = (pthread_mutex_t**) malloc(r * sizeof(pthread_mutex_t));
+	// asignación de memoria (convenientemente matrices separadas)
+	pendientes = (char**) malloc(r * sizeof(char*));
+	for (x=0; x<r; x++) pendientes[x] = (char*) malloc(r * sizeof(char));
 
-	for (x=0; x<r; x++){
-		pendientes[x] = (INT64*) malloc(r * sizeof(INT64));
-		cv[x] = (pthread_cond_t*) malloc(r * sizeof(pthread_cond_t));
-		mutex[x] = (pthread_mutex_t*) malloc(r * sizeof(pthread_mutex_t));
-	}
+	cv = (pthread_cond_t**) malloc(r * sizeof(pthread_cond_t*));
+	for (x=0; x<r; x++) cv[x] = (pthread_cond_t*) malloc(r * sizeof(pthread_cond_t));
+
+	mutex = (pthread_mutex_t**) malloc(r * sizeof(pthread_mutex_t*));
+	for (x=0; x<r; x++) mutex[x] = (pthread_mutex_t*) malloc(r * sizeof(pthread_mutex_t));
 
 	// inicialización de pendientes
 	for (x=0; x<r; x++){
 		for (y=0; y<r; y++){
-			pendientes[x][y] = 2;
+			// pendientes[x][y] = 2;
 			pthread_cond_init(&cv[x][y], NULL);
 			pthread_mutex_init(&mutex[x][y], NULL);
 		}
 	}
-
-	// prueba pasada
-	//printf("todo inicializado\n");
 
 	// ------------------------- FIN BLOQUE AGREGADO -----------------------
 
@@ -134,6 +131,14 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 			kk = k_row_disp + k_col_disp;
 			FW_BLOCK_PARALLEL(D, kk, kk, kk, P, b);
 
+			// Asignación de pendientes
+			#pragma omp for collapse(2) schedule(dynamic)
+			for (i=0; i<r; i++){
+				for (j=0; j<r; j++){
+					pendientes[i][j] = 2;
+				}
+			}
+
 			//Phase 2 y 3
 			#pragma omp for schedule(dynamic) nowait
 			for(w=0; w<r*2; w++){
@@ -152,8 +157,8 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 						if (aux == k) continue;			// no se levanta actual (k,j)
 						pthread_mutex_lock(&mutex[aux][j]);
 						pendientes[aux][j]--;
-						pthread_cond_signal(&cv[aux][j]);
 						pthread_mutex_unlock(&mutex[aux][j]);
+						pthread_cond_signal(&cv[aux][j]);
 					}
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
@@ -173,8 +178,8 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 						if (aux == k) continue;			// no se levanta actual (i,k)
 						pthread_mutex_lock(&mutex[i][aux]);
 						pendientes[i][aux]--;
-						pthread_cond_signal(&cv[i][aux]);
 						pthread_mutex_unlock(&mutex[i][aux]);
+						pthread_cond_signal(&cv[i][aux]);
 					}
 
 					// -------------- FIN BLOQUE AGREGADO -----------------
@@ -195,7 +200,6 @@ void floydWarshall(TYPE* D, int* P, int n, int t){
 					// Esperar que se computen los bloques (k,j) e (i,k)
 					pthread_mutex_lock(&mutex[i][j]);
 					while (pendientes[i][j] > 0) pthread_cond_wait(&cv[i][j], &mutex[i][j]);
-					pendientes[i][j] = 2;
 					pthread_mutex_unlock(&mutex[i][j]);
 
 					// ---------- FIN BLOQUE AGREGADO --------------
