@@ -1,5 +1,3 @@
-# unlp-trabajos-practicos
-Repositorio de respaldo para documentos realizados durante el séptimo semestre. Es privado porque esto me lleva más tiempo hacerlo debido a la presencialidad.
+# Repositorio de respaldo
 
-## Semestre 8
-![Horarios Semestre 8](https://github.com/sergiocarp10/unlp-info-s7/blob/main/Horarios%202do%20Semestre%202022.png)
+Semestres 7, 8, 9 y 10 de la carrera Ing. en Computación
