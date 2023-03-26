@@ -1,0 +1,1 @@
+# Optimización de algoritmos secuenciales
