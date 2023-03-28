@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
   // Reserva de memoria
   M = (double*) malloc(sizeof(double)*N*N);            // N x N
   U = (double*) malloc(sizeof(double)*N*N);            // Almacenando ceros
+  C = (double*) malloc(sizeof(double)*N*N);
   
   // Inicialización
   for (i=0; i<N; i++){
@@ -63,14 +64,29 @@ int main(int argc, char *argv[]) {
     }
   }
   
-  printf("Tiempo en segundos %f\n", dwalltime() - timetick);
+  printf("N = %d. Tiempo en segundos %f\n", N, dwalltime() - timetick);
   
   // ================================== FIN DE CALCULOS ========================= //
   
+  // Verificacion
+  
+  for (i=0; i<N; i++){
+    for (j=0; j<N; j++){
+      if (C[i*N+j] != j+1){
+      	check = 0;
+      }
+    }
+  }
+  
+  if (check) printf("Resultados correctos, bien hecho!");
+  else printf("Todo mal...");
+  
+  printf("\n\n");
   
   // Liberar memoria
   free(M);
   free(U);
+  free(C);
  
   return 0;
 }
