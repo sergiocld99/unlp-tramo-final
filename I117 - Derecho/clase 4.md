@@ -12,7 +12,7 @@ La intención es la pretensión de lograr los resultados naturales derivados del
 
 La libertad se relaciona con la capacidad del sujeto de optar por la realización o no del hecho. Finalmente, la violencia es la amenaza cierta o inminente que afecta al autor del acto, impidiéndole tomar una decisión independiente, y se considera un vicio de los actos jurídicos.
 
-## Hechos Humanos Voluntarios: Lícitos e Ilícitos
+## Voluntarios Ilícitos: Delitos y Cuasidelitos
 Para que un hecho sea considerado ilícito en derecho civil, deben darse tres elementos: que el hecho sea contrario a la ley, que sea culpable y que haya ocasionado un daño a terceros. Este daño no necesariamente debe ser efectivo, sino que puede ser potencial, como la pérdida de oportunidades.
 
 Culpabilidad: los actos ilícitos pueden derivar de la culpa o del dolo del actor. 
@@ -20,3 +20,6 @@ Culpabilidad: los actos ilícitos pueden derivar de la culpa o del dolo del acto
 * Dolo: hay una intención de dañar (dolo simple) o una falta de preocupación por el resultado (dolo eventual). El autor es responsable de todas las consecuencias que se deriven de su conducta.
 
 En el sistema del Código, se conocen como delitos a los hechos ilícitos realizados mediante dolo y como cuasidelitos a los culposos. En estos últimos, cada autor responde únicamente por su propia conducta y el juez tiene la facultad de ajustar la indemnización en función del estado patrimonial del condenado.
+
+## Voluntarios Lícitos: Actos Jurídicos
+Los actos jurídicos son aquellos voluntarios y lícitos que tienen como fin inmediato establecer relaciones jurídicas entre las personas, crear, modificar, transferir, conservar o aniquilar derechos. **Que tengan por fin inmediato la producción de efectos jurídicos** los diferencia del resto de los actos lícitos, donde la generación de efectos jurídicos sucede por imperio de la ley: no es necesario que las partes tengan la intención de generar una relación jurídica, sino que la ley establece las reglas que rigen esa relación. Por ejemplo, la ley establece que al alambrar un campo se adquiere la posesión del mismo, sin que sea necesaria la intención de las partes de generar esa relación jurídica.
