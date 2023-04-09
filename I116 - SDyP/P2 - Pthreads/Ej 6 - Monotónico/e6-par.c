@@ -8,18 +8,14 @@
 #define SIN_ORDEN 0
 #define ORDEN_CRECIENTE 1
 #define ORDEN_DECRECIENTE 2
+#define ORDEN_CONSTANTE 3
 #define ELEMENTOS_POR_HILO(N,T) (N / T)
 
 // Prototipos de funcion
 void extraerParams(int argc, char* argv[]);
-void inicializarVector(int orden);
-double dwalltime();
-
+void inicializarVector();
 void* determinar(void* arg);
-
-int verificarSinOrden();
-int verificarCreciente();
-int verificarDecreciente();
+double dwalltime();
 
 // Variables compartidas
 pthread_barrier_t barrera;      // cada hilo debe chequear su orden
@@ -39,7 +35,7 @@ int main(int argc, char* argv[]){
     // alocar memoria
     V = (double*) malloc(N * sizeof(double));
     ords = (int*) malloc(T * sizeof(int));
-    inicializarVector(ORDEN);
+    inicializarVector();
 
     // operacion a medir
     double t0 = dwalltime();
@@ -53,45 +49,38 @@ int main(int argc, char* argv[]){
         pthread_join(hilos[i], NULL);
     }
 
-    // Si el hilo 1 dice sin orden y el 2 sin orden, queda sin orden
-    // Si el hilo 1 dice sin orden y el 2 creciente, es creciente (nuevo)
-    // Si el hilo 1 dice creciente y el 2 sin orden, es creciente (anterior)
+    // Si el hilo 1 dice constante y el 2 constante, queda constante
+    // Si el hilo 1 dice constante y el 2 creciente, es creciente (nuevo)
+    // Si el hilo 1 dice creciente y el 2 constante, es creciente (anterior)
     // Si el hilo 1 dice creciente y el 2 creciente, es creciente (anterior)
     // Si el hilo 1 dice creciente y el 2 decreciente, ya no es monotonico
+    // Si algun hilo dice sin orden, ya no es monotonico
 
-    // buscar el primer orden creciente o decreciente
+    // buscar el primer orden no constante
     orden = ords[0];
     i = 1;
 
-    while ((orden == SIN_ORDEN) && (i < T)){
+    while ((orden == ORDEN_CONSTANTE) && (i < T)){
         orden = ords[i++];
     }
 
-    // comprobar que el resto de hilos dijeron el mismo orden
+    // comprobar que el resto de hilos dijeron lo mismo (ignoro constantes)
     while ((orden != SIN_ORDEN) && (i < T)){
-        if (ords[i++] != orden) orden = SIN_ORDEN;
+        if (ords[i] != ORDEN_CONSTANTE){
+            if (ords[i] != orden) orden = SIN_ORDEN;
+        }
+
+        i++;
     }
 
     double t1 = dwalltime();
     printf("Para N=%d, mide %f segundos\n", N, t1 - t0);
 
     // mostrar resultado y verificar
-    if (orden == SIN_ORDEN) printf("Resultado: El vector no es monotónico\n");
+    if (orden == SIN_ORDEN || orden == ORDEN_CONSTANTE) printf("Resultado: El vector no es monotónico\n");
     else printf("Resultado: El vector SÍ ES monotónico\n");
 
-    switch(orden){
-        case SIN_ORDEN:
-            if (!verificarSinOrden()) printf("ERROR: El vector si tiene un orden\n");
-            break;
-        case ORDEN_CRECIENTE:
-            i = verificarCreciente();
-            if (i > 0) printf("ERROR: El vector no es creciente, hay %d incoherencias\n", i);
-            break;
-        case ORDEN_DECRECIENTE:
-            i = verificarDecreciente();
-            if (i > 0) printf("ERROR: El vector no es decreciente, hay %d incoherencias\n", i);
-            break;
-    }
+    if (orden != ORDEN) printf("ERROR: se obtuvo orden %d y se esperaba %d \n", orden, ORDEN);
 
     // Liberar recursos
     pthread_barrier_destroy(&barrera);
@@ -108,9 +97,10 @@ void* determinar(void* arg){
     int right = (id+1) * ELEMENTOS_POR_HILO(N,T);
 
     // Etapa 1: determinar orden en mi porción
-    int i = left + 1, orden = SIN_ORDEN;
+    int i = left + 1;
+    int orden = ORDEN_CONSTANTE;
 
-    while (orden == SIN_ORDEN && i < right){
+    while (orden == ORDEN_CONSTANTE && i < right){
         if (V[i] < V[i-1]) orden = ORDEN_DECRECIENTE;
         else if (V[i] > V[i-1]) orden = ORDEN_CRECIENTE;
         i++;
@@ -147,45 +137,18 @@ void* determinar(void* arg){
     pthread_exit(NULL);
 }
 
-void inicializarVector(int orden){
+void inicializarVector(){
     int i;
 
-    if (orden == ORDEN_CRECIENTE) {
+    #if ORDEN == ORDEN_CRECIENTE
         for (i=0; i<N; i++) V[i] = i / 4;
-    } else if (orden == ORDEN_DECRECIENTE) {
+    #elif ORDEN == ORDEN_DECRECIENTE
         for (i=0; i<N; i++) V[i] = N-i;
-    } else {
-        for (i=0; i<N; i++) V[i] = i % 2;
-    }
-}
-
-int verificarSinOrden(){
-    int erroresC = verificarCreciente();
-    int erroresD = verificarDecreciente();
-
-    // Decimos que no tiene orden si no es creciente ni decreciente
-    // O bien, si es ambos al mismo tiempo (todos sus elementos son iguales)
-    return (erroresC > 0 && erroresD > 0) || (erroresC == 0 && erroresD == 0);
-}
-
-int verificarCreciente(){
-    int i, errores = 0;
-
-    for (i=1; i<N; i++){
-        if (V[i] < V[i-1]) errores++;
-    }
-
-    return errores;
-}
-
-int verificarDecreciente(){
-    int i, errores = 0;
-
-    for (i=1; i<N; i++){
-        if (V[i] > V[i-1]) errores++;
-    }
-
-    return errores;
+    #elif ORDEN == ORDEN_CONSTANTE
+        for (i=0; i<N; i++) V[i] = 800;
+    #else
+        for (i=0; i<N; i++) V[i] = i % ELEMENTOS_POR_HILO(N,T);
+    #endif
 }
 
 void extraerParams(int argc, char* argv[]){

@@ -7,15 +7,12 @@
 #define SIN_ORDEN 0
 #define ORDEN_CRECIENTE 1
 #define ORDEN_DECRECIENTE 2
+#define ORDEN_CONSTANTE 3
 
 // Prototipos de funcion
 void extraerParams(int argc, char* argv[]);
-void inicializarVector(int orden);
+void inicializarVector();
 double dwalltime();
-
-int verificarSinOrden();
-int verificarCreciente();
-int verificarDecreciente();
 
 // Variables compartidas
 int N;
@@ -23,20 +20,20 @@ double* V;
 
 // Programa principal
 int main(int argc, char* argv[]){
-    int orden = SIN_ORDEN;
+    int orden = ORDEN_CONSTANTE;
     int i = 1;
     
     extraerParams(argc, argv);
 
     // alocar memoria
     V = (double*) malloc(N * sizeof(double));
-    inicializarVector(ORDEN);
+    inicializarVector();
 
     // operacion a medir
     double t0 = dwalltime();
 
     // determinar orden a partir de los primeros elementos
-    while (orden == SIN_ORDEN && i < N){
+    while (orden == ORDEN_CONSTANTE && i < N){
         if (V[i] > V[i-1]) orden = ORDEN_CRECIENTE;
         else if (V[i] < V[i-1]) orden = ORDEN_DECRECIENTE;
 
@@ -46,12 +43,12 @@ int main(int argc, char* argv[]){
     // chequear que los siguientes elementos respeten dicho orden
     if (orden == ORDEN_CRECIENTE){
         while (orden == ORDEN_CRECIENTE && i < N){
-            orden = (V[i] >= V[i-1]) ? orden : SIN_ORDEN;
+            if (V[i] < V[i-1]) orden = SIN_ORDEN;
             i++;
         }
     } else if (orden == ORDEN_DECRECIENTE){
         while (orden == ORDEN_DECRECIENTE && i < N){
-            orden = (V[i] <= V[i-1]) ? orden : SIN_ORDEN;
+            if (V[i] > V[i-1]) orden = SIN_ORDEN;
             i++;
         }
     }
@@ -63,19 +60,7 @@ int main(int argc, char* argv[]){
     if (orden == SIN_ORDEN) printf("Resultado: El vector no es monotónico\n");
     else printf("Resultado: El vector SÍ ES monotónico\n");
 
-    switch(orden){
-        case SIN_ORDEN:
-            if (!verificarSinOrden()) printf("ERROR: El vector si tiene un orden\n");
-            break;
-        case ORDEN_CRECIENTE:
-            i = verificarCreciente();
-            if (i > 0) printf("ERROR: El vector no es creciente, hay %d incoherencias\n", i);
-            break;
-        case ORDEN_DECRECIENTE:
-            i = verificarDecreciente();
-            if (i > 0) printf("ERROR: El vector no es decreciente, hay %d incoherencias\n", i);
-            break;
-    }
+    if (orden != ORDEN) printf("ERROR: se obtuvo orden %d y se esperaba %d \n", orden, ORDEN);
 
     free(V);
 
@@ -86,42 +71,15 @@ int main(int argc, char* argv[]){
 void inicializarVector(int orden){
     int i;
 
-    if (orden == ORDEN_CRECIENTE) {
+    #if ORDEN == ORDEN_CRECIENTE
         for (i=0; i<N; i++) V[i] = i / 4;
-    } else if (orden == ORDEN_DECRECIENTE) {
+    #elif ORDEN == ORDEN_DECRECIENTE
         for (i=0; i<N; i++) V[i] = N-i;
-    } else {
+    #elif ORDEN == ORDEN_CONSTANTE
+        for (i=0; i<N; i++) V[i] = 800;
+    #else
         for (i=0; i<N; i++) V[i] = i % 2;
-    }
-}
-
-int verificarSinOrden(){
-    int erroresC = verificarCreciente();
-    int erroresD = verificarDecreciente();
-
-    // Decimos que no tiene orden si no es creciente ni decreciente
-    // O bien, si es ambos al mismo tiempo (todos sus elementos son iguales)
-    return (erroresC > 0 && erroresD > 0) || (erroresC == 0 && erroresD == 0);
-}
-
-int verificarCreciente(){
-    int i, errores = 0;
-
-    for (i=1; i<N; i++){
-        if (V[i] < V[i-1]) errores++;
-    }
-
-    return errores;
-}
-
-int verificarDecreciente(){
-    int i, errores = 0;
-
-    for (i=1; i<N; i++){
-        if (V[i] > V[i-1]) errores++;
-    }
-
-    return errores;
+    #endif
 }
 
 void extraerParams(int argc, char* argv[]){
