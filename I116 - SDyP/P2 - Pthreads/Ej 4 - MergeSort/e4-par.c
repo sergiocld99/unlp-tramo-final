@@ -13,10 +13,9 @@
 
 // Prototipos de funcion
 void extraerParams(int argc, char* argv[]);
-void inicializar(double*);
+void inicializar();
 void ordenar(int left, int right);
 void combinar(int left, int medio, int right);
-void crearBarreras();
 void* mergeSort(void*);
 
 // Variables compartidas
@@ -36,7 +35,7 @@ int main(int argc, char* argv[]){
 
     // Una vez extraido N...
     V = (double*) malloc(N * sizeof(double));
-    inicializar(V);
+    inicializar();
 
     // mergesort
     double t0 = dwalltime();
@@ -157,13 +156,7 @@ void combinar(int left, int medio, int right){
     free(R);
 }
 
-void crearBarreras(){
-    int i;
-
-    pthread_barrier_init(&barreras[0], NULL, T);
-}
-
-void inicializar(double* V){
+void inicializar(){
     int i;
 
     srand(time(NULL));
