@@ -14,13 +14,12 @@ void* contar(void*);
 int N, X, T;
 int* V;
 
-pthread_mutex_t mutex;
-int ocurrencias = 0;
+int* conteos;
 
 // programa principal
 int main(int argc, char* argv[]){
     // variables locales
-    int i;
+    int i, ocurrencias = 0;
 
     extraerParams(argc, argv);
     srand(time(NULL));
@@ -30,12 +29,16 @@ int main(int argc, char* argv[]){
     for (i=0; i<N; i++) V[i] = rand() % 1000;
     
     // Una vez sabido T...
-    pthread_mutex_init(&mutex, NULL);
+    conteos = malloc(T * sizeof(int));
 
     // Medir
     double t0 = dwalltime();
 
     create_and_join(&contar, T);
+
+    for (i=0; i<T; i++) {
+        ocurrencias += conteos[i];
+    }
 
     double t1 = dwalltime();
     
@@ -50,7 +53,7 @@ int main(int argc, char* argv[]){
     if (ocurrencias != 0) printf("ERROR: conteo mal realizado\n");
 
     // liberar recursos
-    pthread_mutex_destroy(&mutex);
+    free(conteos);
     free(V);
 
     return 0;
@@ -69,9 +72,7 @@ void* contar(void* arg){
     }
 
     // Etapa 2: actualizar contador global
-    pthread_mutex_lock(&mutex);
-    ocurrencias += count;
-    pthread_mutex_unlock(&mutex);
+    conteos[id] = count;
 
     pthread_exit(NULL);
 }
