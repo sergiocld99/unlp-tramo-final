@@ -1,7 +1,7 @@
 // Cabeceras
 #include <stdio.h>      // printf
 #include <stdlib.h>     // exit
-#include <sys/time.h>   // dwalltime
+#include "tiempo.h"
 
 // Constantes
 #define SIN_ORDEN 0
@@ -12,7 +12,6 @@
 // Prototipos de funcion
 void extraerParams(int argc, char* argv[]);
 void inicializarVector();
-double dwalltime();
 
 // Variables compartidas
 int N;
@@ -94,14 +93,4 @@ void extraerParams(int argc, char* argv[]){
         printf("N debe ser mayor o igual a 2\n");
         exit(2);
     }
-}
-
-//Para calcular tiempo
-double dwalltime(){
-    double sec;
-    struct timeval tv;
-
-    gettimeofday(&tv,NULL);
-    sec = tv.tv_sec + tv.tv_usec/1000000.0;
-    return sec;
 }

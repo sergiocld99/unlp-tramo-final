@@ -3,9 +3,9 @@
 // Cabeceras
 #include <stdio.h>      // printf
 #include <stdlib.h>     // exit
-#include <sys/time.h>   // dwalltime
 #include <time.h>       // random seed
-#include <pthread.h>
+#include "hilos.h"
+#include "tiempo.h"
 
 // Constantes
 #define ELEMENTOS_POR_HILO(N,T) (N/T)
@@ -17,9 +17,7 @@ void inicializar(double*);
 void ordenar(int left, int right);
 void combinar(int left, int medio, int right);
 void crearBarreras();
-
 void* mergeSort(void*);
-double dwalltime();
 
 // Variables compartidas
 int N, T;
@@ -32,10 +30,6 @@ int main(int argc, char* argv[]){
     
     extraerParams(argc, argv);
 
-    // Una vez extraido T...
-    pthread_t hilos[T];
-    int ids[T];
-
     // Si trabajan T, luego T/2, T/4... 1, son 2^T - 1 barreras
     barreras = (pthread_barrier_t*) malloc(T * sizeof(pthread_barrier_t));
     for (i=1; i<=T; i*=2) pthread_barrier_init(&barreras[i-1], NULL, T/i);
@@ -47,14 +41,7 @@ int main(int argc, char* argv[]){
     // mergesort
     double t0 = dwalltime();
 
-    for (i=0; i<T; i++){
-        ids[i] = i;
-        pthread_create(&hilos[i], NULL, &mergeSort, &ids[i]);
-    }
-
-    for (i=0; i<T; i++){
-        pthread_join(hilos[i], NULL);
-    }
+    create_and_join(&mergeSort, T);
 
     double t1 = dwalltime();
     printf("Para N=%d, mide %f segundos\n", N, t1 - t0);
@@ -204,14 +191,4 @@ void extraerParams(int argc, char* argv[]){
         printf("Por favor, utilice N multiplo de T\n");
         exit(3);
     }
-}
-
-//Para calcular tiempo
-double dwalltime(){
-    double sec;
-    struct timeval tv;
-
-    gettimeofday(&tv,NULL);
-    sec = tv.tv_sec + tv.tv_usec/1000000.0;
-    return sec;
 }

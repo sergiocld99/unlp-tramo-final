@@ -1,8 +1,8 @@
 // Cabeceras
 #include <stdio.h>      // printf
 #include <stdlib.h>     // exit
-#include <sys/time.h>   // dwalltime
-#include <pthread.h>
+#include "tiempo.h"
+#include "hilos.h"
 
 // Constantes
 #define SIN_ORDEN 0
@@ -15,7 +15,6 @@
 void extraerParams(int argc, char* argv[]);
 void inicializarVector();
 void* determinar(void* arg);
-double dwalltime();
 
 // Variables compartidas
 pthread_barrier_t barrera;      // cada hilo debe chequear su orden
@@ -29,8 +28,6 @@ int main(int argc, char* argv[]){
 
     extraerParams(argc, argv);
     pthread_barrier_init(&barrera, NULL, T);
-    pthread_t hilos[T];
-    int ids[T];
 
     // alocar memoria
     V = (double*) malloc(N * sizeof(double));
@@ -40,14 +37,7 @@ int main(int argc, char* argv[]){
     // operacion a medir
     double t0 = dwalltime();
 
-    for (i=0; i<T; i++){
-        ids[i] = i;
-        pthread_create(&hilos[i], NULL, &determinar, &ids[i]);
-    }
-
-    for (i=0; i<T; i++){
-        pthread_join(hilos[i], NULL);
-    }
+    create_and_join(&determinar, T);
 
     // Si el hilo 1 dice constante y el 2 constante, queda constante
     // Si el hilo 1 dice constante y el 2 creciente, es creciente (nuevo)
@@ -169,14 +159,4 @@ void extraerParams(int argc, char* argv[]){
         printf("Por favor, utilice N multiplo de T\n");
         exit(3);
     }
-}
-
-//Para calcular tiempo
-double dwalltime(){
-    double sec;
-    struct timeval tv;
-
-    gettimeofday(&tv,NULL);
-    sec = tv.tv_sec + tv.tv_usec/1000000.0;
-    return sec;
 }

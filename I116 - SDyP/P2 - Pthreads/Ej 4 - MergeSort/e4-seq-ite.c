@@ -3,7 +3,7 @@
 // Cabeceras
 #include <stdio.h>      // printf
 #include <stdlib.h>     // exit
-#include <sys/time.h>   // dwalltime
+#include "tiempo.h"
 #include <time.h>       // random seed
 
 // Constantes
@@ -14,7 +14,6 @@ void extraerParams(int argc, char* argv[]);
 void inicializar(double*);
 void ordenarIterativo(double*);
 void combinar(double* V, int left, int medio, int right);
-double dwalltime();
 
 // Variables compartidas
 int N;
@@ -136,14 +135,4 @@ void extraerParams(int argc, char* argv[]){
         printf("N debe ser positivo\n");
         exit(2);
     }
-}
-
-//Para calcular tiempo
-double dwalltime(){
-    double sec;
-    struct timeval tv;
-
-    gettimeofday(&tv,NULL);
-    sec = tv.tv_sec + tv.tv_usec/1000000.0;
-    return sec;
 }
