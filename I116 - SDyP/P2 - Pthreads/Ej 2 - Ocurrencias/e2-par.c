@@ -64,7 +64,7 @@ void* contar(void* arg){
     const int id = *(int*) arg;           // Constante entre etapas
     const int left = id * (N / T);        // Constante entre etapas
     int right = (id+1) * (N / T);
-    int i, count = 0;
+    int i, porciones, count = 0;
 
     // Etapa 1: contar localmente
     for (i=left; i<right; i++){
@@ -79,7 +79,7 @@ void* contar(void* arg){
     pthread_barrier_wait(&barreras[0]);
 
     for (i=1; i<log2(T); i++){
-        int porciones = pow(2,i);
+        porciones = pow(2,i);
         if (id % porciones != 0) break;
 
         // Me toca trabajar...
