@@ -76,6 +76,8 @@ void* recorrer(void* arg){
 	}
 	
 	exitos[id] = ok;
+
+	pthread_exit(NULL);
 }
 
 void extraerParams(int argc, char* argv[]){

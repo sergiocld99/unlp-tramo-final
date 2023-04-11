@@ -4,19 +4,22 @@
 #include <stdio.h>      // printf
 #include <stdlib.h>     // exit
 #include "tiempo.h"
+#include "hilos.h"
+
 #include <time.h>       // random seed
+#include <math.h>       // log2
 
 // Constantes
 // #define DEBUG
 
 // Prototipos de funcion
 void extraerParams(int argc, char* argv[]);
-void inicializar(double*);
-void ordenarIterativo(double*);
-void combinar(double* V, int left, int medio, int right);
+void combinar(int left, int medio, int right);
+void* ordenarIterativo(void* arg);
 
 // Variables compartidas
-int N;
+int N, T;
+double *V;
 
 // Programa principal
 int main(int argc, char* argv[]){
@@ -25,15 +28,14 @@ int main(int argc, char* argv[]){
     extraerParams(argc, argv);
 
     // alocar memoria
-    double* V = (double*) malloc(N * sizeof(double));
-
-    // inicializar vector con numeros random
-    inicializar(V);
+    V = (double*) malloc(N * sizeof(double));
+    srand(time(NULL));
+    for (i=0; i<N; i++) V[i] = rand() % 1000;
 
     // mergesort iterativo (para evitar overhead de recursión)
     double t0 = dwalltime();
 
-    ordenarIterativo(V);
+    create_and_join(&ordenarIterativo, T);
 
     double t1 = dwalltime();
     printf("Para N=%d, mide %f segundos\n", N, t1 - t0);
@@ -59,28 +61,44 @@ static inline int min(int n1, int n2){
     return (n1 < n2) ? n1 : n2;
 }
 
-void ordenarIterativo(double* V){
+void* ordenarIterativo(void* arg){
+    const id = *(int*) arg;
     int len, left, prevLen = 1;
-    int medio, right;
+    int medio, right, i = 1;
 
-    // len <= 2*N es un fix a los vectores con N no potencia de 2
-    for (len=2; len<=2*N; len *= 2){
-        for (left=0; left < N-prevLen; left += len){
+    // N multiplo de T
+    int lenPorHilo = N / T;
+    int start = id * lenPorHilo;
+    int end = (id+1) * lenPorHilo;
+
+    // ETAPA 1: ORDENACIÓN INTERNA (PORCIÓN ASIGNADA)
+    for (len=2; len<=2*lenPorHilo; len *= 2){
+
+        // esta es la parte a paralelizar, donde arranca y termina cada hilo
+        // si fuera secuencial: left = 0..N-prevLen-1
+        for (left=start; left < end-prevLen; left += len){
             right = min(left + len - 1, N-1);
             medio = left + prevLen - 1;
-
-            #ifdef DEBUG
-                printf("len = %d, left = %d \n", len, left);
-            #endif
 
             combinar(V, left, medio, right);
         }
 
         prevLen = len;
     }
+
+    // ETAPA 2: MERGESORT CON SIGUIENTES HILOS
+    pthread_barrier_wait(&barreras[0]);
+
+    for (len=lenPorHilo; len<=2*N; len *=2){
+        
+
+        pthread_barrier_wait(&barreras[i++]);
+    }
+
+    pthread_exit(NULL);
 }
 
-void combinar(double* V, int left, int medio, int right){
+void combinar(int left, int medio, int right){
     int len1 = (medio - left) + 1;
     int len2 = (right - medio);
     int i = 0, j = 0, k;
@@ -110,30 +128,22 @@ void combinar(double* V, int left, int medio, int right){
     free(R);
 }
 
-void inicializar(double* V){
-    int i;
-
-    srand(time(NULL));
-
-    for (i=0; i<N; i++){
-        V[i] = rand() % 10000;
-
-        #ifdef DEBUG
-            printf("V[%d] = %.2f \n", i, V[i]);
-        #endif
-    }
-}
-
 void extraerParams(int argc, char* argv[]){
-    if (argc < 2) {
-        printf("Especificar N\n");
+    if (argc < 3) {
+        printf("Especificar N y T\n");
         exit(1);
     }
 
     N = atoi(argv[1]);
+    T = atoi(argv[2]);
 
-    if (N <= 0) {
+    if (N < 1 || T < 1) {
         printf("N debe ser positivo\n");
         exit(2);
+    }
+
+    if (N % T != 0){
+        printf("Por favor, utilice N multiplo de T\n");
+        exit(3);
     }
 }
