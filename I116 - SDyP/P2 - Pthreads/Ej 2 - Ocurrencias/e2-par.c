@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
 void* contar(void* arg){
     const int id = *(int*) arg;           // Constante entre etapas
     const int left = id * (N / T);        // Constante entre etapas
-    int right = (id+1) * (N / T);
+    const int right = (id+1) * (N / T);
     int i, porciones, count = 0;
 
     // Etapa 1: contar localmente
@@ -83,8 +83,6 @@ void* contar(void* arg){
         if (id % porciones != 0) break;
 
         // Me toca trabajar...
-        right = (id+porciones) * (N/T);
-
         res[id] = res[id] + res[id+i];    // merge
         res[id+i] = 0;
 

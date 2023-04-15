@@ -18,6 +18,7 @@ void combinar(int left, int medio, int right);
 void* ordenarIterativo(void* arg);
 
 // Variables compartidas
+pthread_barrier_t* barreras;
 int N, T;
 double *V;
 
@@ -27,10 +28,14 @@ int main(int argc, char* argv[]){
     
     extraerParams(argc, argv);
 
-    // alocar memoria
-    V = (double*) malloc(N * sizeof(double));
+    // N...
     srand(time(NULL));
+    V = (double*) malloc(N * sizeof(double));
     for (i=0; i<N; i++) V[i] = rand() % 1000;
+
+    // T...
+    barreras = (pthread_barrier_t*) malloc((log2(T)+1) * sizeof(pthread_barrier_t));
+    for (i=0; i<=log2(T); i++) pthread_barrier_init(&barreras[i], NULL, T / pow(2,i));
 
     // mergesort iterativo (para evitar overhead de recursión)
     double t0 = dwalltime();
@@ -61,43 +66,31 @@ static inline int min(int n1, int n2){
     return (n1 < n2) ? n1 : n2;
 }
 
+ // VERSION 1: N = 2*T, y además N es potencia de 2.
 void* ordenarIterativo(void* arg){
     const int id = *(int*) arg;
-    int len, left, prevLen = 1;
-    int medio, right, i = 1;
 
     // N multiplo de T
-    const int lenPorHilo = N / T;
-    const int start = id * lenPorHilo;
-    int end = (id+1) * lenPorHilo;
+    const int lenHilo = N/T;
+    const int inicio = id * lenHilo;
+    int fin = (id+1) * lenHilo - 1;
 
-    // ETAPA 1: ORDENACIÓN INTERNA (PORCIÓN ASIGNADA)
-    for (len=2; len<=lenPorHilo; len *= 2){
-
-        // esta es la parte a paralelizar, donde arranca y termina cada hilo
-        // si fuera secuencial: left = 0..N-prevLen-1
-        for (left=start; left < end-prevLen; left += len){
-            right = min(left + len - 1, N-1);
-            medio = left + prevLen - 1;
-
-            combinar(left, medio, right);
-        }
-
-        prevLen = len;
-    }
-
-    // ETAPA 2: MERGESORT CON SIGUIENTES HILOS
+    // Etapa 1: ordenación de la porción asignada
+    combinar(inicio, inicio, fin);
     pthread_barrier_wait(&barreras[0]);
 
-    for (i=1; i<log2(T); i++){
-        porciones = pow(2,i);       // cada una de lenPorHilo elementos
+    // Etapa 2: merge con hilo vecino
+    int i, medio, porciones;
+
+    for (i=1; i<=log2(T); i++){
+        porciones = pow(2,i);
         if (id % porciones != 0) break;
 
         // Me toca trabajar...
-        end = (id+porciones) * (N/T);
-        medio = start + pow(2,i-1);
+        medio = fin;
+        fin = (id+porciones) * lenHilo - 1;
 
-        combinar(start, medio, end-1);
+        combinar(inicio, medio, fin);
         pthread_barrier_wait(&barreras[i]);
     }
 
