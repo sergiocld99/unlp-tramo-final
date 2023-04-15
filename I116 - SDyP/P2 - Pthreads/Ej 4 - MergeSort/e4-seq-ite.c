@@ -11,12 +11,14 @@
 
 // Prototipos de funcion
 void extraerParams(int argc, char* argv[]);
-void inicializar(double*);
-void ordenarIterativo(double*);
-void combinar(double* V, int left, int medio, int right);
+void inicializar();
+void ordenarIterativo();
+void ordenarPar(int, int);
+void combinar(int left, int medio, int right);
 
 // Variables compartidas
 int N;
+double* V;
 
 // Programa principal
 int main(int argc, char* argv[]){
@@ -24,16 +26,14 @@ int main(int argc, char* argv[]){
     
     extraerParams(argc, argv);
 
-    // alocar memoria
-    double* V = (double*) malloc(N * sizeof(double));
-
-    // inicializar vector con numeros random
-    inicializar(V);
+    // N...
+    V = (double*) malloc(N * sizeof(double));
+    inicializar();
 
     // mergesort iterativo (para evitar overhead de recursión)
     double t0 = dwalltime();
 
-    ordenarIterativo(V);
+    ordenarIterativo();
 
     double t1 = dwalltime();
     printf("Para N=%d, mide %f segundos\n", N, t1 - t0);
@@ -59,28 +59,45 @@ static inline int min(int n1, int n2){
     return (n1 < n2) ? n1 : n2;
 }
 
-void ordenarIterativo(double* V){
-    int len, left, prevLen = 1;
-    int medio, right;
+void ordenarIterativo(){
+    int lenTrabajo, L, M, R;
 
-    // len <= 2*N es un fix a los vectores con N no potencia de 2
-    for (len=2; len<=2*N; len *= 2){
-        for (left=0; left < N-prevLen; left += len){
-            right = min(left + len - 1, N-1);
-            medio = left + prevLen - 1;
+    // Ordenar pares
+    for (L=0; L < N-1; L+=2){
+        ordenarPar(L, L+1);
+    }
 
-            #ifdef DEBUG
-                printf("len = %d, left = %d \n", len, left);
-            #endif
+    // 4, 8, 16
+    for (lenTrabajo=4; lenTrabajo <= N; lenTrabajo *= 2){
+        // En ultimo len: L = 0, 16 // M = 7, 23 // R = 15, 29
+        for (L=0; L < N-1; L += lenTrabajo){
+            M = L + lenTrabajo/2 - 1;
+            if (M >= N-1) break;    // ya está ordenado
 
-            combinar(V, left, medio, right);
+            R = min(L + lenTrabajo - 1, N-1);
+            combinar(L, M, R);
         }
+    }
 
-        prevLen = len;
+    // Si N no es potencia de 2...
+    int lastLenTrabajo = lenTrabajo / 2;    // 16
+    if (lastLenTrabajo != N) {
+        M = lastLenTrabajo - 1;             // 15
+        combinar(0, M, N-1);       
     }
 }
 
-void combinar(double* V, int left, int medio, int right){
+void ordenarPar(int p1, int p2){
+    double aux;
+    
+    if (V[p1] > V[p2]){
+        aux = V[p1];
+        V[p1] = V[p2];
+        V[p2] = aux;
+    }
+}
+
+void combinar(int left, int medio, int right){
     int len1 = (medio - left) + 1;
     int len2 = (right - medio);
     int i = 0, j = 0, k;
@@ -110,18 +127,11 @@ void combinar(double* V, int left, int medio, int right){
     free(R);
 }
 
-void inicializar(double* V){
+void inicializar(){
     int i;
 
     srand(time(NULL));
-
-    for (i=0; i<N; i++){
-        V[i] = rand() % 10000;
-
-        #ifdef DEBUG
-            printf("V[%d] = %.2f \n", i, V[i]);
-        #endif
-    }
+    for (i=0; i<N; i++) V[i] = rand() % 10000;
 }
 
 void extraerParams(int argc, char* argv[]){

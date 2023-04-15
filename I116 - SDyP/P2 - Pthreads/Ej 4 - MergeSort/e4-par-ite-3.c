@@ -55,7 +55,9 @@ int main(int argc, char* argv[]){
         ant = act;
     }
 
-    // liberar memoria
+    // liberar recursos
+    for (i=0; i<=log2(T); i++) pthread_barrier_destroy(&barreras[i]);
+    free(barreras);
     free(V);
 
     return 0;
