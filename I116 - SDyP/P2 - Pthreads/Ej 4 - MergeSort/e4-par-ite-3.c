@@ -66,7 +66,7 @@ static inline int min(int n1, int n2){
     return (n1 < n2) ? n1 : n2;
 }
 
- // VERSION 3: T = 1, con N cualquiera
+ // VERSION 3: N multiplo de T
 void* ordenarIterativo(void* arg){
     const int id = *(int*) arg;
     const int lenHilo = N/T;            // 30
@@ -91,7 +91,7 @@ void* ordenarIterativo(void* arg){
     // Si N no es potencia de 2...
     int lastLenTrabajo = lenTrabajo / 2;    // 16
     if (lastLenTrabajo != lenHilo) {
-        M = lastLenTrabajo - 1;             // 15
+        M = inicio + lastLenTrabajo - 1;             // 15
         combinar(inicio, M, fin);       
     }
 
