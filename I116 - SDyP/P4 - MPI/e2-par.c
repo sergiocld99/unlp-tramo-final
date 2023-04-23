@@ -8,6 +8,7 @@ int getMatrixSize(int argc, char* argv[]);
 void getMinMaxSum(double* mat, int filas, int N, double* MIN, double* MAX, double* SUM);
 void crearB(double* A, double* B, int filas, int N, double* globales);
 void p0(int, int);
+void p1(int, int);
 
 // programa principal
 int main(int argc, char* argv[]){
@@ -31,6 +32,7 @@ int main(int argc, char* argv[]){
     }
 
     if (id == 0) p0(N, cantProcesos);
+    else p1(N, cantProcesos);
 
     // siempre por ultimo esto!!
     MPI_Finalize();
@@ -101,6 +103,40 @@ void p0(int N, int cp){
     free(AL); free(BL);
 }
 
+void p1(int N, int cp){
+    int filas = N / cp;
+    int i,j;
+
+    double *AL = (double*) malloc(filas*N*sizeof(double));
+    double *BL = (double*) malloc(filas*N*sizeof(double));
+    double* E;
+
+    // Scatter(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
+    MPI_Scatter(E, 0, MPI_DOUBLE, AL, filas*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // encontrar min, max y prom locales
+    double min, max, suma;
+    getMinMaxSum(AL, filas, N, &min, &max, &suma);
+
+    // Reduce(sendbuf, recbuf, count, type, op, root, comm)
+    MPI_Reduce(&min, E, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&max, E, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&suma, E, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    double globales[3];
+    MPI_Bcast(globales, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // Crear porción de matriz B
+    crearB(AL, BL, filas, N, globales);
+
+    // Gather(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
+    MPI_Gather(BL, filas*N, MPI_DOUBLE, E, 0, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // Liberar recursos
+    free(AL); free(BL);
+}
+
+
 // Funcion comun
 void getMinMaxSum(double* mat, int filas, int N, double* MIN, double* MAX, double* SUM){
     int i,j;
@@ -131,8 +167,6 @@ void crearB(double* A, double* B, int filas, int N, double* globales){
     const double min = globales[0];
     const double max = globales[1];
     const double prom = globales[2];
-
-    printf("Para crear B: min %.2f, max %.2f, prom %.2f \n", min, max, prom);
 
     for (i=0; i<filas; i++){
         for (j=0; j<N; j++){
