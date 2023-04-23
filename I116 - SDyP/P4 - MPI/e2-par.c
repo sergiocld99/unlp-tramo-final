@@ -47,8 +47,6 @@ void p0(int N, int cp){
 
     double *A = (double*) malloc(N*N*sizeof(double));
     double *B = (double*) malloc(N*N*sizeof(double));
-    double *AL = (double*) malloc(filas*N*sizeof(double));
-    double *BL = (double*) malloc(filas*N*sizeof(double));
 
     for (i=0; i<N; i++){
         for (j=0; j<N; j++){
@@ -60,11 +58,11 @@ void p0(int N, int cp){
     double t0 = dwalltime();
 
     // Scatter(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
-    MPI_Scatter(A, filas*N, MPI_DOUBLE, AL, filas*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Scatter(A, filas*N, MPI_DOUBLE, A, filas*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // encontrar min, max y prom locales
     double min, max, suma;
-    getMinMaxSum(AL, filas, N, &min, &max, &suma);
+    getMinMaxSum(A, filas, N, &min, &max, &suma);
     //printf("Locales: min %.2f, max %.2f, suma %.2f \n", min, max, suma);
 
     // Reduce(sendbuf, recbuf, count, type, op, root, comm)
@@ -78,10 +76,10 @@ void p0(int N, int cp){
     MPI_Bcast(globales, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // Crear porción de matriz B
-    crearB(AL, BL, filas, N, globales);
+    crearB(A, B, filas, N, globales);
 
     // Gather(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
-    MPI_Gather(BL, filas*N, MPI_DOUBLE, B, filas*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(B, filas*N, MPI_DOUBLE, B, filas*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // fin de medicion
     double t1 = dwalltime();
@@ -107,7 +105,6 @@ void p0(int N, int cp){
 
     // Liberar recursos
     free(A); free(B);
-    free(AL); free(BL);
 }
 
 void p1(int N, int cp){
