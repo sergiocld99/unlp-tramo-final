@@ -69,7 +69,7 @@ void p0(int N, int cp){
     MPI_Reduce(&suma, &SUM, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     printf("Globales: min %.2f, max %.2f, suma %.2f \n", MIN, MAX, SUM);
 
-    double globales[3] = {MIN, MAX, SUM / N};
+    double globales[3] = {MIN, MAX, SUM / (N*N)};
     MPI_Bcast(globales, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // Crear porción de matriz B
