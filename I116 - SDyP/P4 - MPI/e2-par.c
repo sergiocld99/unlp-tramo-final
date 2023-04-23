@@ -52,9 +52,12 @@ void p0(int N, int cp){
 
     for (i=0; i<N; i++){
         for (j=0; j<N; j++){
-            A[i*N+j] = (i % 2 == 0 ? 10 : 30);
+            A[i*N+j] = (i % 2 == 0 ? 1 : 3);
         }
     }
+
+    // iniciamos medicion de tiempo
+    double t0 = dwalltime();
 
     // Scatter(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
     MPI_Scatter(A, filas*N, MPI_DOUBLE, AL, filas*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -62,14 +65,14 @@ void p0(int N, int cp){
     // encontrar min, max y prom locales
     double min, max, suma;
     getMinMaxSum(AL, filas, N, &min, &max, &suma);
-    printf("Locales: min %.2f, max %.2f, suma %.2f \n", min, max, suma);
+    //printf("Locales: min %.2f, max %.2f, suma %.2f \n", min, max, suma);
 
     // Reduce(sendbuf, recbuf, count, type, op, root, comm)
     double MIN, MAX, SUM;
     MPI_Reduce(&min, &MIN, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
     MPI_Reduce(&max, &MAX, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
     MPI_Reduce(&suma, &SUM, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-    printf("Globales: min %.2f, max %.2f, suma %.2f \n", MIN, MAX, SUM);
+    //printf("Globales: min %.2f, max %.2f, suma %.2f \n", MIN, MAX, SUM);
 
     double globales[3] = {MIN, MAX, SUM / (N*N)};
     MPI_Bcast(globales, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -79,6 +82,10 @@ void p0(int N, int cp){
 
     // Gather(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
     MPI_Gather(BL, filas*N, MPI_DOUBLE, B, filas*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // fin de medicion
+    double t1 = dwalltime();
+    printf("Tiempo del proceso root: %f segundos\n", t1 - t0);
 
     // Verificar resultados
     int pos;
