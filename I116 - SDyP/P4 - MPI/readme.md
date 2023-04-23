@@ -6,3 +6,6 @@ Luego para mantener las variables de entorno (mpicc y mpirun), agregu /etc/profi
 export PATH="$PATH:/usr/local/openmpi/bin"
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/openmpi/lib"¸
 ```
+
+# Resultados
+- Link: https://docs.google.com/spreadsheets/d/1sIRunqza_BUEJUh8ncFkiUyx19v1cM_TQcNeEEBrDv8/edit?usp=sharing
