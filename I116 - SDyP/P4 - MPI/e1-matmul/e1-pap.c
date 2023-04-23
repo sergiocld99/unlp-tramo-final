@@ -41,13 +41,13 @@ int main(int argc, char* argv[]){
     }
 
     // realizar operacion
-    double t0 = dwalltime();
+    double T0 = dwalltime();
 
     if (id == 0) p0(cantProcesos, N);
     else p1(cantProcesos, N);
 
-    double t1 = dwalltime();
-    printf("Proceso %d tardo %f segundos\n", id, t1 - t0);
+    double T1 = dwalltime();
+    printf("TIEMPO TOTAL DEL PROCESO %d: %f segundos\n", id, T1 - T0);
 
     // siempre por ultimo esto!!
     MPI_Finalize();
@@ -80,6 +80,8 @@ void p0(int cp, int N){
         }
     }
 
+    double t0 = dwalltime();
+
     // enviar porción de A y B completa a los otros procesos
     for (i=1; i<cp; i++){
         elementoInicio = i * elementosProceso;
@@ -96,7 +98,12 @@ void p0(int cp, int N){
         MPI_Recv(C+elementoInicio, elementosProceso, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, &status);
     }
 
+    double t1 = dwalltime();
+    printf("Comunicación + cómputo del master: %f segundos\n", t1 - t0);
+
     verificar(C, N);
+
+    // liberar recursos
     free(A); 
     free(B); 
     free(C);
@@ -118,6 +125,8 @@ void p1(int cp, int N){
         }
     }
 
+    double t0 = dwalltime();
+
     // recibir porción de A y B completa
     MPI_Recv(A, filas*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, &status);
     MPI_Recv(B, N*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, &status);
@@ -128,6 +137,10 @@ void p1(int cp, int N){
     // enviar resultados
     MPI_Send(C, filas*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
 
+    double t1 = dwalltime();
+    printf("Comunicación + cómputo de proceso secundario: %f segundos\n", t1 - t0);
+
+    // liberar recursos
     free(A);
     free(B);
     free(C);
