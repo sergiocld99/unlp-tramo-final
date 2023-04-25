@@ -66,14 +66,14 @@ void p0(int N, int cp){
     //printf("Locales: min %.2f, max %.2f, suma %.2f \n", min, max, suma);
 
     // Reduce(sendbuf, recbuf, count, type, op, root, comm)
+    // Allreduce(sendbuf, recbuf, count, type, op, comm)
     double MIN, MAX, SUM;
-    MPI_Reduce(&min, &MIN, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&max, &MAX, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&suma, &SUM, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Allreduce(&min, &MIN, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&max, &MAX, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&suma, &SUM, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
     //printf("Globales: min %.2f, max %.2f, suma %.2f \n", MIN, MAX, SUM);
 
     double globales[3] = {MIN, MAX, SUM / (N*N)};
-    MPI_Bcast(globales, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // Crear porción de matriz B
     crearB(A, B, filas, N, globales);
@@ -123,12 +123,12 @@ void p1(int N, int cp){
     getMinMaxSum(AL, filas, N, &min, &max, &suma);
 
     // Reduce(sendbuf, recbuf, count, type, op, root, comm)
-    MPI_Reduce(&min, E, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&max, E, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&suma, E, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    double MIN, MAX, SUM;
+    MPI_Allreduce(&min, &MIN, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&max, &MAX, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&suma, &SUM, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    double globales[3];
-    MPI_Bcast(globales, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    double globales[3] = {MIN, MAX, SUM / (N*N)};
 
     // Crear porción de matriz B
     crearB(AL, BL, filas, N, globales);
