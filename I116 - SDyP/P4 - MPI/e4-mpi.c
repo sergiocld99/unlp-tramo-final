@@ -11,6 +11,7 @@
 // NO EXISTEN VARIABLES COMPARTIDAS EN MPI
 int getSize(int argc, char* argv[]);
 void p0(int N, int cp);
+void p1(int N, int cp);
 
 // prototipos comunes
 void ordenarVector(double* V, int size);
@@ -38,6 +39,7 @@ int main(int argc, char* argv[]){
     }
 
     if (id == 0) p0(N, cantProcesos);
+    else p1(N, cantProcesos);
 
     // siempre por ultimo esto!!
     MPI_Finalize();
@@ -58,6 +60,7 @@ void p0(int N, int cp){
 
     // repartir porcion a cada proceso
     const int sendcnt = N / cp;
+    double t0 = dwalltime();
 
     // Scatter(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
     MPI_Scatter(V, sendcnt, MPI_DOUBLE, V, sendcnt, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -88,17 +91,47 @@ void p0(int N, int cp){
         }
     }
 
+    // vector ordenado!
+    printf("Tiempo del proceso root: %f segundos \n", dwalltime() - t0);
+
     // verificar ordenacion
+    int ordenados = 1;
+
     for (i=1; i<N; i++){
-        if (V[i] < V[i-1]){
-            printf("Error en posicion %d \n", i);
-        }
+        if (V[i] >= V[i-1]) ordenados++; 
+        else printf("Error en posicion %d \n", i);
     }
+
+    printf("Elementos ordenados: %d de %d \n", ordenados, N);
 
     // liberar recursos
     free(V);
 }
 
+// procesos secundarios
+void p1(int N, int cp){
+    double* vacio;
+    
+    // repartir porcion a cada proceso
+    const int sendcnt = N / cp;
+
+    double* V = (double*) malloc(sendcnt * sizeof(double));
+
+    // Scatter(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
+    MPI_Scatter(vacio, 0, MPI_DOUBLE, V, sendcnt, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // realizar ordenación de mi porcion asignada
+    ordenarVector(V, sendcnt);
+
+    // enviar mi trabajo realizado al root
+    // Gather(sendbuf, sendcount, sendtype, recbuf, reccount, rectype, root, comm)
+    MPI_Gather(V, sendcnt, MPI_DOUBLE, vacio, 0, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // liberar recursos
+    free(V);
+}
+
+// funciones comunes
 void ordenarVector(double* V, int size){
 
     // empezar ordenando de a 2, luego de 4, de a 8 y asi...
