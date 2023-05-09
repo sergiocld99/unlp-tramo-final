@@ -7,12 +7,13 @@
 // NO EXISTEN VARIABLES COMPARTIDAS EN MPI
 void getParams(int argc, char* argv[], int *N, int *T);
 void p0(int N, int cp);
+void p1(int N, int cp);
 
 // Funciones comunes
 void resolverOMP(double *A, double *B, double *C, int filas, int cols, int N);
 
 // Funciones de verificacion
-void saludar();
+void saludar(int rank);
 
 // programa principal
 int main(int argc, char* argv[]){
@@ -39,8 +40,11 @@ int main(int argc, char* argv[]){
     
     // establecer cantidad de hilos por rank
     omp_set_num_threads(T);
+		saludar(id);
 
+		// comenzar trabajo
     if (id == 0) p0(N, cantProcesos);
+    else p1(N, cantProcesos);
 
     // siempre por ultimo esto!!
     MPI_Finalize();
@@ -51,7 +55,6 @@ int main(int argc, char* argv[]){
 // funcion que ejecuta el proceso con id=0
 void p0(int N, int cp){
     double *A, *B, *C;
-    double *AL;
     int i,j;
     int filasRep = N / cp;
     int errores = 0;
@@ -71,7 +74,6 @@ void p0(int N, int cp){
     }
     
     // printf("Tenemos %d procesos\n", cp);
-    saludar();
     double t0 = dwalltime();
     
     // repartimos por conjuntos de filas
@@ -101,6 +103,28 @@ void p0(int N, int cp){
 		free(C);
 }
 
+void p1(int N, int cp){
+		double *A, *B, *C;
+		double *vacio;
+    int i,j;
+    int filasRep = N / cp;
+    
+    // reservamos memoria
+    A = (double*) malloc(filasRep*N*sizeof(double));
+    B = (double*) malloc(N*N*sizeof(double));
+    C = (double*) malloc(filasRep*N*sizeof(double));
+    
+    // recibimos matrices operando (no quiero enviar nada)
+    MPI_Scatter(vacio, 0, MPI_DOUBLE, A, filasRep*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(B, N*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
+    // resolver mi parte...
+    resolverOMP(A,B,C,filasRep,N,N);
+    
+    // enviar resultados al rank 0 (no voy a recibir nada)
+    MPI_Gather(C, filasRep*N, MPI_DOUBLE, vacio, 0, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+}
+
 // funciones comunes
 void resolverOMP(double *A, double *B, double *C, int filas, int cols, int N){
 		int i,j,k;
@@ -119,10 +143,10 @@ void resolverOMP(double *A, double *B, double *C, int filas, int cols, int N){
 		}
 }
 
-void saludar(){
+void saludar(int rank){
 		#pragma omp parallel 
 		{
-			printf("Hola desde hilo %d\n", omp_get_thread_num());
+			printf("Hola desde rank %d, hilo %d\n", rank, omp_get_thread_num());
 		}
 }
 
