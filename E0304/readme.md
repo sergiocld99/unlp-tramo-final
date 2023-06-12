@@ -33,6 +33,8 @@ G = K (s - 1/3) / 5s (s + 2/3)
 
 Polos en origen y s = -2/3, cero en 1/3, entonces n - m = 1
 
+![](FIG2.png)
+
 Calculando el ángulo de la asíntota: +-180° (es 1 sola)
 * Entonces el cero del infinito está en menos infinito.
 
