@@ -1,5 +1,17 @@
 A no decaer!
 
+## Error y Seguimiento
+Ver minuto 11 para diferencia entre error de estado estacionario y error de seguimiento
+
+## LdR
+Muestra como cambia la ubicación de los polos según la ganancia K elegida (a lazo cerrado).
+
+Para encontrar los puntos de fuga (PF), despejo K y la derivo respecto a "s". Descarto los resultados complejos y los que no me den en los tramos de lugar de raíces.
+
+Mediante Routh puedo encontrar la ganancia K donde el sistema pasa a ser inestable (Kc), a partir de la cantidad de cambios de signos que se pueden dar en la primera columna.
+
+Si reemplazo K=Kc en la ec. característica, encontraremos raíces imaginarias puras (valores de frontera).
+
 ## MatLab
 ```sisotool``` para entrar al Control System Bode Editor
 
