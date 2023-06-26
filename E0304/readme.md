@@ -65,3 +65,8 @@ Dentro del sisotool, si hago click derecho sobre la respuesta temporal (Step Res
 
 ![image](https://github.com/sergiocarp10/unlp-tramo-final/assets/66924320/18e18ea1-f778-4735-945c-94debcfa1ae8)
 
+Para agregar ceros o polos donde quiero, puedo usar el editor de LDR.
+
+![image](https://github.com/sergiocarp10/unlp-tramo-final/assets/66924320/9bc17d3e-7d5e-42ed-9f25-9166de215db0)
+
+El centroide (lugar del eje real donde cortan todas las asíntotas), puede ser cualquiera. Sin embargo, los puntos de fuga o quiebre, solo pueden existir en un lugar que ya marqué como lugar de raíces.
