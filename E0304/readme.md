@@ -59,3 +59,9 @@ Calculando Routh...
 ```
 
 ![](fig3.png)
+
+## Clase 26 de Junio
+Dentro del sisotool, si hago click derecho sobre la respuesta temporal (Step Response) > Characteristics, puedo conocer el sobrepico y el tiempo de establecimiento si los polos son complejos conjugados.
+
+![image](https://github.com/sergiocarp10/unlp-tramo-final/assets/66924320/18e18ea1-f778-4735-945c-94debcfa1ae8)
+
