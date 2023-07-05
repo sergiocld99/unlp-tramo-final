@@ -23,10 +23,34 @@ fn main() {
     println!();
 
     // ahora de forma paralela
-    let t = thread::spawn(|| {
+    // idea: distribuir trabajo por filas (elementos de arr1)
+    let t0 = thread::spawn(move || {
         // esto es una función anonima
-        println!("Hola desde thread");
+        local_cross_product(arr1, arr2, 0)
     });
 
-    t.join().unwrap();
+    let t1 = thread::spawn(move || {
+        // esto es una función anonima
+        local_cross_product(arr1, arr2, 1)
+    });
+
+    t0.join().unwrap();
+    t1.join().unwrap();
+}
+
+fn local_cross_product(arr1: [i32; 4], arr2: [i32; 4], id: u32){
+    let mut local_results: Vec<i32> = Vec::new();
+        let ini = if id == 0 {0} else {arr1.len() / 2};
+        let fin = if id == 0 {arr1.len() / 2} else {arr1.len()};
+
+        for i1 in ini..fin {
+            for j1 in 0..arr2.len() {
+                let aux = arr1[i1] * arr2[j1];
+                local_results.push(aux);
+            }
+        }
+
+        for k1 in local_results.iter() {
+            print!("{}, ", k1);
+        }
 }
