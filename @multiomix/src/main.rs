@@ -1,3 +1,6 @@
+use std::thread;
+
+
 fn main() {
     println!("Hello, world!");
 
@@ -14,6 +17,16 @@ fn main() {
     }
 
     for k in results.iter() {
-        println!("{}", k)
+        print!("{}, ", k)
     }
+
+    println!();
+
+    // ahora de forma paralela
+    let t = thread::spawn(|| {
+        // esto es una función anonima
+        println!("Hola desde thread");
+    });
+
+    t.join().unwrap();
 }
