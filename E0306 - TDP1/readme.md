@@ -13,5 +13,12 @@ In Main tab, select Firmware_v3 as Project and the ELF file as C/C++ Application
 
 In Debugger tab, find openocd.exe on tools\openocd\bin folder for the Executable Path, and set ```-f scripts/openocd/lpc4337.cfg``` in Config Options. Then below in GDB Client Setup, find arm-none-eabi-gdb.exe on tools\arm-none-eabi-gcc\bin folder for the Executable name.
 
+# Select program
+Modify program.mk file from project root folder. If that file doesn't exists, you can modify the Makefile as it follows:
+
+![image](https://github.com/sergiocarp10/unlp-tramo-final/assets/66924320/c80a27c6-78e0-4e6a-b980-b275aa8621ec)
+
+Then, build the project (hammer icon) and go to Run > Debug Configurations > C/C++ Application > Browse, and select the .elf file target
+
 # Hide errors
 Go to Project > Properties > C/C++ General > Code Analysis > Syntax and Semantic Errors. Untick the "Symbol is not resolved" option
