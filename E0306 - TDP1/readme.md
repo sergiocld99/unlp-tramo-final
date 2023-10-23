@@ -22,3 +22,8 @@ Then, build the project (hammer icon) and go to Run > Debug Configurations > C/C
 
 # Hide errors
 Go to Project > Properties > C/C++ General > Code Analysis > Syntax and Semantic Errors. Untick the "Symbol is not resolved" option
+
+# Troubleshoot
+C compilers PATH variables are not mandatory to compile the project.
+
+![image](https://github.com/sergiocarp10/unlp-tramo-final/assets/66924320/3975d30b-23eb-4abd-9ac2-f771667977fd)
