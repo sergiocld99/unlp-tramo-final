@@ -19,6 +19,17 @@ Luego, se construye el modelo con un nombre nuevo vía Make Package. Ahora, en l
 
 Por último, en el PCB Layout, en Component Mode colocar el componente actualizado. Debería aparecer el modelo nuevo.
 
+## Desde plantilla ejemplo
+Si copiaste directamente el PCB Layout de Ejemplo Proyecto PCB en tu proyecto de Proteus, podemos actualizar los modelos sin perder sus ubicaciones (coordenadas) exactas. Caso conector:
+
+1. Clic secundario sobre los pads > Copy to Clipboard
+2. Pegarlo fuera del poncho, para editarlo libremente.
+3. Decompose, editarlo y Make Package, bajo un nuevo nombre.
+4. Ir al esquemático, clic secundario en componente > Packaging Tool > ... los pasos que ya sabés
+5. Volver al PCB Layout > Component Mode > posicionarlo sobre el conector viejo (el que está en el poncho, no afuera)
+
+Listo! De esta forma se reemplazó el modelo anterior con el nuevo que creaste. Podés borrar el que quedó afuera sin miedo
+
 ## Troubleshoot
 Los íconos de herramientas PCB no aparecen...
 
